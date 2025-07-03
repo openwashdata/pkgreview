@@ -1,0 +1,27 @@
+dim,sub_dim,check_revised
+General Information & Metadata,Package Name,"Package name follows openwashdata conventions, is clear, concise, and indicative of the data's content"
+General Information & Metadata,Description,Description field in the DESCRIPTION file informative and accurate
+General Information & Metadata,License,CC-BY or CC0 license is specified
+General Information & Metadata,Author/Maintainer,Author(s) and maintainer are clearly identified with contact information
+General Information & Metadata,Website,Data package renders to website published on GitHub Pages
+Data Content & Quality,Data Completeness,Missing values are handled appropriately
+Data Content & Quality,Data Accuracy,No data entry errors or inconsistencies
+Data Content & Quality,Data Size,"Data size is appropriate for an R Package (i.e., not excessively large, potentially requiring external download)"
+Data Content & Quality,Data Format,"Processed, analysis-ready data follows tidy data principles (https://tidyr.tidyverse.org/articles/tidy-data.html#defining)"
+Data Content & Quality,Variable Names,"Variable names in processed, analysis-ready data follows snake_case convention"
+Data Content & Quality,Variable Types,"Variable types are appropriate (e.g.  factors for categorical with ordinal scale, double for continuous numeric data, integer for continuous discrete data, Date for dates)?"
+Data Content & Quality,Unique Identifiers,Unique identifiers are unique where expected
+Data Processing,,No commented out code
+Data Processing,,No blank spaces in file names
+Data Processing,,No obsolete files
+Data Processing,,No unexplained acronyms and no weird numbers in variable names
+Documentation,README.Rmd,"Contains a one paragraph, 3 to 5 sentences long introduction"
+Documentation,README.Rmd,"Each data visualisation has edited human-readable labels (e.g. axis labels, legend title)."
+Documentation,README.Rmd,Each data visualisation is described in the narrative.
+Documentation,README.Rmd,"Citation section information is complete with author, year, title, DOI and website URL"
+Documentation,Data Documentation (.Rd files),All datasets are documented with .Rd files
+Documentation,Data Documentation (.Rd files),".Rd files include a clear title, description, usage examples, and description of each variable"
+Documentation,Data Documentation (.Rd files),"Data structures (e.g., number of rows/columns) and types clearly described"
+Documentation,Codebook/Data Dictionary,Each data visualisation is cross-referenced in the narrative using the defined label from the code-chunk options.
+Documentation,CITATION.cff,Package version in CITATION.cff file is updated to the latest release on GitHub.
+Documentation,Checks,"devtools::check() shows no errors, warnings, notes"
