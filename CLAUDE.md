@@ -419,21 +419,19 @@ Claude: [Updates version, creates NEWS.md entry, tags release]
 
 When creating a release, Claude will:
 
-1. **Zenodo Sync Check-In**
-   - **PAUSE**: Ask user "Before proceeding with the release, please ensure the repository is synced on Zenodo. Have you synced the repo on Zenodo? (yes/no)"
-   - If yes, ask: "Please provide the DOI for this version (format: 10.5281/zenodo.XXXXXXX):"
-   - Store the DOI for use in citation updates
+1. **Pre-Release Zenodo Check**
+   - **PAUSE**: Ask user "Before proceeding, please ensure the repository is enabled/synced on Zenodo. Is Zenodo integration enabled for this repo? (yes/no)"
+   - If no: Direct user to enable at https://zenodo.org/account/settings/github/
 
 2. **Update Version**
    - Use `usethis::use_version()` to bump version in DESCRIPTION
    - Follow semantic versioning (major.minor.patch)
 
-3. **Update CITATION.cff**
+3. **Initial Citation Update**
    - Update version field to match new version
    - Update date-released to current date
-   - Run `washr::update_citation(doi = "10.5281/zenodo.XXXXXXX")` with provided DOI
+   - Run `washr::update_citation()` to sync all citation files
    - Verify version consistency across DESCRIPTION, CITATION, and CITATION.cff
-   - Ensure DOI is included in all citation formats
 
 4. **Update NEWS.md**
    - Use `usethis::use_news_md()` if NEWS.md doesn't exist
@@ -451,16 +449,25 @@ When creating a release, Claude will:
 
 5. **Commit Changes**
    - Commit with message: "Release version [version]"
-   - Include updates to DESCRIPTION, CITATION.cff (with DOI), and NEWS.md
+   - Include updates to DESCRIPTION, CITATION.cff, and NEWS.md
    - Push to main branch
 
 6. **Create GitHub Release**
    - Use `gh release create v[version]`
    - Include NEWS.md content as release notes
    - Tag the release commit
+   - **Zenodo automatically generates DOI after this step**
 
-7. **Update pkgdown Site**
-   - Rebuild site to include new version
+7. **Post-Release DOI Update**
+   - **PAUSE**: Ask user "GitHub release created! Please check Zenodo for the generated DOI and provide it (format: 10.5281/zenodo.XXXXXXX):"
+   - Add Zenodo badge to README.Rmd: `[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX)`
+   - Run `washr::update_citation(doi = "10.5281/zenodo.XXXXXXX")` with provided DOI
+   - Update all citation files to include DOI
+   - Commit with message: "Add Zenodo DOI to package"
+   - Push DOI updates to main
+
+8. **Update pkgdown Site**
+   - Rebuild site to include new version and DOI badge
    - Deploy updated documentation
 
 ### NEWS.md Format Guidelines
