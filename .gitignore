@@ -1,4 +1,21 @@
+# R specific
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
+*.Rproj.user
+
+# MacOS
+.DS_Store
+
+# Temporary files
+*~
+*.swp
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+
+# Build artifacts
+*.tar.gz
