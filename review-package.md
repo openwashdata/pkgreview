@@ -11,10 +11,35 @@
 
 When the user types `/review-package [package-name]`, execute the following:
 
-First, determine the package name:
+First, determine the package name and setup:
 ```bash
 PACKAGE_NAME=${1:-$(basename "$PWD")}
 ```
+
+#### Step 0: Setup CLAUDE.md for Package Review
+
+I'll download the latest CLAUDE.md file from the openwashdata review repository:
+
+```bash
+# Try to download the latest CLAUDE.md from the openwashdata pkgreview repository
+if curl -s -f -o CLAUDE.md https://raw.githubusercontent.com/openwashdata/pkgreview/main/CLAUDE.md; then
+    echo "✅ CLAUDE.md downloaded successfully"
+else
+    echo "⚠️ Failed to download CLAUDE.md from GitHub repository"
+    echo "📋 Continuing review without local CLAUDE.md file"
+fi
+```
+
+**Note**: Once the openwashdata/pkgreview repository is public, this will automatically download the latest review guide.
+
+**What CLAUDE.md provides:**
+- Complete review workflow (PLAN → CREATE → TEST → DEPLOY)
+- 5-issue structure with detailed checklists
+- GitHub CLI commands for project management
+- Build/test/check commands for R packages
+- Code style guidelines and standards
+- Package structure requirements
+- Quality criteria and best practices
 
 ## 📋 Starting OpenWashData Package Review
 
@@ -129,6 +154,15 @@ Running comprehensive package checks using commands from CLAUDE.md:
 ---
 
 ## Error Handling
+
+If CLAUDE.md download fails:
+⚠️ Failed to download CLAUDE.md from GitHub repository.
+
+**Fallback options:**
+1. Use cached version if available
+2. Manual download: `curl -o CLAUDE.md https://raw.githubusercontent.com/openwashdata/pkgreview/main/CLAUDE.md`
+3. Copy from local pkgreview repository: `cp /path/to/pkgreview/CLAUDE.md .`
+4. Continue review without local CLAUDE.md file
 
 If package not found:
 ❌ Package '$PACKAGE_NAME' not found in the current directory.

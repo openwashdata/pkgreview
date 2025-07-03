@@ -90,12 +90,19 @@ CURRENT_ISSUE=$(echo $CURRENT_BRANCH | grep -o '^[0-9]\+' || echo "unknown")
 ### `/review-package [package-name]`
 **Purpose**: Start comprehensive package review
 **Package Detection**: Uses current directory if no argument provided
+**Auto-Setup**: Downloads latest CLAUDE.md from GitHub repository
 **Usage**:
 ```bash
 cd /path/to/package
-/review-package                    # Uses current directory name
-/review-package specific-package   # Uses specified name
+/review-package                    # Uses current directory name + downloads CLAUDE.md
+/review-package specific-package   # Uses specified name + downloads CLAUDE.md
 ```
+
+**What happens automatically:**
+1. Downloads latest CLAUDE.md from `https://raw.githubusercontent.com/openwashdata/pkgreview/main/CLAUDE.md`
+2. Places CLAUDE.md in current package directory
+3. Provides comprehensive review guide for the package
+4. Starts the PLAN phase of review workflow
 
 ### `/review-status`
 **Purpose**: Check current review progress
@@ -130,7 +137,21 @@ git checkout 2-data-content-quality  # Issue #2 branch
 
 ## Best Practices
 
-### 1. Always Run from Package Root
+### 1. CLAUDE.md Auto-Download
+The `/review-package` command automatically downloads the latest CLAUDE.md file:
+
+```bash
+cd /path/to/package
+/review-package  # Downloads CLAUDE.md automatically
+```
+
+**Benefits:**
+- Always have the latest review standards
+- Package-specific review guide available locally
+- Complete workflow documentation in the package directory
+- No manual setup required
+
+### 2. Always Run from Package Root
 ```bash
 # ✅ Correct
 cd /path/to/openwashdata/data-repos/glaas
