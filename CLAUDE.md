@@ -419,17 +419,23 @@ Claude: [Updates version, creates NEWS.md entry, tags release]
 
 When creating a release, Claude will:
 
-1. **Update Version**
+1. **Zenodo Sync Check-In**
+   - **PAUSE**: Ask user "Before proceeding with the release, please ensure the repository is synced on Zenodo. Have you synced the repo on Zenodo? (yes/no)"
+   - If yes, ask: "Please provide the DOI for this version (format: 10.5281/zenodo.XXXXXXX):"
+   - Store the DOI for use in citation updates
+
+2. **Update Version**
    - Use `usethis::use_version()` to bump version in DESCRIPTION
    - Follow semantic versioning (major.minor.patch)
 
-2. **Update CITATION.cff**
+3. **Update CITATION.cff**
    - Update version field to match new version
    - Update date-released to current date
-   - Run `washr::update_citation()` to sync all citation files
+   - Run `washr::update_citation(doi = "10.5281/zenodo.XXXXXXX")` with provided DOI
    - Verify version consistency across DESCRIPTION, CITATION, and CITATION.cff
+   - Ensure DOI is included in all citation formats
 
-3. **Update NEWS.md**
+4. **Update NEWS.md**
    - Use `usethis::use_news_md()` if NEWS.md doesn't exist
    - Add new version section with release date
    - Include summary of changes from recent commits/PRs
@@ -443,17 +449,17 @@ When creating a release, Claude will:
    * Enhanced documentation (#3)
    ```
 
-4. **Commit Changes**
+5. **Commit Changes**
    - Commit with message: "Release version [version]"
-   - Include updates to DESCRIPTION, CITATION.cff, and NEWS.md
+   - Include updates to DESCRIPTION, CITATION.cff (with DOI), and NEWS.md
    - Push to main branch
 
-5. **Create GitHub Release**
+6. **Create GitHub Release**
    - Use `gh release create v[version]`
    - Include NEWS.md content as release notes
    - Tag the release commit
 
-6. **Update pkgdown Site**
+7. **Update pkgdown Site**
    - Rebuild site to include new version
    - Deploy updated documentation
 

@@ -14,31 +14,37 @@ Create a new release for an openwashdata R package with proper versioning and ch
 
 ## Process
 
-1. **Version Update**
+1. **Zenodo Check-In**
+   - **STOP**: "Before proceeding with the release, please ensure the repository is synced on Zenodo. Have you synced the repo on Zenodo? (yes/no)"
+   - If yes: "Please provide the DOI for this version (format: 10.5281/zenodo.XXXXXXX):"
+   - Store DOI for citation update
+
+2. **Version Update**
    - Updates DESCRIPTION file with new version
    - Uses `usethis::use_version()` for proper version bumping
 
-2. **Citation Update**
+3. **Citation Update**
    - Updates CITATION.cff with new version and release date
-   - Runs `washr::update_citation()` to sync citations
+   - Runs `washr::update_citation(doi = "10.5281/zenodo.XXXXXXX")` with provided DOI
    - Ensures version consistency across all citation files
+   - Adds Zenodo DOI to all citation formats
 
-3. **Changelog Management**
+4. **Changelog Management**
    - Creates/updates NEWS.md using tidyverse conventions
    - Adds release section with date and changes
    - Pulls information from recent commits and closed issues
 
-4. **Git Operations**
+5. **Git Operations**
    - Commits version, CITATION.cff, and NEWS.md changes
    - Creates annotated tag for the version
    - Pushes to main branch
 
-5. **GitHub Release**
+6. **GitHub Release**
    - Creates GitHub release using `gh release create`
    - Uses NEWS.md content as release notes
    - Attaches appropriate assets
 
-6. **Documentation Update**
+7. **Documentation Update**
    - Rebuilds pkgdown site
    - Deploys updated documentation
 
@@ -61,4 +67,5 @@ This will:
 - All changes merged to main branch
 - No uncommitted changes
 - Valid semantic version number
-- R with usethis package installed
+- R with usethis and washr packages installed
+- Repository connected to Zenodo for DOI generation
