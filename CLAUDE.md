@@ -19,12 +19,14 @@ When initiated via `/review-package [package-name]`, Claude will:
    - Check for required directories: R/, data/, data-raw/, inst/extdata/, man/
    - Confirm presence of key files: DESCRIPTION, README.Rmd, _pkgdown.yml
 
-2. **Create Review Issues** (5 GitHub issues)
-   - Issue 1: General Information & Metadata
-   - Issue 2: Data Content & Quality  
-   - Issue 3: Data Processing Script Review
-   - Issue 4: Documentation
-   - Issue 5: Tests & CI/CD
+2. **Create Review Issues** (5 GitHub issues with checklists)
+   - Issue 1: General Information & Metadata (with checklist)
+   - Issue 2: Data Content & Quality (with checklist)
+   - Issue 3: Data Processing Script Review (with checklist)
+   - Issue 4: Documentation (with checklist)
+   - Issue 5: Tests & CI/CD (with checklist)
+   
+   Each issue must be created with a checklist that Claude will update as items are completed.
 
 3. **Present Review Plan**
    - Summary of findings
@@ -48,6 +50,9 @@ After user approval, work on issues ONE AT A TIME.
 **CRITICAL**: Claude MUST NOT automatically continue to the next issue. The workflow STOPS after creating each PR.
 
 #### Issue 1: General Information & Metadata
+
+**Claude must check off items as completed and update the issue**
+
 - [ ] DESCRIPTION file completeness
   - Title (descriptive, <65 characters)
   - Description (clear purpose statement)
@@ -105,10 +110,28 @@ After user approval, work on issues ONE AT A TIME.
 1. Present planned changes and request user confirmation before implementing
 2. Create a feature branch from `dev` (e.g., `issue-1-metadata`)
 3. Implement all changes for this specific issue only
-4. Commit changes with message like "Fix Issue #1: Update metadata"
-5. Create PR using: `gh pr create --base dev --title "Fix Issue #1: [Description]" --body "Addresses Issue #1"`
-6. **STOP IMMEDIATELY** - Output: "PR created for Issue #1. Please review and merge, then run `/review-issue 2` to continue."
-7. **DO NOT PROCEED** to any other issue
+4. Update the GitHub issue to check off completed items:
+   - Use `gh issue view [number]` to get current issue body
+   - Update checkboxes from `- [ ]` to `- [x]` for completed items
+   - Use `gh issue edit [number] --body "[updated body]"` to save
+5. Commit changes with message like "Fix Issue #1: Update metadata"
+6. Create PR with detailed summary:
+   ```
+   gh pr create --base dev --title "Fix Issue #1: [Description]" \
+   --body "## Summary
+   Addresses Issue #[number]
+   
+   ## Changes Made
+   - [Specific changes]
+   
+   ## Completed Checklist Items
+   - [x] Item 1
+   - [x] Item 2
+   
+   Closes #[number]"
+   ```
+7. **STOP IMMEDIATELY** - Output: "✅ PR created for Issue #1. Issue checklist updated. Please review and merge, then run `/review-issue 2` to continue."
+8. **DO NOT PROCEED** to any other issue
 
 ### 3. TEST Phase
 
@@ -245,13 +268,29 @@ Common dependencies for data packages:
 When working on each issue via `/review-issue [number]`:
 
 1. **Branch** - Create feature branch from dev: `git checkout -b issue-[number]-description`
-2. **Analyze** - Review the specific issue requirements
+2. **Analyze** - Review the specific issue requirements and checklist items
 3. **Implement** - Make ONLY the changes required for this issue
 4. **Test** - Verify changes work correctly
-5. **Commit** - Create descriptive commit: `git commit -m "Fix Issue #[number]: [description]"`
-6. **Push** - Push branch: `git push -u origin issue-[number]-description`
-7. **Create PR** - ALWAYS against dev: `gh pr create --base dev --title "Fix Issue #[number]: [description]" --body "Addresses Issue #[number]"`
-8. **STOP COMPLETELY** - Output final message and cease all activity
+5. **Update Issue** - Check off completed items in the issue checklist using: `gh issue edit [number] --body "[updated body with checked items]"`
+6. **Commit** - Create descriptive commit: `git commit -m "Fix Issue #[number]: [description]"`
+7. **Push** - Push branch: `git push -u origin issue-[number]-description`
+8. **Create PR** - ALWAYS against dev with detailed body:
+   ```
+   gh pr create --base dev --title "Fix Issue #[number]: [description]" --body "## Summary
+   Addresses Issue #[number]
+   
+   ## Changes Made
+   - [List specific changes made]
+   - [Include which checklist items were completed]
+   
+   ## Checklist
+   - [x] Item 1 completed
+   - [x] Item 2 completed
+   - [ ] Item 3 (if not completed, explain why)
+   
+   Closes #[number]"
+   ```
+9. **STOP COMPLETELY** - Output final message and cease all activity
 
 **CRITICAL STOPPING BEHAVIOR**:
 - After creating the PR, Claude MUST output: "✅ PR created for Issue #[number]. Please review and merge to dev, then run `/review-issue [next-number]` to continue with the next issue."
@@ -266,19 +305,21 @@ When working on each issue via `/review-issue [number]`:
 User: /review-issue 1
 Claude: [Creates branch issue-1-metadata]
         [Makes changes to DESCRIPTION, CITATION.cff]
+        [Updates Issue #1 checkboxes using gh issue edit]
         [Commits and pushes]
-        [Creates PR to dev]
-        "✅ PR created for Issue #1. Please review and merge to dev, then run `/review-issue 2` to continue with the next issue."
+        [Creates PR to dev with detailed body listing completed items]
+        "✅ PR created for Issue #1. Issue checklist updated. Please review and merge to dev, then run `/review-issue 2` to continue with the next issue."
         [STOPS COMPLETELY]
 
-[User reviews PR #1, merges to dev]
+[User reviews PR #1, sees which items were checked off, merges to dev]
 
 User: /review-issue 2
 Claude: [Creates branch issue-2-data-quality from updated dev]
         [Checks data files, runs quality checks]
+        [Updates Issue #2 checkboxes for completed items]
         [Commits and pushes]
-        [Creates PR to dev]
-        "✅ PR created for Issue #2. Please review and merge to dev, then run `/review-issue 3` to continue with the next issue."
+        [Creates PR to dev with summary of checks performed]
+        "✅ PR created for Issue #2. Issue checklist updated. Please review and merge to dev, then run `/review-issue 3` to continue with the next issue."
         [STOPS COMPLETELY]
 
 [Repeat for all 5 issues]
