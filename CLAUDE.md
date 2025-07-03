@@ -423,7 +423,13 @@ When creating a release, Claude will:
    - Use `usethis::use_version()` to bump version in DESCRIPTION
    - Follow semantic versioning (major.minor.patch)
 
-2. **Update NEWS.md**
+2. **Update CITATION.cff**
+   - Update version field to match new version
+   - Update date-released to current date
+   - Run `washr::update_citation()` to sync all citation files
+   - Verify version consistency across DESCRIPTION, CITATION, and CITATION.cff
+
+3. **Update NEWS.md**
    - Use `usethis::use_news_md()` if NEWS.md doesn't exist
    - Add new version section with release date
    - Include summary of changes from recent commits/PRs
@@ -437,16 +443,17 @@ When creating a release, Claude will:
    * Enhanced documentation (#3)
    ```
 
-3. **Commit Changes**
+4. **Commit Changes**
    - Commit with message: "Release version [version]"
+   - Include updates to DESCRIPTION, CITATION.cff, and NEWS.md
    - Push to main branch
 
-4. **Create GitHub Release**
+5. **Create GitHub Release**
    - Use `gh release create v[version]`
    - Include NEWS.md content as release notes
    - Tag the release commit
 
-5. **Update pkgdown Site**
+6. **Update pkgdown Site**
    - Rebuild site to include new version
    - Deploy updated documentation
 
