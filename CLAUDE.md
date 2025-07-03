@@ -109,13 +109,19 @@ After user approval, work on issues ONE AT A TIME.
 **MANDATORY PROCESS FOR EACH ISSUE**: 
 1. Present planned changes and request user confirmation before implementing
 2. Create a feature branch from `dev` (e.g., `issue-1-metadata`)
-3. Implement all changes for this specific issue only
-4. Update the GitHub issue to check off completed items:
+3. Implement changes with regular check-ins:
+   - **For each checklist item or major change:**
+     - Announce the specific change
+     - Implement it
+     - Show the result
+     - **CHECK-IN**: "Ready to commit this change? (commit/continue)"
+     - If "commit": Create atomic commit for this change
+4. Run tests after all changes
+5. Update the GitHub issue to check off completed items:
    - Use `gh issue view [number]` to get current issue body
    - Update checkboxes from `- [ ]` to `- [x]` for completed items
    - Use `gh issue edit [number] --body "[updated body]"` to save
-5. Commit changes with message like "Fix Issue #1: Update metadata"
-6. Create PR with detailed summary:
+6. Create PR with detailed summary including all commits:
    ```
    gh pr create --base dev --title "Fix Issue #1: [Description]" \
    --body "## Summary
@@ -272,12 +278,35 @@ Common dependencies for data packages:
 When working on each issue via `/review-issue [number]`:
 
 1. **Branch** - Create feature branch from dev: `git checkout -b issue-[number]-description`
+
 2. **Analyze** - Review the specific issue requirements and checklist items
-3. **Implement** - Make ONLY the changes required for this issue
-4. **Test** - Verify changes work correctly
-5. **Update Issue** - Check off completed items in the issue checklist using: `gh issue edit [number] --body "[updated body with checked items]"`
-6. **Commit** - Create descriptive commit: `git commit -m "Fix Issue #[number]: [description]"`
+   - Present analysis of what needs to be done
+   - **CHECK-IN #1**: "Here's what I found. Should I proceed with these changes? (yes/no)"
+
+3. **Implement Changes in Stages**
+   - For each major change or checklist item:
+     a. Announce what you're about to do
+     b. Make the change
+     c. Show the result
+     d. **CHECK-IN**: "Change completed. Ready to commit? Type 'commit' to save this change, or 'continue' to make more changes."
+     e. If user says "commit": Run `git add -A && git commit -m "Description of this specific change"`
+   - Repeat for each significant change
+
+4. **Test** - After all changes, verify everything works
+   - Run relevant tests (devtools::check(), build_readme(), etc.)
+   - **CHECK-IN**: "All tests passed. Ready to finalize? (yes/no)"
+
+5. **Update Issue** - Check off completed items in the issue checklist
+   - Use `gh issue view [number]` to get current issue body
+   - Update checkboxes from `- [ ]` to `- [x]` for completed items
+   - Use `gh issue edit [number] --body "[updated body]"` to save
+   - **CHECK-IN**: "Issue checklist updated. Ready to create PR? (yes/no)"
+
+6. **Final Commit** (if any uncommitted changes)
+   - `git add -A && git commit -m "Final updates for Issue #[number]"`
+
 7. **Push** - Push branch: `git push -u origin issue-[number]-description`
+
 8. **Create PR** - ALWAYS against dev with detailed body:
    ```
    gh pr create --base dev --title "Fix Issue #[number]: [description]" --body "## Summary
@@ -287,6 +316,9 @@ When working on each issue via `/review-issue [number]`:
    - [List specific changes made]
    - [Include which checklist items were completed]
    
+   ## Commits in this PR
+   - [List each commit message]
+   
    ## Checklist
    - [x] Item 1 completed
    - [x] Item 2 completed
@@ -294,6 +326,7 @@ When working on each issue via `/review-issue [number]`:
    
    Closes #[number]"
    ```
+
 9. **STOP COMPLETELY** - Output final message and cease all activity
 
 **CRITICAL STOPPING BEHAVIOR**:
@@ -303,27 +336,75 @@ When working on each issue via `/review-issue [number]`:
 - Claude MUST NOT start working on the next issue
 - The conversation effectively ends until the user explicitly restarts with `/review-issue [next-number]`
 
+## Check-In Points and Commit Strategy
+
+**Claude MUST pause at these check-in points:**
+
+1. **Initial Analysis Check-In**
+   - After analyzing the issue requirements
+   - Before making any changes
+   - Ask: "Here's what I plan to do: [list]. Should I proceed? (yes/no)"
+
+2. **Per-Change Check-Ins**
+   - After EACH significant change (e.g., each checklist item)
+   - Show what was changed
+   - Ask: "Ready to commit this change? (commit/continue)"
+   - If "commit": Create atomic commit with descriptive message
+
+3. **Test Results Check-In**
+   - After running tests
+   - Show test results
+   - Ask: "All tests passed. Ready to finalize? (yes/no)"
+
+4. **Pre-PR Check-In**
+   - After updating issue checkboxes
+   - Before creating PR
+   - Ask: "Issue updated. Ready to create PR? (yes/no)"
+
+**Commit Guidelines:**
+- Each commit should be atomic (one logical change)
+- Use descriptive commit messages
+- Multiple small commits are preferred over one large commit
+- Example messages:
+  - "Update DESCRIPTION title and description"
+  - "Add ORCID IDs to authors"
+  - "Configure CC BY 4.0 license"
+  - "Generate CITATION with washr::compile_citation()"
+
 ## Example Issue-by-Issue Workflow
 
 ```
 User: /review-issue 1
 Claude: [Creates branch issue-1-metadata]
-        [Makes changes to DESCRIPTION, CITATION.cff]
-        [Updates Issue #1 checkboxes using gh issue edit]
-        [Commits and pushes]
-        [Creates PR to dev with detailed body listing completed items]
-        "✅ PR created for Issue #1. Issue checklist updated. Please review and merge to dev, then run `/review-issue 2` to continue with the next issue."
-        [STOPS COMPLETELY]
-
-[User reviews PR #1, sees which items were checked off, merges to dev]
-
-User: /review-issue 2
-Claude: [Creates branch issue-2-data-quality from updated dev]
-        [Checks data files, runs quality checks]
-        [Updates Issue #2 checkboxes for completed items]
-        [Commits and pushes]
-        [Creates PR to dev with summary of checks performed]
-        "✅ PR created for Issue #2. Issue checklist updated. Please review and merge to dev, then run `/review-issue 3` to continue with the next issue."
+        "I'll work on Issue #1: General Information & Metadata. Here's what needs to be done:
+        - Update DESCRIPTION file
+        - Fix CITATION.cff
+        - Generate citation with washr
+        
+        Should I proceed? (yes/no)"
+        
+User: yes
+Claude: "Starting with DESCRIPTION file updates..."
+        [Shows DESCRIPTION changes]
+        "✅ DESCRIPTION updated. Ready to commit? (commit/continue)"
+        
+User: commit
+Claude: [Commits: "Update DESCRIPTION file metadata"]
+        "Now working on CITATION.cff..."
+        [Shows CITATION.cff changes]
+        "✅ CITATION.cff created. Ready to commit? (commit/continue)"
+        
+User: commit
+Claude: [Commits: "Add CITATION.cff file"]
+        "Running washr::compile_citation()..."
+        [Shows result]
+        "✅ Citation compiled. Ready to commit? (commit/continue)"
+        
+User: commit
+Claude: [Commits: "Generate CITATION with washr"]
+        [Updates Issue #1 checkboxes]
+        [Creates PR with 3 commits listed]
+        "✅ PR created for Issue #1 with 3 commits. Issue checklist updated. Please review and merge to dev, then run `/review-issue 2` to continue."
         [STOPS COMPLETELY]
 
 [Repeat for all 5 issues]
