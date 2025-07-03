@@ -90,14 +90,7 @@ After user approval, work on issues ONE AT A TIME.
   - Variable dictionary table
   - License and citation sections
 - [ ] Roxygen documentation for all exported functions
-- [ ] _pkgdown.yml configured with:
-  ```yaml
-  template:
-    bootstrap: 5
-    includes:
-      in_header: |
-        <script defer data-domain="openwashdata.github.io" src="https://plausible.io/js/script.js"></script>
-  ```
+- [ ] _pkgdown.yml configured with standard openwashdata template
 - [ ] Package website builds without errors
 
 #### Issue 5: Tests & CI/CD
@@ -193,7 +186,7 @@ package-name/
 ├── README.md
 ├── NEWS.md                   # Package changelog
 ├── CITATION.cff
-├── _pkgdown.yml
+├── _pkgdown.yml              # Standard openwashdata configuration
 ├── .Rbuildignore
 └── .github/
     └── workflows/
@@ -513,6 +506,54 @@ Example NEWS.md structure:
 - Build Roxygen2 documentation: `R -e "devtools::document()"`
 - Build vignettes: `R -e "devtools::build_vignettes()"`
 - Build README.md from README.Rmd: `R -e "devtools::build_readme()"`
+
+## Standard _pkgdown.yml Configuration
+
+All openwashdata packages must use the following standard _pkgdown.yml configuration (replace `packagename` with actual package name):
+
+```yaml
+url: https://github.com/openwashdata/packagename
+template:
+  bootstrap: 5
+  includes:
+    in_header: |
+      <script defer data-domain="openwashdata.github.io" src="https://plausible.io/js/script.js"></script>
+
+home:
+  links:
+    - icon: github
+      text: GitHub repository
+      href: https://github.com/openwashdata/packagename
+  sidebar:
+    structure: [links, citation, authors, dev, custom]
+    components:
+      custom:
+        title: Funding
+        text: This project was funded by the [Open Research Data Program of the ETH Board](https://ethrat.ch/en/eth-domain/open-research-data/).
+
+authors:
+  footer:
+    roles: [cre, fnd]
+    text: "Crafted by"
+  sidebar:
+    roles: [cre, aut, ctb]
+    before: "So *who* does the work?"
+    after: "Thanks all!"
+
+reference:
+- title: "Data"
+  desc: "Access the packagename dataset"
+  contents:
+  - packagename
+```
+
+**Key elements:**
+- URL must point to the correct GitHub repository
+- Bootstrap 5 theme required
+- Plausible analytics script in header
+- Consistent sidebar structure with funding acknowledgment
+- Standard author role display
+- Reference section for data access function
 
 ## Code Style Guidelines
 
