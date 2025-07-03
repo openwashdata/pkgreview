@@ -154,6 +154,7 @@ Verify:
 2. Verify Plausible analytics tracking
 3. Confirm all changes are committed
 4. Approve PR merge to main branch
+5. Create release using `/create-release` command
 
 ## Key Standards
 
@@ -184,6 +185,7 @@ package-name/
 │   └── validation.R
 ├── README.Rmd
 ├── README.md
+├── NEWS.md                   # Package changelog
 ├── CITATION.cff
 ├── _pkgdown.yml
 ├── .Rbuildignore
@@ -235,6 +237,7 @@ Common dependencies for data packages:
 - janitor (data cleaning)
 - desc (DESCRIPTION parsing)
 - gt, kableExtra (table formatting)
+- usethis (development workflows, including NEWS.md and versioning)
 
 ### Quality Criteria
 1. **Reproducibility**: All data processing steps documented and runnable
@@ -262,6 +265,7 @@ Common dependencies for data packages:
 - `/review-status` - Check current review progress
 - `/review-issue [number]` - Work on specific issue (STOPS after creating PR)
 - `/review-complete` - After all issues merged to dev, create final PR to main
+- `/create-release [version]` - Create a new release with changelog
 
 ## Issue Resolution Workflow
 
@@ -327,6 +331,77 @@ Claude: [Creates branch issue-2-data-quality from updated dev]
 User: /review-complete
 Claude: [Creates final PR from dev to main]
         "✅ All issues resolved. Final PR created from dev to main for package review completion."
+
+[After PR merged to main]
+
+User: /create-release 0.1.0
+Claude: [Updates version, creates NEWS.md entry, tags release]
+        "✅ Release v0.1.0 created with changelog. Package published!"
+```
+
+## Release Management
+
+### Creating a Release with `/create-release [version]`
+
+When creating a release, Claude will:
+
+1. **Update Version**
+   - Use `usethis::use_version()` to bump version in DESCRIPTION
+   - Follow semantic versioning (major.minor.patch)
+
+2. **Update NEWS.md**
+   - Use `usethis::use_news_md()` if NEWS.md doesn't exist
+   - Add new version section with release date
+   - Include summary of changes from recent commits/PRs
+   - Format following tidyverse NEWS conventions:
+   ```markdown
+   # packagename 0.1.0
+
+   * Initial release to GitHub
+   * Added core functionality for X (#1)
+   * Fixed issue with Y (#2)
+   * Enhanced documentation (#3)
+   ```
+
+3. **Commit Changes**
+   - Commit with message: "Release version [version]"
+   - Push to main branch
+
+4. **Create GitHub Release**
+   - Use `gh release create v[version]`
+   - Include NEWS.md content as release notes
+   - Tag the release commit
+
+5. **Update pkgdown Site**
+   - Rebuild site to include new version
+   - Deploy updated documentation
+
+### NEWS.md Format Guidelines
+
+- Each version gets its own section with version number and date
+- Use bullet points for changes
+- Reference issue/PR numbers in parentheses
+- Group changes by type (new features, bug fixes, etc.)
+- Most recent version at the top
+- Follow tidyverse style guide for NEWS files
+
+Example NEWS.md structure:
+```markdown
+# washrkenya 0.2.0 (2024-01-15)
+
+## New features
+* Added support for temporal analysis (#12)
+* New vignette on data visualization (#15)
+
+## Bug fixes
+* Fixed encoding issues in region names (#10)
+* Corrected data type for population column (#11)
+
+# washrkenya 0.1.0 (2023-12-01)
+
+* Initial release
+* Basic data access functions
+* Documentation and examples
 ```
 
 ## Important Notes
