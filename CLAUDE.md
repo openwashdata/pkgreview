@@ -4,7 +4,9 @@ This guide helps Claude Code review R data packages for the openwashdata organiz
 
 ## Overview
 
-The review process follows a PLAN → CREATE → TEST → DEPLOY workflow triggered by a PR from dev to main branch. Each phase requires explicit user approval before proceeding.
+The review process follows a PLAN → CREATE → TEST → DEPLOY workflow. The entire review process starts with the package on the `dev` branch, and only after ALL issues are resolved will a final PR from dev to main be created. Each phase requires explicit user approval before proceeding.
+
+**CRITICAL WORKFLOW RULE**: Claude MUST stop after completing EACH individual issue. The user must manually restart Claude for the next issue.
 
 ## Review Workflow
 
@@ -31,7 +33,19 @@ When initiated via `/review-package [package-name]`, Claude will:
 
 ### 2. CREATE Phase
 
-After user approval, work through each issue systematically. **NOTE**: After addressing each issue, create a commit and PR, then STOP. User will manually initiate the next issue.
+After user approval, work on issues ONE AT A TIME. 
+
+**WORKFLOW FOR EACH ISSUE:**
+1. User runs `/review-issue [number]` to start work on a specific issue
+2. Claude creates a new branch from `dev` for this issue
+3. Claude implements all changes for this issue
+4. Claude commits changes with descriptive message
+5. Claude creates a PR **against the `dev` branch** (NOT main!)
+6. **CLAUDE MUST STOP COMPLETELY** - Do not proceed to next issue
+7. User reviews the PR, merges it to dev
+8. User manually restarts Claude with `/review-issue [next-number]` for the next issue
+
+**CRITICAL**: Claude MUST NOT automatically continue to the next issue. The workflow STOPS after creating each PR.
 
 #### Issue 1: General Information & Metadata
 - [ ] DESCRIPTION file completeness
@@ -87,10 +101,14 @@ After user approval, work through each issue systematically. **NOTE**: After add
 - [ ] Examples run successfully
 - [ ] Data loads correctly
 
-**For each issue**: 
+**MANDATORY PROCESS FOR EACH ISSUE**: 
 1. Present planned changes and request user confirmation before implementing
-2. After implementing changes, commit them and create a PR
-3. Stop and wait for user to review PR and initiate next issue
+2. Create a feature branch from `dev` (e.g., `issue-1-metadata`)
+3. Implement all changes for this specific issue only
+4. Commit changes with message like "Fix Issue #1: Update metadata"
+5. Create PR using: `gh pr create --base dev --title "Fix Issue #1: [Description]" --body "Addresses Issue #1"`
+6. **STOP IMMEDIATELY** - Output: "PR created for Issue #1. Please review and merge, then run `/review-issue 2` to continue."
+7. **DO NOT PROCEED** to any other issue
 
 ### 3. TEST Phase
 
@@ -202,24 +220,73 @@ Common dependencies for data packages:
 4. **Documentation**: Comprehensive variable descriptions and usage examples
 5. **Consistency**: Follows openwashdata naming and structure conventions
 
+## Branch and PR Strategy
+
+**Package Review Branch Structure:**
+- `main` - Production branch (protected)
+- `dev` - Development branch where all review work happens
+- `issue-[n]-description` - Feature branches for each issue (created from dev)
+
+**PR Flow:**
+1. Each issue gets its own PR from feature branch → dev
+2. User reviews and merges each issue PR to dev
+3. After ALL issues are resolved, create final PR from dev → main
+4. Never create PRs directly to main during the review process
+
 ## Commands
 
-- `/review-package [package-name]` - Start package review
+- `/review-package [package-name]` - Start package review (analyzes package and creates issues)
 - `/review-status` - Check current review progress
-- `/review-issue [number]` - Work on specific issue
-- `/review-pr` - Create pull request for current issue
+- `/review-issue [number]` - Work on specific issue (STOPS after creating PR)
+- `/review-complete` - After all issues merged to dev, create final PR to main
 
 ## Issue Resolution Workflow
 
 When working on each issue via `/review-issue [number]`:
 
-1. **Analyze** - Review the issue requirements
-2. **Implement** - Make necessary changes
-3. **Commit** - Create a descriptive commit
-4. **Create PR** - Use `gh pr create` to open a PR
-5. **Stop** - Wait for user to review PR and manually initiate next issue
+1. **Branch** - Create feature branch from dev: `git checkout -b issue-[number]-description`
+2. **Analyze** - Review the specific issue requirements
+3. **Implement** - Make ONLY the changes required for this issue
+4. **Test** - Verify changes work correctly
+5. **Commit** - Create descriptive commit: `git commit -m "Fix Issue #[number]: [description]"`
+6. **Push** - Push branch: `git push -u origin issue-[number]-description`
+7. **Create PR** - ALWAYS against dev: `gh pr create --base dev --title "Fix Issue #[number]: [description]" --body "Addresses Issue #[number]"`
+8. **STOP COMPLETELY** - Output final message and cease all activity
 
-**IMPORTANT**: Do not automatically proceed to the next issue. The workflow stops after creating the PR for each issue.
+**CRITICAL STOPPING BEHAVIOR**:
+- After creating the PR, Claude MUST output: "✅ PR created for Issue #[number]. Please review and merge to dev, then run `/review-issue [next-number]` to continue with the next issue."
+- Claude MUST NOT continue with any other tasks
+- Claude MUST NOT suggest next steps
+- Claude MUST NOT start working on the next issue
+- The conversation effectively ends until the user explicitly restarts with `/review-issue [next-number]`
+
+## Example Issue-by-Issue Workflow
+
+```
+User: /review-issue 1
+Claude: [Creates branch issue-1-metadata]
+        [Makes changes to DESCRIPTION, CITATION.cff]
+        [Commits and pushes]
+        [Creates PR to dev]
+        "✅ PR created for Issue #1. Please review and merge to dev, then run `/review-issue 2` to continue with the next issue."
+        [STOPS COMPLETELY]
+
+[User reviews PR #1, merges to dev]
+
+User: /review-issue 2
+Claude: [Creates branch issue-2-data-quality from updated dev]
+        [Checks data files, runs quality checks]
+        [Commits and pushes]
+        [Creates PR to dev]
+        "✅ PR created for Issue #2. Please review and merge to dev, then run `/review-issue 3` to continue with the next issue."
+        [STOPS COMPLETELY]
+
+[Repeat for all 5 issues]
+
+User: /review-complete
+Claude: [Creates final PR from dev to main]
+        "✅ All issues resolved. Final PR created from dev to main for package review completion."
+```
 
 ## Important Notes
 
