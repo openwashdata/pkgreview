@@ -31,7 +31,7 @@ When initiated via `/review-package [package-name]`, Claude will:
 
 ### 2. CREATE Phase
 
-After user approval, work through each issue systematically:
+After user approval, work through each issue systematically. **NOTE**: After addressing each issue, create a commit and PR, then STOP. User will manually initiate the next issue.
 
 #### Issue 1: General Information & Metadata
 - [ ] DESCRIPTION file completeness
@@ -87,7 +87,10 @@ After user approval, work through each issue systematically:
 - [ ] Examples run successfully
 - [ ] Data loads correctly
 
-**For each issue**: Present planned changes and request user confirmation before implementing.
+**For each issue**: 
+1. Present planned changes and request user confirmation before implementing
+2. After implementing changes, commit them and create a PR
+3. Stop and wait for user to review PR and initiate next issue
 
 ### 3. TEST Phase
 
@@ -131,6 +134,9 @@ package-name/
 │       ├── package-name.csv
 │       └── package-name.xlsx
 ├── man/
+├── vignettes/                # Optional vignettes directory
+│   └── articles/             # Always use articles/ subdirectory
+│       └── example.Rmd       # Keep all vignettes here
 ├── analysis/                 # Analysis and testing scripts (not built)
 │   ├── test_package.R
 │   ├── data_analysis.R
@@ -143,6 +149,23 @@ package-name/
 └── .github/
     └── workflows/
         └── R-CMD-check.yaml
+```
+
+### Vignettes Convention
+
+**IMPORTANT**: All vignettes must be stored in the `vignettes/articles/` subdirectory, not directly in `vignettes/`. This convention:
+- Ensures vignettes are rendered correctly by pkgdown
+- Keeps vignettes separate from package documentation
+- Prevents CRAN submission issues
+- Maintains consistency across openwashdata packages
+
+Example structure:
+```
+vignettes/
+└── articles/
+    ├── getting-started.Rmd
+    ├── data-analysis.Rmd
+    └── case-study.Rmd
 ```
 
 ### R Scripts for Reproducibility
@@ -185,6 +208,18 @@ Common dependencies for data packages:
 - `/review-status` - Check current review progress
 - `/review-issue [number]` - Work on specific issue
 - `/review-pr` - Create pull request for current issue
+
+## Issue Resolution Workflow
+
+When working on each issue via `/review-issue [number]`:
+
+1. **Analyze** - Review the issue requirements
+2. **Implement** - Make necessary changes
+3. **Commit** - Create a descriptive commit
+4. **Create PR** - Use `gh pr create` to open a PR
+5. **Stop** - Wait for user to review PR and manually initiate next issue
+
+**IMPORTANT**: Do not automatically proceed to the next issue. The workflow stops after creating the PR for each issue.
 
 ## Important Notes
 
