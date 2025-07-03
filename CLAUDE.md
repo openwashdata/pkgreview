@@ -61,6 +61,7 @@ After user approval, work through each issue systematically:
 - [ ] dictionary.csv with variable descriptions
 - [ ] Uses tidyverse conventions
 - [ ] Handles data cleaning transparently
+- [ ] Analysis and testing scripts preserved in analysis/ directory
 
 #### Issue 4: Documentation
 - [ ] README.Rmd follows openwashdata template:
@@ -130,14 +131,38 @@ package-name/
 │       ├── package-name.csv
 │       └── package-name.xlsx
 ├── man/
+├── analysis/                 # Analysis and testing scripts (not built)
+│   ├── test_package.R
+│   ├── data_analysis.R
+│   └── validation.R
 ├── README.Rmd
 ├── README.md
 ├── CITATION.cff
 ├── _pkgdown.yml
+├── .Rbuildignore
 └── .github/
     └── workflows/
         └── R-CMD-check.yaml
 ```
+
+### R Scripts for Reproducibility
+
+All R scripts used for testing, validation, and analysis during package development must be preserved in the repository for reproducibility purposes. These scripts should be stored in the `analysis/` directory at the package root level.
+
+#### Why `analysis/` directory:
+- **Not included** in the installed package (automatically ignored by R CMD build)
+- **Available** on GitHub for future reference and reproducibility
+- **Organized** separately from package code
+- **No configuration needed** - R automatically excludes top-level directories not recognized as package components
+
+#### Script Organization in `analysis/`:
+- `test_package.R` - Scripts for testing package functionality
+- `data_analysis.R` - Exploratory data analysis scripts  
+- `validation.R` - Data validation and quality checks
+- `comparison.R` - Scripts comparing different data versions
+- Any other analysis or utility scripts used during development
+
+This approach ensures all analysis work remains transparent and reproducible without affecting package installation or CRAN compliance.
 
 ### Package Dependencies
 Common dependencies for data packages:
