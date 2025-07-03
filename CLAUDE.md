@@ -61,7 +61,7 @@ After user approval, work on issues ONE AT A TIME.
   - Dependencies properly declared
   - Version follows semantic versioning
 - [ ] CITATION.cff file present and valid
-- [ ] Generate citation using `washr::compile_citation()`
+- [ ] Generate citation using `washr::update_citation()`
 
 #### Issue 2: Data Content & Quality
 - [ ] Data files in data/ directory (.rda format)
@@ -369,7 +369,7 @@ When working on each issue via `/review-issue [number]`:
   - "Update DESCRIPTION title and description"
   - "Add ORCID IDs to authors"
   - "Configure CC BY 4.0 license"
-  - "Generate CITATION with washr::compile_citation()"
+  - "Update CITATION with washr::update_citation()"
 
 ## Example Issue-by-Issue Workflow
 
@@ -396,12 +396,12 @@ Claude: [Commits: "Update DESCRIPTION file metadata"]
         
 User: commit
 Claude: [Commits: "Add CITATION.cff file"]
-        "Running washr::compile_citation()..."
+        "Running washr::update_citation()..."
         [Shows result]
-        "✅ Citation compiled. Ready to commit? (commit/continue)"
+        "✅ Citation updated. Ready to commit? (commit/continue)"
         
 User: commit
-Claude: [Commits: "Generate CITATION with washr"]
+Claude: [Commits: "Update CITATION with washr"]
         [Updates Issue #1 checkboxes]
         [Creates PR with 3 commits listed]
         "✅ PR created for Issue #1 with 3 commits. Issue checklist updated. Please review and merge to dev, then run `/review-issue 2` to continue."
