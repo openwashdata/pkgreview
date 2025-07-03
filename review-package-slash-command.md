@@ -32,7 +32,7 @@ I'll now analyze the `[package-name]` package structure and create a review plan
 
 #### Step 2: Creating Review Issues
 
-I'll create 5 review issues covering:
+I'll create 5 GitHub issues using `gh issue create` covering:
 
 **Issue #1: General Information & Metadata**
 - DESCRIPTION file review
@@ -81,17 +81,22 @@ The PLAN phase is complete. I've identified [X] issues that need attention.
 
 ## 🔧 CREATE Phase (After User Approval)
 
-I'll now work through each issue systematically. For each issue, I'll:
-1. Show you the planned changes
-2. Wait for your approval
-3. Implement the changes
+I'll now work through each issue systematically using GitHub CLI workflow:
 
 ### Working on Issue #1: General Information & Metadata
+
+**GitHub CLI Commands:**
+- `gh issue view 1` - View issue details
+- `gh issue develop 1` - Create branch for issue
+- `git checkout 1-general-information-metadata`
 
 **Planned changes:**
 [List specific changes]
 
 **Proceed with these changes?** (yes/no)
+
+After implementation:
+- `gh pr create --title "Fix general information & metadata" --body "Implements #1"`
 
 [Continue pattern for each issue...]
 
@@ -99,10 +104,11 @@ I'll now work through each issue systematically. For each issue, I'll:
 
 ## 🧪 TEST Phase
 
-Running comprehensive package checks:
-- `devtools::check()`
-- `devtools::build()`
-- `pkgdown::build_site()`
+Running comprehensive package checks using commands from CLAUDE.md:
+- `R -e "devtools::check()"` - Run R CMD check
+- `R CMD build .` - Build package
+- `R -e "pkgdown::build_site()"` - Build website
+- `R -e "devtools::test()"` - Run all tests
 
 **Test Results:**
 [Show results]
@@ -145,9 +151,30 @@ Jump to a specific issue in the review process.
 ```markdown
 ## 🎯 Reviewing Issue #[number]: [Issue Title]
 
+**GitHub CLI Commands:**
+- `gh issue view [number]` - View issue details
+- `gh issue develop [number]` - Create branch for issue
+
 [Show issue details and planned changes]
 
 **Ready to implement these changes?** (yes/no)
+```
+
+### `/review-pr`
+Create pull request for current issue.
+
+```markdown
+## 📤 Creating Pull Request
+
+**Current Issue**: #[number] - [Title]
+**Branch**: [number]-[issue-title-slug]
+
+**GitHub CLI Commands:**
+- `gh pr create --title "[PR Title]" --body "Implements #[number]"`
+- `gh pr list` - View all pull requests
+- `gh pr view [PR_NUMBER]` - View specific PR
+
+**PR created successfully!** Ready for review and merge.
 ```
 
 ## Error Handling

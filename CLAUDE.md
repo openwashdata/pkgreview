@@ -159,6 +159,7 @@ Common dependencies for data packages:
 - `/review-package [package-name]` - Start package review
 - `/review-status` - Check current review progress
 - `/review-issue [number]` - Work on specific issue
+- `/review-pr` - Create pull request for current issue
 
 ## Important Notes
 
