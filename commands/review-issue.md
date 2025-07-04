@@ -49,20 +49,83 @@ PACKAGE_NAME=$(basename "$PWD")
 {{#if issue-2}}
 **Issue #2: Data Content & Quality**
 
-**Checklist:**
-- [ ] Data files in data/ directory (.rda format)
-- [ ] CSV/XLSX exports in inst/extdata/
-- [ ] Main dataset accessible via function matching package name
-- [ ] Data quality checks:
-  - No unexpected missing values
-  - Consistent data types
-  - Reasonable value ranges
-  - Proper encoding (UTF-8)
+## Data Content & Quality Review Checklist
+
+### 1. File Structure
+
+- **[ ] All primary data files are present in `data/` and use `.rda` format.**
+- **[ ] All raw or exportable data files (CSV/XLSX) are in `inst/extdata/`.**
+- **[ ] No sensitive or personally identifiable information is present in any data file.**
+
+
+### 2. Data Quality Checks
+
+#### 2.1. Missing Values
+
+- **[ ] For each variable, report:**
+    - Number of missing values (`NA`)
+    - Percentage of missing values relative to total rows
+- **[ ] Confirm missing values are coded as `NA` (not as empty strings, "NULL", "N/A", etc.).**
+
+
+#### 2.2. Categorical Variables
+
+- **[ ] Prepare frequency tables for all categorical variables.**
+- **[ ] Identify and flag similar or misspelled string values (e.g., "male" vs "Male" vs "MALE").**
+- **[ ] For ordinal variables, confirm they are stored as `factor` with correct level order.**
+- **[ ] Remove unused factor levels.**
+
+
+#### 2.3. Date Variables
+
+- **[ ] All date variables are stored as `Date` class.**
+- **[ ] All dates are in `YYYY-MM-DD` format.**
+- **[ ] No impossible or out-of-range dates (e.g., future dates, 1900-01-01 for modern data).**
+
+
+#### 2.4. Numeric Variables
+
+- **[ ] All numeric variables are stored as `numeric` or `integer` class.**
+- **[ ] Check for reasonable value ranges (e.g., age between 0 and 120).**
+- **[ ] Identify and flag outliers using summary statistics (min, Q1, median, Q3, max).**
+- **[ ] No numeric values stored as character strings.**
+
+
+#### 2.5. Data Types \& Consistency
+
+- **[ ] All variables have consistent data types across all datasets.**
+- **[ ] No mixed types within a column (e.g., numbers and strings).**
+- **[ ] All column names are syntactically valid and consistent (e.g., snake_case).**
+
+
+#### 2.6. Encoding
+
+- **[ ] All text data is encoded in UTF-8.**
+- **[ ] No non-UTF-8 characters or encoding errors.**
+
+### 3. Files to Review
 
 **Files to Review:**
 - `data/*.rda`
-- `inst/extdata/*.csv`
-- `inst/extdata/*.xlsx`
+- `R/[package-name].R`
+
+### 4. Example Table: Data Quality Checks
+
+| Check | Tool/Function Example | Pass/Fail | Notes |
+| :-- | :-- | :-- | :-- |
+| Data files in `data/` (.rda) | `list.files("data/", "*.rda")` |  |  |
+| CSV/XLSX in `inst/extdata/` | `list.files("inst/extdata/")` |  |  |
+| Missing values per variable | `skimr::skim()` |  |  |
+| Frequency tables for categoricals | `dplyr::count()` |  |  |
+| Similar string values | `stringdist::stringdist()` |  |  |
+| Date format and class | `lubridate::is.Date()` |  |  |
+| Ordinal as factor | `is.ordered()` |  |  |
+| Consistent data types | `dlookr::diagnose()` |  |  |
+| Reasonable value ranges | `dlookr::diagnose_numeric()` |  |  |
+| UTF-8 encoding | `stringi::stri_enc_isutf8()` |  |  |
+
+**Files to Review:**
+- `data/*.rda`
 - `R/[package-name].R`
 {{/if}}
 
@@ -94,7 +157,7 @@ PACKAGE_NAME=$(basename "$PWD")
   - Variable dictionary table
   - License and citation sections
 - [ ] Roxygen documentation for all exported functions
-- [ ] _pkgdown.yml configured with Plausible analytics
+- [ ] _pkgdown.yml configured with Plausible analytics along this template: https://raw.githubusercontent.com/openwashdata/washmalawi/refs/heads/main/_pkgdown.yml
 - [ ] Package website builds without errors
 
 **Files to Review:**
