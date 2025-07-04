@@ -5,7 +5,7 @@
 **Usage**: `/review-issue [number]`
 
 **Parameters**:
-- `number` (required): Issue number (1-5) to work on
+- `number` (required): Issue number (1-4) to work on
 
 ---
 
@@ -27,7 +27,7 @@ PACKAGE_NAME=$(basename "$PWD")
 ### Issue Details
 
 {{#if issue-1}}
-**Issue #1: General Information & Metadata**
+**Data Package Review: General Information & Metadata**
 
 **Checklist:**
 - [ ] DESCRIPTION file completeness
@@ -47,7 +47,7 @@ PACKAGE_NAME=$(basename "$PWD")
 {{/if}}
 
 {{#if issue-2}}
-**Issue #2: Data Content & Quality**
+**Data Package Review: Data Content & Processing**
 
 ## Data Content & Quality Review Checklist
 
@@ -124,10 +124,7 @@ PACKAGE_NAME=$(basename "$PWD")
 | Reasonable value ranges | `dlookr::diagnose_numeric()` |  |  |
 | UTF-8 encoding | `stringi::stri_enc_isutf8()` |  |  |
 
-{{/if}}
-
-{{#if issue-3}}
-**Issue #3: Data Processing Script Review**
+### 5. Data Processing Script Review
 
 **Checklist:**
 - [ ] data_processing.R in data-raw/
@@ -141,10 +138,11 @@ PACKAGE_NAME=$(basename "$PWD")
 - `data-raw/data_processing.R`
 - `data-raw/dictionary.csv`
 - `data-raw/[raw-data-files]`
+
 {{/if}}
 
-{{#if issue-4}}
-**Issue #4: Documentation**
+{{#if issue-3}}
+**Data Package Review: Documentation**
 
 **Checklist:**
 - [ ] README.Rmd follows openwashdata template:
@@ -164,8 +162,8 @@ PACKAGE_NAME=$(basename "$PWD")
 - `man/*.Rd`
 {{/if}}
 
-{{#if issue-5}}
-**Issue #5: Tests & CI/CD**
+{{#if issue-4}}
+**Data Package Review: Tests & CI/CD**
 
 **Checklist:**
 - [ ] GitHub Actions workflow for R-CMD-check
@@ -205,14 +203,13 @@ If yes, I'll:
 ## Error Handling
 
 If invalid issue number:
-❌ Invalid issue number '$ISSUE_NUMBER'. Please use a number between 1 and 5.
+❌ Invalid issue number '$ISSUE_NUMBER'. Please use a number between 1 and 4.
 
 Available issues:
 1. General Information & Metadata
-2. Data Content & Quality
-3. Data Processing Script Review
-4. Documentation
-5. Tests & CI/CD
+2. Data Content & Processing
+3. Documentation
+4. Tests & CI/CD
 
 If no review in progress:
 ⚠️ No package review is currently in progress.

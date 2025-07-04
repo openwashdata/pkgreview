@@ -19,12 +19,11 @@ When initiated via `/review-package [package-name]`, Claude will:
    - Check for required directories: R/, data/, data-raw/, inst/extdata/, man/
    - Confirm presence of key files: DESCRIPTION, README.Rmd, _pkgdown.yml
 
-2. **Create Review Issues** (5 GitHub issues with checklists)
+2. **Create Review Issues** (4 GitHub issues with checklists)
    - Issue 1: General Information & Metadata (with checklist)
-   - Issue 2: Data Content & Quality (with checklist)
-   - Issue 3: Data Processing Script Review (with checklist)
-   - Issue 4: Documentation (with checklist)
-   - Issue 5: Tests & CI/CD (with checklist)
+   - Issue 2: Data Content & Processing (with checklist)
+   - Issue 3: Documentation (with checklist)
+   - Issue 4: Tests & CI/CD (with checklist)
    
    Each issue must be created with a checklist that Claude will update as items are completed.
 
@@ -63,7 +62,7 @@ After user approval, work on issues ONE AT A TIME.
 - [ ] CITATION.cff file present and valid
 - [ ] Generate citation using `washr::update_citation()`
 
-#### Issue 2: Data Content & Quality
+#### Issue 2: Data Content & Processing
 - [ ] Data files in data/ directory (.rda format)
 - [ ] CSV/XLSX exports in inst/extdata/
 - [ ] Main dataset accessible via function matching package name
@@ -72,8 +71,6 @@ After user approval, work on issues ONE AT A TIME.
   - Consistent data types
   - Reasonable value ranges
   - Proper encoding (UTF-8)
-
-#### Issue 3: Data Processing Script Review
 - [ ] data_processing.R in data-raw/
 - [ ] Script is reproducible and well-commented
 - [ ] Raw data files preserved in data-raw/
@@ -82,7 +79,7 @@ After user approval, work on issues ONE AT A TIME.
 - [ ] Handles data cleaning transparently
 - [ ] Analysis and testing scripts preserved in analysis/ directory
 
-#### Issue 4: Documentation
+#### Issue 3: Documentation
 - [ ] README.Rmd follows openwashdata template:
   - Dynamic content generation
   - Installation instructions
@@ -93,7 +90,7 @@ After user approval, work on issues ONE AT A TIME.
 - [ ] _pkgdown.yml configured with standard openwashdata template
 - [ ] Package website builds without errors
 
-#### Issue 5: Tests & CI/CD
+#### Issue 4: Tests & CI/CD
 - [ ] GitHub Actions workflow for R-CMD-check
 - [ ] Package passes `devtools::check()` with no errors/warnings
 - [ ] Examples run successfully
@@ -400,7 +397,7 @@ Claude: [Commits: "Update CITATION with washr"]
         "✅ PR created for Issue #1 with 3 commits. Issue checklist updated. Please review and merge to dev, then run `/review-issue 2` to continue."
         [STOPS COMPLETELY]
 
-[Repeat for all 5 issues]
+[Repeat for all 4 issues]
 
 User: /review-complete
 Claude: [Creates final PR from dev to main]

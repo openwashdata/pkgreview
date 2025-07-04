@@ -60,7 +60,7 @@ fi
 
 **What CLAUDE.md provides:**
 - Complete review workflow (PLAN → CREATE → TEST → DEPLOY)
-- 5-issue structure with detailed checklists
+- 4-issue structure with detailed checklists
 - GitHub CLI commands for project management
 - Build/test/check commands for R packages
 - Code style guidelines and standards
@@ -110,7 +110,7 @@ fi
 
 #### Step 3: Creating Review Issues
 
-I'll create 5 GitHub issues using `gh issue create` covering:
+I'll create 4 GitHub issues using `gh issue create` covering:
 
 **Data Package Review: General Information & Metadata**
 - DESCRIPTION file review
@@ -118,13 +118,11 @@ I'll create 5 GitHub issues using `gh issue create` covering:
 - License verification (CC BY 4.0)
 - Citation files (CITATION.cff, inst/CITATION)
 
-**Data Package Review: Data Content & Quality**
+**Data Package Review: Data Content & Processing**
 - Data file formats and locations
 - Data integrity checks
 - Variable completeness
 - Export formats availability
-
-**Data Package Review: Data Processing Script**
 - data_processing.R reproducibility
 - Code quality and documentation
 - Dictionary completeness
