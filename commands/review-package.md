@@ -112,31 +112,31 @@ fi
 
 I'll create 5 GitHub issues using `gh issue create` covering:
 
-**Issue #1: General Information & Metadata**
+**Data Package Review: General Information & Metadata**
 - DESCRIPTION file review
 - Authors and ORCID IDs
 - License verification (CC BY 4.0)
 - Citation files (CITATION.cff, inst/CITATION)
 
-**Issue #2: Data Content & Quality**
+**Data Package Review: Data Content & Quality**
 - Data file formats and locations
 - Data integrity checks
 - Variable completeness
 - Export formats availability
 
-**Issue #3: Data Processing Script Review**
+**Data Package Review: Data Processing Script**
 - data_processing.R reproducibility
 - Code quality and documentation
 - Dictionary completeness
 - Raw data preservation
 
-**Issue #4: Documentation**
+**Data Package Review: Documentation**
 - README.Rmd structure and content
 - Function documentation
 - _pkgdown.yml configuration
 - Variable dictionary
 
-**Issue #5: Tests & CI/CD**
+**Data Package Review: Tests & CI/CD**
 - R-CMD-check workflow
 - Package checks status
 - Example code execution
@@ -161,7 +161,7 @@ The PLAN phase is complete. I've identified [X] issues that need attention.
 
 I'll now work through each issue systematically using GitHub CLI workflow:
 
-### Working on Issue #1: General Information & Metadata
+### Working on Data Package Review: General Information & Metadata
 
 **GitHub CLI Commands:**
 - `gh issue view 1` - View issue details
