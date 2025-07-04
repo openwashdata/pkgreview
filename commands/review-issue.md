@@ -190,9 +190,14 @@ PACKAGE_NAME=$(basename "$PWD")
 
 ### Ready to Implement?
 
-**Proceed with these changes?** (yes/no)
+**Please review the planned changes above.**
 
-If yes, I'll:
+Once you've reviewed and are satisfied with the plan:
+- Type **"yes"** to proceed with implementation
+- Type **"no"** to discuss alternative approaches
+- Type **"edit"** if you want to modify the plan
+
+If you proceed, I'll:
 1. Create/checkout the issue branch
 2. Implement the planned changes
 3. Test the changes

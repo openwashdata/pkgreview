@@ -41,15 +41,17 @@ After user approval, work on issues ONE AT A TIME.
 
 **SEQUENTIAL WORKFLOW:**
 1. User runs `/review-package` to start - only Issue #1 is created
-2. User runs `/review-issue 1` to work on Issue #1
-3. Claude creates a new branch from `dev` for this issue
-4. Claude implements all changes for this issue
-5. Claude commits changes with descriptive message
-6. Claude creates a PR **against the `dev` branch** (NOT main!)
-7. **CLAUDE MUST STOP COMPLETELY** - Do not proceed to next issue
-8. User reviews the PR, merges it to dev
-9. User runs `/create-next-issue` to create Issue #2
-10. Repeat steps 2-9 for each subsequent issue
+2. User reviews Issue #1 on GitHub and confirms readiness
+3. User runs `/review-issue 1` to work on Issue #1
+4. Claude presents planned changes and waits for user confirmation
+5. After user approval, Claude creates a new branch from `dev`
+6. Claude implements all changes for this issue
+7. Claude commits changes with descriptive message
+8. Claude creates a PR **against the `dev` branch** (NOT main!)
+9. **CLAUDE MUST STOP COMPLETELY** - Do not proceed to next issue
+10. User reviews the PR, merges it to dev
+11. User runs `/create-next-issue` to create Issue #2
+12. Repeat steps 2-11 for each subsequent issue
 
 **CRITICAL**: Claude MUST NOT automatically continue to the next issue. The workflow STOPS after creating each PR.
 
@@ -104,6 +106,7 @@ After user approval, work on issues ONE AT A TIME.
 
 **MANDATORY PROCESS FOR EACH ISSUE**: 
 1. Present planned changes and request user confirmation before implementing
+   - **ALWAYS WAIT** for explicit user approval (yes/no/edit) before proceeding
 2. Create a feature branch from `dev` (e.g., `issue-1-metadata`)
 3. Implement changes with regular check-ins:
    - **For each checklist item or major change:**

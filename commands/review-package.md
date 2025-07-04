@@ -156,10 +156,12 @@ This is the first step in the openwashdata package review process.
 
 The PLAN phase is complete. I've created the first review issue.
 
-**Next steps:**
-1. Run `/review-issue 1` to start working on Issue #1
-2. Complete the changes and create a PR to `dev`
-3. After merging, run `/create-next-issue` to create Issue #2
+**Issue #1 has been created!** 
+
+Please:
+1. Review Issue #1 on GitHub to confirm the checklist items
+2. Make any necessary adjustments to the issue description
+3. When you're ready, run `/review-issue 1` to start working on it
 
 **Note**: Each issue builds on the previous one, ensuring that changes are cumulative throughout the review process.
 
