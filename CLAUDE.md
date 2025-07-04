@@ -91,7 +91,8 @@ After user approval, work on issues ONE AT A TIME.
 - [ ] Package website builds without errors
 
 #### Issue 4: Tests & CI/CD
-- [ ] GitHub Actions workflow for R-CMD-check
+- [ ] Add GitHub Actions workflow for R-CMD-check
+- [ ] Add R-CMD-check badge to README.Rmd
 - [ ] Package passes `devtools::check()` with no errors/warnings
 - [ ] Examples run successfully
 - [ ] Data loads correctly

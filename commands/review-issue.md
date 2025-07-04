@@ -166,15 +166,22 @@ PACKAGE_NAME=$(basename "$PWD")
 **Data Package Review: Tests & CI/CD**
 
 **Checklist:**
-- [ ] GitHub Actions workflow for R-CMD-check
+- [ ] Add GitHub Actions workflow for R-CMD-check
+- [ ] Add R-CMD-check badge to README.Rmd
 - [ ] Package passes `devtools::check()` with no errors/warnings
 - [ ] Examples run successfully
 - [ ] Data loads correctly
 
-**Files to Review:**
-- `.github/workflows/R-CMD-check.yaml`
-- `tests/testthat/`
-- `examples/`
+**Tasks:**
+1. Create `.github/workflows/R-CMD-check.yaml`
+2. Add badge to README.Rmd: `[![R-CMD-check](https://github.com/openwashdata/PACKAGENAME/workflows/R-CMD-check/badge.svg)](https://github.com/openwashdata/PACKAGENAME/actions)`
+3. Run checks and fix any issues
+
+**Files to Review/Create:**
+- `.github/workflows/R-CMD-check.yaml` (to be created)
+- `README.Rmd` (add badge)
+- `tests/testthat/` (if exists)
+- `examples/` (if exists)
 {{/if}}
 
 ### Planned Changes
