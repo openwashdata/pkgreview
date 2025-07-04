@@ -19,13 +19,16 @@ When initiated via `/review-package [package-name]`, Claude will:
    - Check for required directories: R/, data/, data-raw/, inst/extdata/, man/
    - Confirm presence of key files: DESCRIPTION, README.Rmd, _pkgdown.yml
 
-2. **Create Review Issues** (4 GitHub issues with checklists)
-   - Issue 1: General Information & Metadata (with checklist)
-   - Issue 2: Data Content & Processing (with checklist)
-   - Issue 3: Documentation (with checklist)
-   - Issue 4: Tests & CI/CD (with checklist)
+2. **Create First Review Issue**
+   - Only Issue 1 (General Information & Metadata) is created initially
+   - Subsequent issues are created after previous PRs are merged
+   - This ensures each issue builds on completed changes
    
-   Each issue must be created with a checklist that Claude will update as items are completed.
+   Issue sequence:
+   - Issue 1: General Information & Metadata
+   - Issue 2: Data Content & Processing (created after Issue 1 merged)
+   - Issue 3: Documentation (created after Issue 2 merged)
+   - Issue 4: Tests & CI/CD (created after Issue 3 merged)
 
 3. **Present Review Plan**
    - Summary of findings
@@ -36,15 +39,17 @@ When initiated via `/review-package [package-name]`, Claude will:
 
 After user approval, work on issues ONE AT A TIME. 
 
-**WORKFLOW FOR EACH ISSUE:**
-1. User runs `/review-issue [number]` to start work on a specific issue
-2. Claude creates a new branch from `dev` for this issue
-3. Claude implements all changes for this issue
-4. Claude commits changes with descriptive message
-5. Claude creates a PR **against the `dev` branch** (NOT main!)
-6. **CLAUDE MUST STOP COMPLETELY** - Do not proceed to next issue
-7. User reviews the PR, merges it to dev
-8. User manually restarts Claude with `/review-issue [next-number]` for the next issue
+**SEQUENTIAL WORKFLOW:**
+1. User runs `/review-package` to start - only Issue #1 is created
+2. User runs `/review-issue 1` to work on Issue #1
+3. Claude creates a new branch from `dev` for this issue
+4. Claude implements all changes for this issue
+5. Claude commits changes with descriptive message
+6. Claude creates a PR **against the `dev` branch** (NOT main!)
+7. **CLAUDE MUST STOP COMPLETELY** - Do not proceed to next issue
+8. User reviews the PR, merges it to dev
+9. User runs `/create-next-issue` to create Issue #2
+10. Repeat steps 2-9 for each subsequent issue
 
 **CRITICAL**: Claude MUST NOT automatically continue to the next issue. The workflow STOPS after creating each PR.
 
@@ -258,9 +263,10 @@ Common dependencies for data packages:
 
 ## Commands
 
-- `/review-package [package-name]` - Start package review (analyzes package and creates issues)
-- `/review-status` - Check current review progress
+- `/review-package [package-name]` - Start package review (analyzes package and creates Issue #1 only)
 - `/review-issue [number]` - Work on specific issue (STOPS after creating PR)
+- `/create-next-issue` - Create the next issue in sequence (after previous PR merged)
+- `/review-status` - Check current review progress
 - `/review-complete` - After all issues merged to dev, create final PR to main
 - `/create-release [version]` - Create a new release with changelog
 

@@ -201,9 +201,28 @@ If yes, I'll:
 ### After Implementation
 
 **GitHub CLI Commands:**
-- `gh pr create --title "$ISSUE_TITLE" --body "Implements #$ISSUE_NUMBER"`
-- `gh pr list` - View all pull requests
-- `gh pr view [PR_NUMBER]` - View specific PR
+```bash
+# Create PR to dev branch (not main!)
+gh pr create --base dev \
+  --title "Fix: $ISSUE_TITLE" \
+  --body "## Summary
+Implements #$ISSUE_NUMBER
+
+## Changes Made
+- [List specific changes]
+
+## Checklist
+- [ ] All tasks from issue completed
+- [ ] Package checks pass
+- [ ] Ready for review
+
+Closes #$ISSUE_NUMBER"
+```
+
+**After PR is merged:**
+1. Pull latest changes: `git checkout dev && git pull`
+2. Run `/create-next-issue` to create the next issue in sequence
+3. Or run `/review-status` to check overall progress
 
 ---
 

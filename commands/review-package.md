@@ -108,37 +108,45 @@ fi
 - [ ] Analyzing data files and documentation
 - [ ] Reviewing any existing PRs or dev branch changes
 
-#### Step 3: Creating Review Issues
+#### Step 3: Creating First Review Issue
 
-I'll create 4 GitHub issues using `gh issue create` covering:
+I'll create the first GitHub issue to begin the review process:
 
-**Data Package Review: General Information & Metadata**
-- DESCRIPTION file review
-- Authors and ORCID IDs
-- License verification (CC BY 4.0)
-- Citation files (CITATION.cff, inst/CITATION)
+```bash
+# Create Issue 1: General Information & Metadata
+gh issue create \
+  --title "Data Package Review: General Information & Metadata" \
+  --body "## Review Checklist
 
-**Data Package Review: Data Content & Processing**
-- Data file formats and locations
-- Data integrity checks
-- Variable completeness
-- Export formats availability
-- data_processing.R reproducibility
-- Code quality and documentation
-- Dictionary completeness
-- Raw data preservation
+This is the first step in the openwashdata package review process.
 
-**Data Package Review: Documentation**
-- README.Rmd structure and content
-- Function documentation
-- _pkgdown.yml configuration
-- Variable dictionary
+### Tasks
+- [ ] DESCRIPTION file completeness
+  - [ ] Title (descriptive, <65 characters)
+  - [ ] Description (clear purpose statement)
+  - [ ] Authors with ORCID IDs
+  - [ ] License: CC BY 4.0
+  - [ ] Dependencies properly declared
+  - [ ] Version follows semantic versioning
+- [ ] CITATION.cff file present and valid
+- [ ] Generate citation using \`washr::update_citation()\`
 
-**Data Package Review: Tests & CI/CD**
-- R-CMD-check workflow
-- Package checks status
-- Example code execution
-- Build process
+### Files to Review
+- \`DESCRIPTION\`
+- \`CITATION.cff\`
+- \`inst/CITATION\`
+
+### Next Steps
+1. Run \`/review-issue 1\` to work on this issue
+2. Create a PR to the \`dev\` branch
+3. After merging, the next issue will be created automatically"
+```
+
+**Note**: The review follows a sequential process:
+1. **Issue 1**: General Information & Metadata
+2. **Issue 2**: Data Content & Processing (created after Issue 1 PR is merged)
+3. **Issue 3**: Documentation (created after Issue 2 PR is merged)
+4. **Issue 4**: Tests & CI/CD (created after Issue 3 PR is merged)
 
 ### 📊 Initial Findings
 
@@ -146,35 +154,31 @@ I'll create 4 GitHub issues using `gh issue create` covering:
 
 ### ✅ Ready to Proceed?
 
-The PLAN phase is complete. I've identified [X] issues that need attention.
+The PLAN phase is complete. I've created the first review issue.
 
-**Would you like me to proceed to the CREATE phase?** 
-- Type "yes" to continue with fixes
-- Type "no" to stop here
-- Type "review" to see the detailed plan again
+**Next steps:**
+1. Run `/review-issue 1` to start working on Issue #1
+2. Complete the changes and create a PR to `dev`
+3. After merging, run `/create-next-issue` to create Issue #2
+
+**Note**: Each issue builds on the previous one, ensuring that changes are cumulative throughout the review process.
 
 ---
 
-## 🔧 CREATE Phase (After User Approval)
+## 📝 Review Workflow Summary
 
-I'll now work through each issue systematically using GitHub CLI workflow:
+This package review follows a sequential, issue-by-issue approach:
 
-### Working on Data Package Review: General Information & Metadata
+1. **Start**: Run `/review-package` to analyze the package and create Issue #1
+2. **Work**: Use `/review-issue [number]` to work on the current issue
+3. **Submit**: Create a PR to the `dev` branch for each issue
+4. **Continue**: After merging, run `/create-next-issue` to create the next issue
 
-**GitHub CLI Commands:**
-- `gh issue view 1` - View issue details
-- `gh issue develop 1` - Create branch for issue
-- `git checkout 1-general-information-metadata`
-
-**Planned changes:**
-*[List specific changes]*
-
-**Proceed with these changes?** (yes/no)
-
-After implementation:
-- `gh pr create --title "Fix general information & metadata" --body "Implements #1"`
-
-*[Continue pattern for each issue...]*
+This ensures that:
+- Each issue builds on the changes from previous issues
+- The `dev` branch stays up-to-date throughout the review
+- Changes are reviewed and merged incrementally
+- The final PR from `dev` to `main` contains all cumulative improvements
 
 ---
 
