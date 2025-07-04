@@ -13,7 +13,13 @@ When the user types `/review-package [package-name]`, execute the following:
 
 First, determine the package name and setup:
 ```bash
-PACKAGE_NAME=${1:-$(basename "$PWD")}
+# Get package name from parameter or use current directory name
+if [ -n "$1" ]; then
+    PACKAGE_NAME="$1"
+else
+    PACKAGE_NAME=$(basename "$PWD")
+fi
+echo "Package name: $PACKAGE_NAME"
 ```
 
 #### Step 0: Setup CLAUDE.md for Package Review
@@ -63,13 +69,13 @@ fi
 
 ## 📋 Starting OpenWashData Package Review
 
-**Package**: `$PACKAGE_NAME`
+**Package**: `${PACKAGE_NAME}`
 **Review Type**: Comprehensive R Data Package Review
 **Workflow**: PLAN → CREATE → TEST → DEPLOY
 
 ### 🔍 PLAN Phase - Initial Analysis
 
-I'll now analyze the `$PACKAGE_NAME` package structure and create a review plan.
+I'll now analyze the `${PACKAGE_NAME}` package structure and create a review plan.
 
 #### Step 1: Check for Existing PRs and Branches
 
@@ -210,7 +216,7 @@ If CLAUDE.md download fails:
 4. Continue review without local CLAUDE.md file
 
 If package not found:
-❌ Package '$PACKAGE_NAME' not found in the current directory.
+❌ Package '${PACKAGE_NAME}' not found in the current directory.
 
 Please ensure:
 1. You're in the correct directory containing the R package
