@@ -124,9 +124,6 @@ PACKAGE_NAME=$(basename "$PWD")
 | Reasonable value ranges | `dlookr::diagnose_numeric()` |  |  |
 | UTF-8 encoding | `stringi::stri_enc_isutf8()` |  |  |
 
-**Files to Review:**
-- `data/*.rda`
-- `R/[package-name].R`
 {{/if}}
 
 {{#if issue-3}}
