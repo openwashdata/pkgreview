@@ -22,35 +22,30 @@ Create a new release for an openwashdata R package with proper versioning and ch
    - Updates DESCRIPTION file with new version
    - Uses `usethis::use_version()` for proper version bumping
 
-3. **Initial Citation Update**
-   - Updates CITATION.cff with new version and release date
-   - Runs `washr::update_citation()` to sync citations
-   - Ensures version consistency across all citation files
-
-4. **Changelog Management**
+3. **Changelog Management**
    - Creates/updates NEWS.md using tidyverse conventions
    - Adds release section with date and changes
    - Pulls information from recent commits and closed issues
 
-5. **Git Operations**
-   - Commits version, CITATION.cff, and NEWS.md changes
+4. **Git Operations**
+   - Commits version and NEWS.md changes
    - Creates annotated tag for the version
    - Pushes to main branch
 
-6. **GitHub Release**
+5. **GitHub Release**
    - Creates GitHub release using `gh release create`
    - Uses NEWS.md content as release notes
    - Attaches appropriate assets
    - **Zenodo automatically creates DOI after release**
 
-7. **Post-Release DOI Update**
+6. **Post-Release DOI Update**
    - **STOP**: "GitHub release created! Zenodo should now generate a DOI. Please check https://zenodo.org/account/settings/github/repository/openwashdata/[package-name] and provide the DOI (format: 10.5281/zenodo.XXXXXXX):"
-   - Updates README.Rmd with Zenodo DOI badge
-   - Runs `washr::update_citation(doi = "10.5281/zenodo.XXXXXXX")` with provided DOI
-   - Updates all citation files with DOI
-   - Commits DOI updates with message "Add Zenodo DOI to package"
+   - After DOI is provided:
+     - Runs `washr::update_citation(doi = "10.5281/zenodo.XXXXXXX")` to update all citation files
+     - Updates README.Rmd with Zenodo DOI badge
+     - Commits DOI updates with message "Add Zenodo DOI to package"
 
-8. **Documentation Update**
+7. **Documentation Update**
    - Rebuilds pkgdown site with DOI badge
    - Deploys updated documentation
 
@@ -62,11 +57,10 @@ Create a new release for an openwashdata R package with proper versioning and ch
 
 This will:
 - Update version from 0.1.0 to 0.2.0
-- Update CITATION.cff with new version and date
 - Add new section to NEWS.md
 - Create git tag v0.2.0
 - Create GitHub release
-- Update package website
+- Update package website with DOI badge after DOI is provided
 
 ## Prerequisites
 
