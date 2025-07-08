@@ -129,13 +129,15 @@ def main():
     print()
     
     # Process CLAUDE.md template
-    if os.path.exists('CLAUDE.md.template'):
-        process_file('CLAUDE.md.template', 'CLAUDE.md', replacements)
+    if os.path.exists('templates/CLAUDE.md.template'):
+        process_file('templates/CLAUDE.md.template', 'CLAUDE.md', replacements)
     
     # Process command templates
-    commands_dir = 'commands'
-    for template_file in Path(commands_dir).glob('*.md.template'):
-        output_file = template_file.with_suffix('')
+    templates_commands_dir = Path('templates/commands')
+    commands_dir = Path('commands')
+    
+    for template_file in templates_commands_dir.glob('*.md.template'):
+        output_file = commands_dir / template_file.stem
         process_file(str(template_file), str(output_file), replacements)
     
     # If running in pkgreview repo, copy templates to working directory

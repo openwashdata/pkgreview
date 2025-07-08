@@ -125,7 +125,7 @@ cat > config.yml << 'EOF'
 EOF
 
 # Process templates
-python3 process_templates.py
+python3 scripts/process_templates.py
 
 echo "✅ Setup complete! Your package review system is ready to use."
 ```
