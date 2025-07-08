@@ -1,12 +1,33 @@
-# openwashdata Package Review System
+# R Package Review System
 
-A comprehensive system for reviewing R data packages in the openwashdata ecosystem, ensuring consistency, quality, and completeness across all published datasets.
+A comprehensive, configurable system for reviewing R data packages, ensuring consistency, quality, and completeness across all published datasets. Originally developed for openwashdata, now available for any GitHub organization.
 
 ## Overview
 
-This repository provides a structured review workflow for openwashdata R packages, with automated GitHub integration and quality checks. The review process follows a systematic **PLAN → CREATE → TEST → DEPLOY** workflow.
+This repository provides a structured review workflow for R packages, with automated GitHub integration and quality checks. The review process follows a systematic **PLAN → CREATE → TEST → DEPLOY** workflow.
 
 ## Quick Start
+
+### For New Organizations
+
+```bash
+# Clone this repository
+git clone https://github.com/openwashdata/pkgreview.git
+cd pkgreview
+
+# Run the setup command to configure for your organization
+/setup-review
+
+# Follow the interactive prompts to configure:
+# - Your GitHub organization name
+# - Template package preferences
+# - Analytics settings
+# - Funding acknowledgments
+
+# The setup will generate customized files for your organization
+```
+
+### For openwashdata Users (Default Configuration)
 
 ```bash
 # Clone this repository
@@ -24,13 +45,34 @@ cd /path/to/package
 /review-package
 ```
 
-That's it! The review system will guide you through the entire process.
+## Configuration
+
+The review system can be customized for any organization through the `config.yml` file:
+
+```yaml
+organization:
+  name: "your-org-name"
+  github_url: "https://github.com/your-org-name"
+  
+template:
+  package: "washr"  # or your template package
+  citation_function: "washr::update_citation"
+  
+analytics:
+  enabled: true
+  type: "plausible"  # or google, matomo, etc.
+  
+funding:
+  enabled: true
+  use_default: true  # Uses ETH ORD funding text by default
+  custom_text: ""    # Or provide your own funding text
+```
 
 ## Review Workflow
 
 The review follows a simple **PLAN → CREATE → TEST → DEPLOY** workflow:
 
-1. **PLAN**: Analyze package structure and create 5 review issues
+1. **PLAN**: Analyze package structure and create 4 review issues
 2. **CREATE**: Fix issues systematically with GitHub CLI integration
 3. **TEST**: Run comprehensive R package checks
 4. **DEPLOY**: Build pkgdown website and prepare for publication
@@ -39,48 +81,46 @@ The review follows a simple **PLAN → CREATE → TEST → DEPLOY** workflow:
 
 | Command | Purpose | Usage |
 |---------|---------|-------|
+| `/setup-review` | Configure for your organization | `/setup-review` |
 | `/review-package` | Start package review | `/review-package [package-name]` |
 | `/review-status` | Check review progress | `/review-status` |
 | `/review-issue [n]` | Work on specific issue | `/review-issue 1` |
+| `/create-next-issue` | Create next issue in sequence | `/create-next-issue` |
 | `/review-pr` | Create pull request | `/review-pr` |
 | `/create-release` | Create a new release | `/create-release [version]` |
 
 ## Review Issues
 
-Each review addresses 5 key areas:
+Each review addresses 4 key areas:
 
 1. **General Information & Metadata** - DESCRIPTION, citations, authors
-2. **Data Content & Quality** - Data integrity, formats, exports
-3. **Data Processing** - Reproducibility, documentation, raw data
-4. **Documentation** - README, pkgdown, function docs
-5. **Tests & CI/CD** - R CMD check, GitHub Actions
+2. **Data Content & Processing** - Data integrity, formats, exports, processing scripts
+3. **Documentation** - README, pkgdown, function docs
+4. **Tests & CI/CD** - R CMD check, GitHub Actions
 
 ## Requirements
 
 - R and RStudio
 - GitHub CLI (`gh`)
 - Git
+- Python 3 (for template processing)
 - Claude Code with slash commands enabled
 
 ## Repository Structure
 
 ```
 pkgreview/
-├── commands/           # Slash command files
-│   ├── README.md      # Commands documentation
-│   ├── review-package.md
-│   ├── review-status.md
-│   ├── review-issue.md
-│   ├── review-pr.md
-│   └── create-release.md
-├── docs/              # Documentation and resources
-│   └── review-checklist.csv
-├── .github/           # GitHub configuration
-│   └── workflows/
-│       └── R-CMD-check.yaml
-├── CLAUDE.md          # Review workflow guide for Claude
-├── README.md          # This file
-└── pkgreview.Rproj    # RStudio project file
+├── commands/              # Slash command files
+│   ├── *.md              # Original commands (openwashdata)
+│   ├── *.md.template     # Template commands with placeholders
+│   └── setup-review.md   # Interactive setup command
+├── config.yml.template    # Configuration template
+├── CLAUDE.md             # Original review guide (openwashdata)
+├── CLAUDE.md.template    # Template review guide with placeholders
+├── process_templates.py  # Template processor script
+├── docs/                 # Documentation and resources
+├── README.md             # This file
+└── pkgreview.Rproj       # RStudio project file
 ```
 
 ## Expected Package Structure
@@ -101,24 +141,40 @@ your-package/
 
 ## Key Features
 
-- **Automatic Setup**: Downloads latest review standards (CLAUDE.md) to each package
+- **Multi-Organization Support**: Configure for any GitHub organization
+- **Automatic Setup**: Interactive configuration with `/setup-review`
 - **GitHub Integration**: Creates issues, branches, and PRs automatically
 - **Smart Detection**: Uses current directory as package name
 - **Quality Checks**: Ensures consistency across all packages
-- **Comprehensive Review**: 27-point checklist covering all aspects of package quality
+- **Comprehensive Review**: Detailed checklist covering all aspects of package quality
 - **Reproducible Workflow**: Standardized process for all reviewers
+- **Customizable Standards**: Adapt to your organization's needs
 
-## Review Checklist
+## Customization Guide
 
-The review process uses a comprehensive checklist covering:
+### Setting Up for Your Organization
 
-- General information and metadata
-- Data content and quality 
-- Data processing reproducibility
-- Documentation completeness
-- Testing and CI/CD setup
+1. Run `/setup-review` and answer the prompts
+2. The system will create a `config.yml` with your settings
+3. Template files will be processed automatically
+4. Start reviewing packages with your custom configuration
 
-See `docs/review-checklist.csv` for the complete list of review points.
+### Manual Configuration
+
+1. Copy `config.yml.template` to `config.yml`
+2. Edit the configuration values
+3. Run `python3 process_templates.py` to generate custom files
+4. Your customized review system is ready
+
+### Template Placeholders
+
+The template files use these placeholders:
+- `{{ORGANIZATION_NAME}}` - Your GitHub organization
+- `{{TEMPLATE_PACKAGE}}` - Your R template package
+- `{{CITATION_FUNCTION}}` - Function for updating citations
+- `{{LICENSE}}` - Required license for packages
+- `{{ANALYTICS_*}}` - Analytics configuration
+- `{{FUNDING_*}}` - Funding acknowledgment settings
 
 ## Contributing
 
@@ -133,6 +189,10 @@ See `docs/review-checklist.csv` for the complete list of review points.
 - [openwashdata Organization](https://github.com/openwashdata)
 - [Package Development Guide](https://r-pkgs.org/)
 - [pkgdown Documentation](https://pkgdown.r-lib.org/)
+
+## Acknowledgments
+
+This review system was originally developed for the openwashdata organization with funding from the Open Research Data Program of the ETH Board.
 
 ## License
 
