@@ -1,0 +1,61 @@
+# Package Review Configuration Template
+# This file configures the R package review system for your organization
+# Copy this file to config.yml and update with your organization's details
+
+organization:
+  # Your GitHub organization or username
+  name: "{{ORGANIZATION_NAME}}"
+  # Full GitHub URL for your organization
+  github_url: "https://github.com/{{ORGANIZATION_NAME}}"
+  
+template:
+  # The R package used to create package templates (e.g., washr, usethis, etc.)
+  package: "washr"
+  # Function to update citations (format: package::function)
+  citation_function: "washr::update_citation"
+  
+analytics:
+  # Enable/disable analytics tracking for package documentation sites
+  enabled: true
+  # Analytics provider (plausible, google, matomo, etc.)
+  type: "plausible"
+  # Your analytics domain
+  domain: "{{ORGANIZATION_NAME}}.github.io"
+  # Full analytics script URL
+  script: "https://plausible.io/js/script.js"
+  
+funding:
+  # Enable/disable funding acknowledgment in documentation
+  enabled: true
+  # Use default ETH Open Research Data Program text
+  use_default: true
+  # Default funding text (used when use_default is true)
+  default_text: "This project was funded by the [Open Research Data Program of the ETH Board](https://ethrat.ch/en/eth-domain/open-research-data/)."
+  # Custom funding text (used when use_default is false)
+  custom_text: ""
+  
+# Advanced settings
+review:
+  # Number of issues in the review process
+  issue_count: 4
+  # Branch strategy
+  default_branch: "main"
+  development_branch: "dev"
+  
+# Package standards
+standards:
+  # Required license for data packages
+  license: "CC BY 4.0"
+  # Required directories
+  required_dirs:
+    - "R"
+    - "data"
+    - "data-raw"
+    - "inst/extdata"
+    - "man"
+  # Code style
+  style_guide: "tidyverse"
+  # Maximum line length
+  max_line_length: 80
+  # Indentation (spaces)
+  indent_size: 2
