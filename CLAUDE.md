@@ -14,12 +14,19 @@ The review process follows a PLAN → CREATE → TEST → DEPLOY workflow. The e
 
 When initiated via `/review-package [package-name]`, Claude will:
 
-1. **Analyze Package Structure**
+1. **Setup CLAUDE.md for Package Review**
+   - Download the latest CLAUDE.md from openwashdata/pkgreview repository
+   - If CLAUDE.md already exists, append the review guide content
+   - Create backup of existing CLAUDE.md before appending
+   - Provide fallback options if download fails
+
+2. **Analyze Package Structure**
    - Verify package was created with `washr` template
    - Check for required directories: R/, data/, data-raw/, inst/extdata/, man/
    - Confirm presence of key files: DESCRIPTION, README.Rmd, _pkgdown.yml
+   - Check for existing PRs and dev branches
 
-2. **Create First Review Issue**
+3. **Create First Review Issue**
    - Only Issue 1 (General Information & Metadata) is created initially
    - Subsequent issues are created after previous PRs are merged
    - This ensures each issue builds on completed changes
@@ -30,9 +37,10 @@ When initiated via `/review-package [package-name]`, Claude will:
    - Issue 3: Documentation (created after Issue 2 merged)
    - Issue 4: Tests & CI/CD (created after Issue 3 merged)
 
-3. **Present Review Plan**
+4. **Present Review Plan**
    - Summary of findings
    - List of issues to be addressed
+   - Provide explicit instructions for user to review Issue #1 on GitHub
    - Request user confirmation before proceeding
 
 ### 2. CREATE Phase
@@ -55,6 +63,12 @@ After user approval, work on issues ONE AT A TIME.
 
 **CRITICAL**: Claude MUST NOT automatically continue to the next issue. The workflow STOPS after creating each PR.
 
+**After Creating Issue #1:**
+- User should review Issue #1 on GitHub to confirm the checklist items
+- User can make any necessary adjustments to the issue description
+- When ready, user runs `/review-issue 1` to start working on it
+- Each issue builds on the previous one, ensuring changes are cumulative throughout the review process
+
 #### Issue 1: General Information & Metadata
 
 **Claude must check off items as completed and update the issue**
@@ -66,18 +80,26 @@ After user approval, work on issues ONE AT A TIME.
   - License: CC BY 4.0
   - Dependencies properly declared
   - Version follows semantic versioning
+- [ ] If updates are made to DESCRIPTION, run `washr::update_description()`
 - [ ] CITATION.cff file present and valid
-- [ ] Generate citation using `washr::update_citation()`
+- [ ] Generate citation using `washr::update_citation()` for now without a DOI
 
 #### Issue 2: Data Content & Processing
-- [ ] Data files in data/ directory (.rda format)
-- [ ] CSV/XLSX exports in inst/extdata/
+
+**File Structure**
+- [ ] All primary data files are present in `data/` and use `.rda` format
+- [ ] All raw or exportable data files (CSV/XLSX) are in `inst/extdata/`
 - [ ] Main dataset accessible via function matching package name
-- [ ] Data quality checks:
-  - No unexpected missing values
-  - Consistent data types
-  - Reasonable value ranges
-  - Proper encoding (UTF-8)
+- [ ] No sensitive or personally identifiable information is present
+
+**Data Quality Checks**
+- [ ] Missing values properly coded as `NA`
+- [ ] Categorical variables checked for consistency
+- [ ] Date variables in proper format
+- [ ] Numeric variables have reasonable ranges
+- [ ] All text data encoded in UTF-8
+
+**Data Processing Script**
 - [ ] data_processing.R in data-raw/
 - [ ] Script is reproducible and well-commented
 - [ ] Raw data files preserved in data-raw/
@@ -87,14 +109,14 @@ After user approval, work on issues ONE AT A TIME.
 - [ ] Analysis and testing scripts preserved in analysis/ directory
 
 #### Issue 3: Documentation
-- [ ] README.Rmd follows openwashdata template:
-  - Dynamic content generation
-  - Installation instructions
-  - Data overview with dimensions
-  - Variable dictionary table
-  - License and citation sections
+- [ ] README.Rmd follows openwashdata template
+- [ ] Dynamic content generation works
+- [ ] Installation instructions present
+- [ ] Data overview with dimensions
+- [ ] Variable dictionary table rendered
+- [ ] License and citation sections complete
 - [ ] Roxygen documentation for all exported functions
-- [ ] _pkgdown.yml configured with standard openwashdata template
+- [ ] _pkgdown.yml configured with Plausible analytics
 - [ ] Package website builds without errors
 
 #### Issue 4: Tests & CI/CD
@@ -135,7 +157,7 @@ After user approval, work on issues ONE AT A TIME.
    
    Closes #[number]"
    ```
-7. **STOP IMMEDIATELY** - Output: "✅ PR created for Issue #1. Issue checklist updated. Please review and merge, then run `/review-issue 2` to continue."
+7. **STOP IMMEDIATELY** - Output: "✅ PR created for Issue #[number]. Issue checklist updated. Please review and merge to dev, then run `/create-next-issue` to continue."
 8. **DO NOT PROCEED** to any other issue
 
 ### 3. TEST Phase
@@ -272,6 +294,21 @@ Common dependencies for data packages:
 - `/review-status` - Check current review progress
 - `/review-complete` - After all issues merged to dev, create final PR to main
 - `/create-release [version]` - Create a new release with changelog
+
+## Review Workflow Summary
+
+This package review follows a sequential, issue-by-issue approach:
+
+1. **Start**: Run `/review-package` to analyze the package and create Issue #1
+2. **Work**: Use `/review-issue [number]` to work on the current issue
+3. **Submit**: Create a PR to the `dev` branch for each issue
+4. **Continue**: After merging, run `/create-next-issue` to create the next issue
+
+This ensures that:
+- Each issue builds on the changes from previous issues
+- The `dev` branch stays up-to-date throughout the review
+- Changes are reviewed and merged incrementally
+- The final PR from `dev` to `main` contains all cumulative improvements
 
 ## Issue Resolution Workflow
 
@@ -434,10 +471,10 @@ When creating a release, Claude will:
    - Use `usethis::use_version()` to bump version in DESCRIPTION
    - Follow semantic versioning (major.minor.patch)
 
-3. **Initial Citation Update**
+3. **Initial Citation Update (without DOI)**
    - Update version field to match new version
    - Update date-released to current date
-   - Run `washr::update_citation()` to sync all citation files
+   - Run `washr::update_citation()` to sync all citation files (initially without DOI)
    - Verify version consistency across DESCRIPTION, CITATION, and CITATION.cff
 
 4. **Update NEWS.md**
