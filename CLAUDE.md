@@ -8,6 +8,8 @@ The review process follows a PLAN → CREATE → TEST → DEPLOY workflow. The e
 
 **CRITICAL WORKFLOW RULE**: Claude MUST stop after completing EACH individual issue. The user must manually restart Claude for the next issue.
 
+**IMPORTANT NOTE ON ISSUE NUMBERING**: GitHub assigns issue numbers sequentially across the entire repository. The review process uses labels (`pkgreview-metadata`, `pkgreview-data`, `pkgreview-docs`, `pkgreview-tests`) to identify review issues rather than assuming specific numbers. Always use the actual GitHub issue numbers when referencing issues.
+
 ## Review Workflow
 
 ### 1. PLAN Phase
@@ -28,10 +30,11 @@ When initiated via `/review-package [package-name]`, Claude will:
 
 3. **Create First Review Issue**
    - First issue (General Information & Metadata) is created with label `pkgreview-metadata`
+   - GitHub automatically assigns an issue number (e.g., #42, #87, etc.)
    - Subsequent issues are created after previous PRs are merged
    - This ensures each issue builds on completed changes
    
-   Issue sequence:
+   Issue sequence (with labels for identification):
    - Metadata Review: General Information & Metadata (label: `pkgreview-metadata`)
    - Data Review: Data Content & Processing (label: `pkgreview-data`, created after metadata merged)
    - Documentation Review: Documentation (label: `pkgreview-docs`, created after data merged)
@@ -69,7 +72,7 @@ After user approval, work on issues ONE AT A TIME.
 - When ready, user runs `/review-issue [actual-number]` to start working on it
 - Each issue builds on the previous one, ensuring changes are cumulative throughout the review process
 
-#### Issue 1: General Information & Metadata
+#### Metadata Review: General Information & Metadata
 
 **Claude must check off items as completed and update the issue**
 
@@ -84,7 +87,7 @@ After user approval, work on issues ONE AT A TIME.
 - [ ] CITATION.cff file present and valid
 - [ ] Generate citation using `washr::update_citation()` for now without a DOI
 
-#### Issue 2: Data Content & Processing
+#### Data Review: Data Content & Processing
 
 **File Structure**
 - [ ] All primary data files are present in `data/` and use `.rda` format
@@ -108,7 +111,7 @@ After user approval, work on issues ONE AT A TIME.
 - [ ] Handles data cleaning transparently
 - [ ] Analysis and testing scripts preserved in analysis/ directory
 
-#### Issue 3: Documentation
+#### Documentation Review
 - [ ] README.Rmd follows openwashdata template
 - [ ] Dynamic content generation works
 - [ ] Installation instructions present
@@ -119,7 +122,7 @@ After user approval, work on issues ONE AT A TIME.
 - [ ] _pkgdown.yml configured with Plausible analytics
 - [ ] Package website builds without errors
 
-#### Issue 4: Tests & CI/CD
+#### Tests Review: Tests & CI/CD
 - [ ] Add GitHub Actions workflow for R-CMD-check
 - [ ] Add R-CMD-check badge to README.Rmd
 - [ ] Package passes `devtools::check()` with no errors/warnings
@@ -129,7 +132,7 @@ After user approval, work on issues ONE AT A TIME.
 **MANDATORY PROCESS FOR EACH ISSUE**: 
 1. Present planned changes and request user confirmation before implementing
    - **ALWAYS WAIT** for explicit user approval (yes/no/edit) before proceeding
-2. Create a feature branch from `dev` (e.g., `issue-1-metadata`)
+2. Create a feature branch from `dev` (e.g., `issue-42-metadata` where 42 is the actual issue number)
 3. Implement changes with regular check-ins:
    - **For each checklist item or major change:**
      - Announce the specific change
@@ -144,9 +147,9 @@ After user approval, work on issues ONE AT A TIME.
    - Use `gh issue edit [number] --body "[updated body]"` to save
 6. Create PR with detailed summary including all commits:
    ```
-   gh pr create --base dev --title "Fix Issue #[number]: [Description]" \
+   gh pr create --base dev --title "Fix: [Description]" \
    --body "## Summary
-   Addresses Issue #[number]
+   Addresses #[number]
    
    ## Changes Made
    - [Specific changes]
@@ -157,7 +160,7 @@ After user approval, work on issues ONE AT A TIME.
    
    Closes #[number]"
    ```
-7. **STOP IMMEDIATELY** - Output: "✅ PR created for Issue #[number]. Issue checklist updated. Please review and merge to dev, then run `/create-next-issue` to continue."
+7. **STOP IMMEDIATELY** - Output: "✅ PR created for issue #[number]. Issue checklist updated. Please review and merge to dev, then run `/create-next-issue` to continue."
 8. **DO NOT PROCEED** to any other issue
 
 ### 3. TEST Phase
@@ -340,14 +343,14 @@ When working on each issue via `/review-issue [number]`:
    - **CHECK-IN**: "Issue checklist updated. Ready to create PR? (yes/no)"
 
 6. **Final Commit** (if any uncommitted changes)
-   - `git add -A && git commit -m "Final updates for Issue #[number]"`
+   - `git add -A && git commit -m "Final updates for issue #[number]"`
 
 7. **Push** - Push branch: `git push -u origin issue-[number]-description`
 
 8. **Create PR** - ALWAYS against dev with detailed body:
    ```
-   gh pr create --base dev --title "Fix Issue #[number]: [description]" --body "## Summary
-   Addresses Issue #[number]
+   gh pr create --base dev --title "Fix: [description]" --body "## Summary
+   Addresses #[number]
    
    ## Changes Made
    - [List specific changes made]
@@ -367,7 +370,7 @@ When working on each issue via `/review-issue [number]`:
 9. **STOP COMPLETELY** - Output final message and cease all activity
 
 **CRITICAL STOPPING BEHAVIOR**:
-- After creating the PR, Claude MUST output: "✅ PR created for Issue #[number]. Please review and merge to dev, then run `/review-issue [next-number]` to continue with the next issue."
+- After creating the PR, Claude MUST output: "✅ PR created for issue #[number]. Please review and merge to dev, then run `/create-next-issue` to continue."
 - Claude MUST NOT continue with any other tasks
 - Claude MUST NOT suggest next steps
 - Claude MUST NOT start working on the next issue
@@ -414,7 +417,7 @@ When working on each issue via `/review-issue [number]`:
 User: /review-issue 42
 Claude: [Verifies issue #42 has pkgreview-metadata label]
         [Creates branch issue-42-metadata]
-        "I'll work on Issue #42: General Information & Metadata. Here's what needs to be done:
+        "I'll work on issue #42: General Information & Metadata. Here's what needs to be done:
         - Update DESCRIPTION file
         - Fix CITATION.cff
         - Generate citation with washr
@@ -440,9 +443,9 @@ Claude: [Commits: "Add CITATION.cff file"]
         
 User: commit
 Claude: [Commits: "Update CITATION with washr"]
-        [Updates Issue #42 checkboxes]
+        [Updates issue #42 checkboxes]
         [Creates PR with 3 commits listed]
-        "✅ PR created for Issue #42 with 3 commits. Issue checklist updated. Please review and merge to dev, then run `/create-next-issue` to continue."
+        "✅ PR created for issue #42 with 3 commits. Issue checklist updated. Please review and merge to dev, then run `/create-next-issue` to continue."
         [STOPS COMPLETELY]
 
 [Repeat for all 4 issues]

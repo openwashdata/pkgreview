@@ -34,31 +34,31 @@ I'll now analyze the `[package-name]` package structure and create a review plan
 
 I'll create 5 GitHub issues using `gh issue create` covering:
 
-**Issue #1: General Information & Metadata**
+**General Information & Metadata**
 - DESCRIPTION file review
 - Authors and ORCID IDs
 - License verification (CC BY 4.0)
 - Citation files (CITATION.cff, inst/CITATION)
 
-**Issue #2: Data Content & Quality**
+**Data Content & Quality**
 - Data file formats and locations
 - Data integrity checks
 - Variable completeness
 - Export formats availability
 
-**Issue #3: Data Processing Script Review**
+**Data Processing Script Review**
 - data_processing.R reproducibility
 - Code quality and documentation
 - Dictionary completeness
 - Raw data preservation
 
-**Issue #4: Documentation**
+**Documentation**
 - README.Rmd structure and content
 - Function documentation
 - _pkgdown.yml configuration
 - Variable dictionary
 
-**Issue #5: Tests & CI/CD**
+**Tests & CI/CD**
 - R-CMD-check workflow
 - Package checks status
 - Example code execution
@@ -83,10 +83,10 @@ The PLAN phase is complete. I've identified [X] issues that need attention.
 
 I'll now work through each issue systematically using GitHub CLI workflow:
 
-### Working on Issue #1: General Information & Metadata
+### Working on General Information & Metadata
 
 **GitHub CLI Commands:**
-- `gh issue view 1` - View issue details
+- `gh issue view [number]` - View issue details
 - `gh issue develop 1` - Create branch for issue
 - `git checkout 1-general-information-metadata`
 
@@ -136,20 +136,20 @@ Shows current review progress and pending tasks.
 **Current Phase**: CREATE
 **Issues Completed**: 2/5
 
-✅ Issue #1: General Information & Metadata
-✅ Issue #2: Data Content & Quality
-🔄 Issue #3: Data Processing Script Review (in progress)
-⏳ Issue #4: Documentation
-⏳ Issue #5: Tests & CI/CD
+✅ General Information & Metadata
+✅ Data Content & Quality
+🔄 Data Processing Script Review (in progress)
+⏳ Documentation
+⏳ Tests & CI/CD
 
-**Next Action**: Continue with Issue #3 changes
+**Next Action**: Continue with Data Processing Script Review
 ```
 
 ### `/review-issue [number]`
 Jump to a specific issue in the review process.
 
 ```markdown
-## 🎯 Reviewing Issue #[number]: [Issue Title]
+## 🎯 Working on Issue #[number]: [Issue Title]
 
 **GitHub CLI Commands:**
 - `gh issue view [number]` - View issue details

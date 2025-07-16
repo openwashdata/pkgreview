@@ -120,8 +120,8 @@ cd /path/to/package
 **Usage**:
 ```bash
 cd /path/to/package
-/review-issue 42   # Work on Issue #42 (use actual issue number)
-/review-issue 45   # Work on Issue #45 (use actual issue number)
+/review-issue 42   # Work on issue #42
+/review-issue 45   # Work on issue #45
 ```
 
 ### `/review-pr`
@@ -131,8 +131,8 @@ cd /path/to/package
 **Usage**:
 ```bash
 cd /path/to/package
-git checkout 43-data-content-quality  # Branch for Issue #43
-/review-pr                            # Creates PR for Issue #43
+git checkout 43-data-content-quality  # Branch for issue #43
+/review-pr                            # Creates PR for issue #43
 ```
 
 ## Best Practices

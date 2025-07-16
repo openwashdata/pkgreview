@@ -113,10 +113,11 @@ fi
 I'll create the first GitHub issue to begin the review process:
 
 ```bash
-# Create Issue 1: General Information & Metadata with label
+# Create first review issue: General Information & Metadata with label
 ISSUE_OUTPUT=$(gh issue create \
   --title "Data Package Review: General Information & Metadata" \
   --label "pkgreview-metadata" \
+  --label "pkgreview" \
   --body "## Review Checklist
 
 This is the first step in the openwashdata package review process.
@@ -137,13 +138,13 @@ This is the first step in the openwashdata package review process.
 - \`inst/CITATION\`
 
 ### Next Steps
-1. Use the actual issue number shown above to work on this issue
+1. Run `/review-issue $ISSUE_NUMBER` to work on this issue
 2. Create a PR to the \`dev\` branch
 3. After merging, run \`/create-next-issue\` to create the next issue")
 
 # Extract the issue number from the output
 ISSUE_NUMBER=$(echo "$ISSUE_OUTPUT" | grep -oE '[0-9]+$')
-echo "Created Issue #$ISSUE_NUMBER"
+echo "✅ Created issue #$ISSUE_NUMBER for General Information & Metadata review"
 ```
 
 **Note**: The review follows a sequential process:
@@ -163,7 +164,7 @@ The PLAN phase is complete. I've created the first review issue.
 **The first review issue has been created!** 
 
 Please:
-1. Review the issue on GitHub to confirm the checklist items (Issue #$ISSUE_NUMBER)
+1. Review the issue on GitHub to confirm the checklist items
 2. Make any necessary adjustments to the issue description
 3. When you're ready, run `/review-issue $ISSUE_NUMBER` to start working on it
 
