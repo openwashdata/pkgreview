@@ -5,16 +5,36 @@
 **Usage**: `/review-issue [number]`
 
 **Parameters**:
-- `number` (required): Issue number (1-4) to work on
+- `number` (required): The actual GitHub issue number to work on
 
 ---
 
 When the user types `/review-issue [number]`, execute the following:
 
-First, get the issue number and determine context:
+First, get the issue number and verify it's a review issue:
 ```bash
 ISSUE_NUMBER=$1
 PACKAGE_NAME=$(basename "$PWD")
+
+# Get issue details including labels
+ISSUE_JSON=$(gh issue view $ISSUE_NUMBER --json title,labels,body,state)
+ISSUE_TITLE=$(echo "$ISSUE_JSON" | jq -r '.title')
+ISSUE_LABELS=$(echo "$ISSUE_JSON" | jq -r '.labels[].name' | grep '^pkgreview-' || echo "")
+
+# Determine which type of review issue this is
+if echo "$ISSUE_LABELS" | grep -q "pkgreview-metadata"; then
+    ISSUE_TYPE="metadata"
+elif echo "$ISSUE_LABELS" | grep -q "pkgreview-data"; then
+    ISSUE_TYPE="data"
+elif echo "$ISSUE_LABELS" | grep -q "pkgreview-docs"; then
+    ISSUE_TYPE="docs"
+elif echo "$ISSUE_LABELS" | grep -q "pkgreview-tests"; then
+    ISSUE_TYPE="tests"
+else
+    echo "⚠️ Issue #$ISSUE_NUMBER doesn't appear to be a package review issue."
+    echo "Package review issues should have one of these labels: pkgreview-metadata, pkgreview-data, pkgreview-docs, pkgreview-tests"
+    exit 1
+fi
 ```
 
 ## 🎯 Reviewing Issue #$ISSUE_NUMBER: $ISSUE_TITLE
@@ -26,7 +46,7 @@ PACKAGE_NAME=$(basename "$PWD")
 
 ### Issue Details
 
-{{#if issue-1}}
+{{#if metadata}}
 **Data Package Review: General Information & Metadata**
 
 **Checklist:**
@@ -46,7 +66,7 @@ PACKAGE_NAME=$(basename "$PWD")
 - `inst/CITATION`
 {{/if}}
 
-{{#if issue-2}}
+{{#if data}}
 **Data Package Review: Data Content & Processing**
 
 ## Data Content & Quality Review Checklist
@@ -141,7 +161,7 @@ PACKAGE_NAME=$(basename "$PWD")
 
 {{/if}}
 
-{{#if issue-3}}
+{{#if docs}}
 **Data Package Review: Documentation**
 
 **Checklist:**
@@ -162,7 +182,7 @@ PACKAGE_NAME=$(basename "$PWD")
 - `man/*.Rd`
 {{/if}}
 
-{{#if issue-4}}
+{{#if tests}}
 **Data Package Review: Tests & CI/CD**
 
 **Checklist:**
@@ -234,13 +254,15 @@ Closes #$ISSUE_NUMBER"
 ## Error Handling
 
 If invalid issue number:
-❌ Invalid issue number '$ISSUE_NUMBER'. Please use a number between 1 and 4.
+❌ Issue #$ISSUE_NUMBER not found or is not a package review issue.
 
-Available issues:
-1. General Information & Metadata
-2. Data Content & Processing
-3. Documentation
-4. Tests & CI/CD
+Package review issues have these labels:
+- `pkgreview-metadata` - General Information & Metadata
+- `pkgreview-data` - Data Content & Processing
+- `pkgreview-docs` - Documentation
+- `pkgreview-tests` - Tests & CI/CD
+
+Use `gh issue list --label "pkgreview-*"` to see all review issues.
 
 If no review in progress:
 ⚠️ No package review is currently in progress.

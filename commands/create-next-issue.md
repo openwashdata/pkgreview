@@ -18,9 +18,18 @@ First, check the current review status:
 # Get package name
 PACKAGE_NAME=$(basename "$PWD")
 
-# Check which issues already exist
-echo "Checking existing issues..."
-gh issue list --state all --limit 10
+# Check which review issues already exist by label
+echo "Checking existing review issues..."
+METADATA_ISSUE=$(gh issue list --label "pkgreview-metadata" --json number,state --jq '.[0].number // empty')
+DATA_ISSUE=$(gh issue list --label "pkgreview-data" --json number,state --jq '.[0].number // empty')
+DOCS_ISSUE=$(gh issue list --label "pkgreview-docs" --json number,state --jq '.[0].number // empty')
+TESTS_ISSUE=$(gh issue list --label "pkgreview-tests" --json number,state --jq '.[0].number // empty')
+
+echo "Review Issues Status:"
+if [ -n "$METADATA_ISSUE" ]; then echo "✓ Metadata Issue: #$METADATA_ISSUE"; else echo "○ Metadata Issue: Not created"; fi
+if [ -n "$DATA_ISSUE" ]; then echo "✓ Data Issue: #$DATA_ISSUE"; else echo "○ Data Issue: Not created"; fi
+if [ -n "$DOCS_ISSUE" ]; then echo "✓ Documentation Issue: #$DOCS_ISSUE"; else echo "○ Documentation Issue: Not created"; fi
+if [ -n "$TESTS_ISSUE" ]; then echo "✓ Tests Issue: #$TESTS_ISSUE"; else echo "○ Tests Issue: Not created"; fi
 ```
 
 ### Determine Next Issue
@@ -30,14 +39,15 @@ Based on the existing issues, I'll create the next one in sequence:
 {{#if create-issue-2}}
 ```bash
 # Create Issue 2: Data Content & Processing
-gh issue create \
+ISSUE_OUTPUT=$(gh issue create \
   --title "Data Package Review: Data Content & Processing" \
+  --label "pkgreview-data" \
   --body "## Review Checklist
 
 This is the second step in the openwashdata package review process.
 
 ### Prerequisites
-- [x] Issue #1 (General Information & Metadata) has been completed and merged to dev
+- [x] Metadata review (Issue #$METADATA_ISSUE) has been completed and merged to dev
 
 ### Tasks
 
@@ -66,24 +76,29 @@ This is the second step in the openwashdata package review process.
 - \`inst/extdata/*\`
 
 ### Next Steps
-1. Run \`/review-issue 2\` to work on this issue
+1. Use the actual issue number shown above to work on this issue
 2. Create a PR to the \`dev\` branch
-3. After merging, run \`/create-next-issue\` to create Issue #3"
+3. After merging, run \`/create-next-issue\` to create the Documentation issue")
+
+# Extract the issue number
+ISSUE_NUMBER=$(echo "$ISSUE_OUTPUT" | grep -oE '[0-9]+$')
+echo "\nCreated Data Content & Processing Issue #$ISSUE_NUMBER"
 ```
 {{/if}}
 
 {{#if create-issue-3}}
 ```bash
 # Create Issue 3: Documentation
-gh issue create \
+ISSUE_OUTPUT=$(gh issue create \
   --title "Data Package Review: Documentation" \
+  --label "pkgreview-docs" \
   --body "## Review Checklist
 
 This is the third step in the openwashdata package review process.
 
 ### Prerequisites
-- [x] Issue #1 (General Information & Metadata) has been completed
-- [x] Issue #2 (Data Content & Processing) has been completed
+- [x] Metadata review (Issue #$METADATA_ISSUE) has been completed
+- [x] Data review (Issue #$DATA_ISSUE) has been completed
 
 ### Tasks
 - [ ] README.Rmd follows openwashdata template
@@ -102,25 +117,30 @@ This is the third step in the openwashdata package review process.
 - \`man/*.Rd\`
 
 ### Next Steps
-1. Run \`/review-issue 3\` to work on this issue
+1. Use the actual issue number shown above to work on this issue
 2. Create a PR to the \`dev\` branch
-3. After merging, run \`/create-next-issue\` to create Issue #4"
+3. After merging, run \`/create-next-issue\` to create the Tests & CI/CD issue")
+
+# Extract the issue number
+ISSUE_NUMBER=$(echo "$ISSUE_OUTPUT" | grep -oE '[0-9]+$')
+echo "\nCreated Documentation Issue #$ISSUE_NUMBER"
 ```
 {{/if}}
 
 {{#if create-issue-4}}
 ```bash
 # Create Issue 4: Tests & CI/CD
-gh issue create \
+ISSUE_OUTPUT=$(gh issue create \
   --title "Data Package Review: Tests & CI/CD" \
+  --label "pkgreview-tests" \
   --body "## Review Checklist
 
 This is the final step in the openwashdata package review process.
 
 ### Prerequisites
-- [x] Issue #1 (General Information & Metadata) has been completed
-- [x] Issue #2 (Data Content & Processing) has been completed
-- [x] Issue #3 (Documentation) has been completed
+- [x] Metadata review (Issue #$METADATA_ISSUE) has been completed
+- [x] Data review (Issue #$DATA_ISSUE) has been completed
+- [x] Documentation review (Issue #$DOCS_ISSUE) has been completed
 
 ### Tasks
 - [ ] Add GitHub Actions workflow for R-CMD-check
@@ -135,9 +155,13 @@ This is the final step in the openwashdata package review process.
 - Run comprehensive checks
 
 ### Next Steps
-1. Run \`/review-issue 4\` to work on this issue
+1. Use the actual issue number shown above to work on this issue
 2. Create a PR to the \`dev\` branch
-3. After merging, run \`/review-complete\` to create final PR from dev to main"
+3. After merging, run \`/review-complete\` to create final PR from dev to main")
+
+# Extract the issue number
+ISSUE_NUMBER=$(echo "$ISSUE_OUTPUT" | grep -oE '[0-9]+$')
+echo "\nCreated Tests & CI/CD Issue #$ISSUE_NUMBER"
 ```
 {{/if}}
 
@@ -160,6 +184,6 @@ If all issues already exist:
 Use `/review-status` to check the current progress or `/review-complete` if all issues are resolved.
 
 If previous issue not completed:
-⚠️ Issue #[X] appears to still be open. Please complete and merge its PR before creating the next issue.
+⚠️ The previous issue appears to still be open. Please complete and merge its PR before creating the next issue.
 
-Use `/review-issue [X]` to continue working on the current issue.
+Check the status with `/review-status` to see which issues need completion.

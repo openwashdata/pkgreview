@@ -120,8 +120,8 @@ cd /path/to/package
 **Usage**:
 ```bash
 cd /path/to/package
-/review-issue 1    # Work on Issue #1
-/review-issue 3    # Work on Issue #3
+/review-issue 42   # Work on Issue #42 (use actual issue number)
+/review-issue 45   # Work on Issue #45 (use actual issue number)
 ```
 
 ### `/review-pr`
@@ -131,8 +131,8 @@ cd /path/to/package
 **Usage**:
 ```bash
 cd /path/to/package
-git checkout 2-data-content-quality  # Issue #2 branch
-/review-pr                           # Creates PR for Issue #2
+git checkout 43-data-content-quality  # Branch for Issue #43
+/review-pr                            # Creates PR for Issue #43
 ```
 
 ## Best Practices
@@ -166,16 +166,15 @@ cd /path/to/openwashdata/data-repos
 The commands expect branches named: `[issue-number]-[descriptive-slug]`
 
 ```bash
-# ✅ Correct branch names
-1-general-information-metadata
-2-data-content-quality
-3-data-processing-review
-4-documentation
-5-tests-ci-cd
+# ✅ Correct branch names (using actual issue numbers)
+42-general-information-metadata
+43-data-content-quality
+44-documentation
+45-tests-ci-cd
 
 # ❌ Incorrect branch names
 feature/metadata-fix
-issue-1
+issue-metadata
 general-info
 ```
 

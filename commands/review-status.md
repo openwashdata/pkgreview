@@ -10,23 +10,53 @@
 
 When the user types `/review-status`, execute the following:
 
-First, determine the package name:
+First, determine the package name and check review issues:
 ```bash
 PACKAGE_NAME=$(basename "$PWD")
+
+# Get all review issues with their status
+METADATA_ISSUE=$(gh issue list --label "pkgreview-metadata" --json number,state,title --jq '.[0] // empty')
+DATA_ISSUE=$(gh issue list --label "pkgreview-data" --json number,state,title --jq '.[0] // empty')
+DOCS_ISSUE=$(gh issue list --label "pkgreview-docs" --json number,state,title --jq '.[0] // empty')
+TESTS_ISSUE=$(gh issue list --label "pkgreview-tests" --json number,state,title --jq '.[0] // empty')
+
+# Count completed issues
+COMPLETED_COUNT=0
+if [ -n "$METADATA_ISSUE" ] && [ "$(echo "$METADATA_ISSUE" | jq -r '.state')" = "CLOSED" ]; then ((COMPLETED_COUNT++)); fi
+if [ -n "$DATA_ISSUE" ] && [ "$(echo "$DATA_ISSUE" | jq -r '.state')" = "CLOSED" ]; then ((COMPLETED_COUNT++)); fi
+if [ -n "$DOCS_ISSUE" ] && [ "$(echo "$DOCS_ISSUE" | jq -r '.state')" = "CLOSED" ]; then ((COMPLETED_COUNT++)); fi
+if [ -n "$TESTS_ISSUE" ] && [ "$(echo "$TESTS_ISSUE" | jq -r '.state')" = "CLOSED" ]; then ((COMPLETED_COUNT++)); fi
 ```
 
 ## 📊 Review Status for `$PACKAGE_NAME`
 
-**Current Phase**: {{current-phase}}
-**Issues Completed**: {{completed-count}}/5
+**Issues Completed**: $COMPLETED_COUNT/4
 
 ### Issue Status
 
-✅ Issue #1: General Information & Metadata {{#if issue1-completed}}(completed){{else}}{{#if issue1-in-progress}}(in progress){{else}}(pending){{/if}}{{/if}}
-{{#if issue2-completed}}✅{{else}}{{#if issue2-in-progress}}🔄{{else}}⏳{{/if}}{{/if}} Issue #2: Data Content & Quality {{#if issue2-completed}}(completed){{else}}{{#if issue2-in-progress}}(in progress){{else}}(pending){{/if}}{{/if}}
-{{#if issue3-completed}}✅{{else}}{{#if issue3-in-progress}}🔄{{else}}⏳{{/if}}{{/if}} Issue #3: Data Processing Script Review {{#if issue3-completed}}(completed){{else}}{{#if issue3-in-progress}}(in progress){{else}}(pending){{/if}}{{/if}}
-{{#if issue4-completed}}✅{{else}}{{#if issue4-in-progress}}🔄{{else}}⏳{{/if}}{{/if}} Issue #4: Documentation {{#if issue4-completed}}(completed){{else}}{{#if issue4-in-progress}}(in progress){{else}}(pending){{/if}}{{/if}}
-{{#if issue5-completed}}✅{{else}}{{#if issue5-in-progress}}🔄{{else}}⏳{{/if}}{{/if}} Issue #5: Tests & CI/CD {{#if issue5-completed}}(completed){{else}}{{#if issue5-in-progress}}(in progress){{else}}(pending){{/if}}{{/if}}
+{{#if metadata-issue}}
+{{#if metadata-closed}}✅{{else}}🔄{{/if}} Issue #{{metadata-number}}: General Information & Metadata {{#if metadata-closed}}(completed){{else}}(open){{/if}}
+{{else}}
+⏳ Metadata Review: Not yet created
+{{/if}}
+
+{{#if data-issue}}
+{{#if data-closed}}✅{{else}}🔄{{/if}} Issue #{{data-number}}: Data Content & Processing {{#if data-closed}}(completed){{else}}(open){{/if}}
+{{else}}
+⏳ Data Review: Not yet created
+{{/if}}
+
+{{#if docs-issue}}
+{{#if docs-closed}}✅{{else}}🔄{{/if}} Issue #{{docs-number}}: Documentation {{#if docs-closed}}(completed){{else}}(open){{/if}}
+{{else}}
+⏳ Documentation Review: Not yet created
+{{/if}}
+
+{{#if tests-issue}}
+{{#if tests-closed}}✅{{else}}🔄{{/if}} Issue #{{tests-number}}: Tests & CI/CD {{#if tests-closed}}(completed){{else}}(open){{/if}}
+{{else}}
+⏳ Tests Review: Not yet created
+{{/if}}
 
 ### Current Phase Details
 
@@ -80,9 +110,18 @@ Complete deployment steps and prepare for PR merge.
 
 ### Available Commands
 
-- `/review-issue $CURRENT_ISSUE` - Work on current issue
-- `/review-pr` - Create pull request for current issue
-- `/review-package` - Restart review process
+{{#if next-action-create-first}}
+- `/review-package` - Start the review process
+{{/if}}
+{{#if next-action-work-on-issue}}
+- `/review-issue {{next-issue-number}}` - Work on the next open issue
+{{/if}}
+{{#if next-action-create-next}}
+- `/create-next-issue` - Create the next issue in sequence
+{{/if}}
+{{#if next-action-complete}}
+- `/review-complete` - Create final PR from dev to main
+{{/if}}
 
 ---
 

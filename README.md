@@ -41,19 +41,20 @@ The review follows a simple **PLAN → CREATE → TEST → DEPLOY** workflow:
 |---------|---------|-------|
 | `/review-package` | Start package review | `/review-package [package-name]` |
 | `/review-status` | Check review progress | `/review-status` |
-| `/review-issue [n]` | Work on specific issue | `/review-issue 1` |
+| `/review-issue [n]` | Work on specific issue | `/review-issue 42` |
 | `/review-pr` | Create pull request | `/review-pr` |
+| `/create-next-issue` | Create next review issue | `/create-next-issue` |
+| `/review-complete` | Create final PR to main | `/review-complete` |
 | `/create-release` | Create a new release | `/create-release [version]` |
 
 ## Review Issues
 
-Each review addresses 5 key areas:
+Each review addresses 4 key areas:
 
-1. **General Information & Metadata** - DESCRIPTION, citations, authors
-2. **Data Content & Quality** - Data integrity, formats, exports
-3. **Data Processing** - Reproducibility, documentation, raw data
-4. **Documentation** - README, pkgdown, function docs
-5. **Tests & CI/CD** - R CMD check, GitHub Actions
+1. **General Information & Metadata** - DESCRIPTION, citations, authors (label: `pkgreview-metadata`)
+2. **Data Content & Processing** - Data integrity, formats, exports, processing scripts (label: `pkgreview-data`)
+3. **Documentation** - README, pkgdown, function docs (label: `pkgreview-docs`)
+4. **Tests & CI/CD** - R CMD check, GitHub Actions (label: `pkgreview-tests`)
 
 ## Requirements
 

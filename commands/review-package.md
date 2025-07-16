@@ -113,9 +113,10 @@ fi
 I'll create the first GitHub issue to begin the review process:
 
 ```bash
-# Create Issue 1: General Information & Metadata
-gh issue create \
+# Create Issue 1: General Information & Metadata with label
+ISSUE_OUTPUT=$(gh issue create \
   --title "Data Package Review: General Information & Metadata" \
+  --label "pkgreview-metadata" \
   --body "## Review Checklist
 
 This is the first step in the openwashdata package review process.
@@ -136,9 +137,13 @@ This is the first step in the openwashdata package review process.
 - \`inst/CITATION\`
 
 ### Next Steps
-1. Run \`/review-issue 1\` to work on this issue
+1. Use the actual issue number shown above to work on this issue
 2. Create a PR to the \`dev\` branch
-3. After merging, the next issue will be created automatically"
+3. After merging, run \`/create-next-issue\` to create the next issue")
+
+# Extract the issue number from the output
+ISSUE_NUMBER=$(echo "$ISSUE_OUTPUT" | grep -oE '[0-9]+$')
+echo "Created Issue #$ISSUE_NUMBER"
 ```
 
 **Note**: The review follows a sequential process:
@@ -155,12 +160,12 @@ This is the first step in the openwashdata package review process.
 
 The PLAN phase is complete. I've created the first review issue.
 
-**Issue #1 has been created!** 
+**The first review issue has been created!** 
 
 Please:
-1. Review Issue #1 on GitHub to confirm the checklist items
+1. Review the issue on GitHub to confirm the checklist items (Issue #$ISSUE_NUMBER)
 2. Make any necessary adjustments to the issue description
-3. When you're ready, run `/review-issue 1` to start working on it
+3. When you're ready, run `/review-issue $ISSUE_NUMBER` to start working on it
 
 **Note**: Each issue builds on the previous one, ensuring that changes are cumulative throughout the review process.
 
@@ -170,8 +175,8 @@ Please:
 
 This package review follows a sequential, issue-by-issue approach:
 
-1. **Start**: Run `/review-package` to analyze the package and create Issue #1
-2. **Work**: Use `/review-issue [number]` to work on the current issue
+1. **Start**: Run `/review-package` to analyze the package and create the first issue
+2. **Work**: Use `/review-issue [number]` to work on the issue (using the actual issue number)
 3. **Submit**: Create a PR to the `dev` branch for each issue
 4. **Continue**: After merging, run `/create-next-issue` to create the next issue
 

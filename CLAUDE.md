@@ -27,20 +27,20 @@ When initiated via `/review-package [package-name]`, Claude will:
    - Check for existing PRs and dev branches
 
 3. **Create First Review Issue**
-   - Only Issue 1 (General Information & Metadata) is created initially
+   - First issue (General Information & Metadata) is created with label `pkgreview-metadata`
    - Subsequent issues are created after previous PRs are merged
    - This ensures each issue builds on completed changes
    
    Issue sequence:
-   - Issue 1: General Information & Metadata
-   - Issue 2: Data Content & Processing (created after Issue 1 merged)
-   - Issue 3: Documentation (created after Issue 2 merged)
-   - Issue 4: Tests & CI/CD (created after Issue 3 merged)
+   - Metadata Review: General Information & Metadata (label: `pkgreview-metadata`)
+   - Data Review: Data Content & Processing (label: `pkgreview-data`, created after metadata merged)
+   - Documentation Review: Documentation (label: `pkgreview-docs`, created after data merged)
+   - Tests Review: Tests & CI/CD (label: `pkgreview-tests`, created after docs merged)
 
 4. **Present Review Plan**
    - Summary of findings
    - List of issues to be addressed
-   - Provide explicit instructions for user to review Issue #1 on GitHub
+   - Provide explicit instructions for user to review the created issue on GitHub (with actual issue number)
    - Request user confirmation before proceeding
 
 ### 2. CREATE Phase
@@ -48,9 +48,9 @@ When initiated via `/review-package [package-name]`, Claude will:
 After user approval, work on issues ONE AT A TIME. 
 
 **SEQUENTIAL WORKFLOW:**
-1. User runs `/review-package` to start - only Issue #1 is created
-2. User reviews Issue #1 on GitHub and confirms readiness
-3. User runs `/review-issue 1` to work on Issue #1
+1. User runs `/review-package` to start - first issue is created with `pkgreview-metadata` label
+2. User reviews the issue on GitHub and confirms readiness
+3. User runs `/review-issue [actual-number]` to work on the issue
 4. Claude presents planned changes and waits for user confirmation
 5. After user approval, Claude creates a new branch from `dev`
 6. Claude implements all changes for this issue
@@ -58,15 +58,15 @@ After user approval, work on issues ONE AT A TIME.
 8. Claude creates a PR **against the `dev` branch** (NOT main!)
 9. **CLAUDE MUST STOP COMPLETELY** - Do not proceed to next issue
 10. User reviews the PR, merges it to dev
-11. User runs `/create-next-issue` to create Issue #2
+11. User runs `/create-next-issue` to create the next issue in sequence
 12. Repeat steps 2-11 for each subsequent issue
 
 **CRITICAL**: Claude MUST NOT automatically continue to the next issue. The workflow STOPS after creating each PR.
 
-**After Creating Issue #1:**
-- User should review Issue #1 on GitHub to confirm the checklist items
+**After Creating First Issue:**
+- User should review the issue on GitHub to confirm the checklist items
 - User can make any necessary adjustments to the issue description
-- When ready, user runs `/review-issue 1` to start working on it
+- When ready, user runs `/review-issue [actual-number]` to start working on it
 - Each issue builds on the previous one, ensuring changes are cumulative throughout the review process
 
 #### Issue 1: General Information & Metadata
@@ -144,7 +144,7 @@ After user approval, work on issues ONE AT A TIME.
    - Use `gh issue edit [number] --body "[updated body]"` to save
 6. Create PR with detailed summary including all commits:
    ```
-   gh pr create --base dev --title "Fix Issue #1: [Description]" \
+   gh pr create --base dev --title "Fix Issue #[number]: [Description]" \
    --body "## Summary
    Addresses Issue #[number]
    
@@ -288,8 +288,8 @@ Common dependencies for data packages:
 
 ## Commands
 
-- `/review-package [package-name]` - Start package review (analyzes package and creates Issue #1 only)
-- `/review-issue [number]` - Work on specific issue (STOPS after creating PR)
+- `/review-package [package-name]` - Start package review (analyzes package and creates first issue with label)
+- `/review-issue [number]` - Work on specific issue using actual GitHub issue number (STOPS after creating PR)
 - `/create-next-issue` - Create the next issue in sequence (after previous PR merged)
 - `/review-status` - Check current review progress
 - `/review-complete` - After all issues merged to dev, create final PR to main
@@ -299,8 +299,8 @@ Common dependencies for data packages:
 
 This package review follows a sequential, issue-by-issue approach:
 
-1. **Start**: Run `/review-package` to analyze the package and create Issue #1
-2. **Work**: Use `/review-issue [number]` to work on the current issue
+1. **Start**: Run `/review-package` to analyze the package and create the first issue
+2. **Work**: Use `/review-issue [number]` with the actual issue number to work on it
 3. **Submit**: Create a PR to the `dev` branch for each issue
 4. **Continue**: After merging, run `/create-next-issue` to create the next issue
 
@@ -411,9 +411,10 @@ When working on each issue via `/review-issue [number]`:
 ## Example Issue-by-Issue Workflow
 
 ```
-User: /review-issue 1
-Claude: [Creates branch issue-1-metadata]
-        "I'll work on Issue #1: General Information & Metadata. Here's what needs to be done:
+User: /review-issue 42
+Claude: [Verifies issue #42 has pkgreview-metadata label]
+        [Creates branch issue-42-metadata]
+        "I'll work on Issue #42: General Information & Metadata. Here's what needs to be done:
         - Update DESCRIPTION file
         - Fix CITATION.cff
         - Generate citation with washr
@@ -439,9 +440,9 @@ Claude: [Commits: "Add CITATION.cff file"]
         
 User: commit
 Claude: [Commits: "Update CITATION with washr"]
-        [Updates Issue #1 checkboxes]
+        [Updates Issue #42 checkboxes]
         [Creates PR with 3 commits listed]
-        "✅ PR created for Issue #1 with 3 commits. Issue checklist updated. Please review and merge to dev, then run `/review-issue 2` to continue."
+        "✅ PR created for Issue #42 with 3 commits. Issue checklist updated. Please review and merge to dev, then run `/create-next-issue` to continue."
         [STOPS COMPLETELY]
 
 [Repeat for all 4 issues]
