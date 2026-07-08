@@ -71,9 +71,13 @@ Each review addresses 4 key areas:
 ## Requirements
 
 - R and RStudio
+- R packages on the reviewer's machine: `washr` (keeps DESCRIPTION,
+  CITATION.cff, and inst/CITATION in sync; openwashdata packages are created
+  from its template), plus `devtools`, `pkgdown`, and `usethis` for checks,
+  website builds, and releases
 - GitHub CLI (`gh`)
 - Git
-- Claude Code with slash commands enabled
+- Claude Code (the workflow ships as skills; see Quick Start)
 
 ## Repository Structure
 
