@@ -1,0 +1,31 @@
+"id","region","waterSource","status","installation_date","users_count"
+"WP-001","Genève","rainwater","functional","2018-03-11",377
+"WP-002","Bern","protected spring","Non-Functional","2020-09-06",70
+"WP-003","Basel","hand-dug well","functional","30/10/2021",269
+"WP-004","Zürich","protected spring","functional","2021-11-11",330
+"WP-005","Genève","borehole","FUNCTIONAL","2021-01-22",335
+"WP-006","Zürich","borehole","functional","2019-02-25",-99
+"WP-007","Basel","rainwater","Functional","2019-08-22",329
+"WP-008","Bern","protected spring","Non-Functional","22/03/2021",165
+"WP-009","Genève","rainwater","functional","2018-03-04",78
+"WP-010","Basel","rainwater","non-functional","2020-10-29",358
+"WP-011","Bern","borehole","Non-Functional","2018-01-01",254
+"WP-012","Bern","rainwater","Functional","2018-02-21",-99
+"WP-013","Zürich","borehole","functional","2018-03-30",57
+"WP-014","Basel","rainwater","functional","14/02/2018",37
+"WP-015","Basel","borehole","functional","2021-02-22",259
+"WP-016","Zürich","hand-dug well","Non-Functional","2021-06-09",186
+"WP-005","Bern","protected spring","FUNCTIONAL","2018-10-04",175
+"WP-018","Zürich","rainwater","non-functional","2018-10-17",254
+"WP-019","Zürich","hand-dug well","functional","2018-04-13",-99
+"WP-020","Bern","protected spring","Non-Functional","2022-02-05",49
+"WP-021","Genève","borehole","non-functional","01/12/2018",48
+"WP-022","Zürich","hand-dug well","functional","2018-04-23",132
+"WP-023","Bern","rainwater","functional","2020-06-10",115
+"WP-024","Basel","borehole","functional","2018-12-10",291
+"WP-025","Bern","hand-dug well","FUNCTIONAL","2018-04-22",-99
+"WP-026","Basel","protected spring","functional","2018-05-20",112
+"WP-027","Bern","protected spring","functional","10/03/2018",230
+"WP-028","Genève","protected spring","FUNCTIONAL","2018-12-30",42
+"WP-029","Zürich","borehole","functional","2021-07-22",303
+"WP-030","Genève","rainwater","functional","2020-03-17",28

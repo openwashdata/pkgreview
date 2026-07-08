@@ -1,0 +1,22 @@
+# --------------------------------------------
+# CITATION file created with {cffr} R package
+# See also: https://docs.ropensci.org/cffr/
+# --------------------------------------------
+
+cff-version: 1.2.0
+message: 'To cite package "pkgreviewtest" in publications use:'
+type: software
+title: 'pkgreviewtest: Water Point Observations for Review Workflow Testing'
+version: 0.0.1
+abstract: Water point observations from four Swiss regions, including water source
+  type, functional status, installation date, and number of users. This is a fixture
+  package used to test the openwashdata package review workflow.
+authors:
+- family-names: Lastname
+  given-names: Firstname
+repository-code: https://github.com/openwashdata/pkgreviewtest
+url: https://github.com/openwashdata/pkgreviewtest
+date-released: '2026-07-08'
+contact:
+- family-names: Lastname
+  given-names: Firstname
