@@ -11,6 +11,11 @@ standard version this package was reviewed against. The `/review-package`
 command writes it at review start; the version above pins the standard for the
 whole review.
 
+Note: pkgdown renders every top-level `.md` file, so this file appears on the
+package website as `CLAUDE.html`. That is accepted openwashdata behavior (it
+publicly records the standard the package was reviewed against); pkgdown
+offers no configuration to exclude it. Do not delete the file to hide it.
+
 ## Rules a future session must not undo
 
 - Vignettes live in `vignettes/articles/`, never directly in `vignettes/`.
@@ -25,9 +30,16 @@ whole review.
 - The license is CC BY 4.0. Do not change it.
 - Missing values are coded as `NA`, never as empty strings, "NULL", "N/A",
   or sentinel numbers such as -99.
-- After editing DESCRIPTION, run `washr::update_description()`. After
-  version or author changes, run `washr::update_citation()` so DESCRIPTION,
-  CITATION.cff, and inst/CITATION stay in sync.
+- After editing DESCRIPTION, run `washr::update_description()`. Caveat
+  (washr 1.0.1): it strips `Config/Needs/website` entries; diff DESCRIPTION
+  after the call and restore anything it removed.
+- After version or author changes, run `washr::update_citation()` so
+  DESCRIPTION, CITATION.cff, and inst/CITATION stay in sync. Caveats
+  (washr 1.0.1): the `doi` argument is required, so call it with the
+  package DOI or `doi = NULL` before a DOI exists; with `doi = NULL` it can
+  inject a broken empty badge (`zenodo.org/badge/DOI/.svg`) into
+  README.Rmd, which must be removed; and it leaves `inst/CITATION.bk1`
+  backup files that must not be committed.
 - Raw data stays in `data-raw/`, processed `.rda` data in `data/`, and
   CSV/XLSX exports in `inst/extdata/`. `data-raw/dictionary.csv` documents
   all variables.
@@ -39,7 +51,7 @@ package-name/
 ├── DESCRIPTION
 ├── NAMESPACE
 ├── R/package-name.R          # roxygen data documentation
-├── data/package-name.rda
+├── data/package-name.rda     # single dataset: named after the package
 ├── data-raw/
 │   ├── data_processing.R
 │   └── dictionary.csv
@@ -56,12 +68,18 @@ package-name/
 └── .github/workflows/R-CMD-check.yaml
 ```
 
+Multi-dataset packages: one `.rda` in `data/` and one roxygen `.R` file per
+dataset, each with a unique, descriptive name; no dataset is named after
+the package. The `_pkgdown.yml` reference index lists every dataset.
+
 ## Standard _pkgdown.yml
 
-Replace `packagename` with the actual package name.
+Replace `packagename` with the actual package name. `url` is the site base
+URL (canonical links, sitemap.xml, redirects), so it must be the Pages URL,
+never the GitHub repo URL; the repo link lives in `home.links`.
 
 ```yaml
-url: https://github.com/openwashdata/packagename
+url: https://openwashdata.github.io/packagename/
 template:
   bootstrap: 5
   includes:
@@ -95,6 +113,10 @@ reference:
   contents:
   - packagename
 ```
+
+Multi-dataset packages: list one entry per data object under `contents`,
+each with its unique, descriptive name; none of them is named after the
+package.
 
 ## Code style
 

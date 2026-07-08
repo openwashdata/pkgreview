@@ -1,6 +1,9 @@
 # Standard openwashdata _pkgdown.yml configuration.
 # Replace `packagename` with the actual package name.
-url: https://github.com/openwashdata/packagename
+# `url` is the site base URL (canonical links, sitemap.xml, redirects),
+# so it must be the Pages URL, never the GitHub repo URL; the repo link
+# lives in home.links below.
+url: https://openwashdata.github.io/packagename/
 template:
   bootstrap: 5
   includes:
@@ -28,6 +31,9 @@ authors:
     before: "So *who* does the work?"
     after: "Thanks all!"
 
+# Multi-dataset packages: list one entry per data object under contents,
+# each with its unique, descriptive name (see the data checklist); none of
+# them is named after the package.
 reference:
 - title: "Data"
   desc: "Access the packagename dataset"
