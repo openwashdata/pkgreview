@@ -156,7 +156,9 @@ recorded per rule 3 of CLAUDE.md:
 | _pkgdown.yml | `url:` value | changed | Was the GitHub repo URL; pkgdown treats `url` as the site base URL, so canonical links, sitemap.xml, and redirects were broken on every reviewed package. Now the Pages URL; the repo link stays in `home.links`. Issue #24 |
 | standards.md | CLAUDE.html on the website | accepted | pkgdown renders every top-level `.md` and offers no exclusion mechanism (hardcoded exclusion list in `build-home-md.R`). Post-build deletion would not survive rebuilds or CI. Accepted and documented in the standards file: the page publicly records the review standard. Issue #24 |
 
-Version note: these changes land while the standard is still `1.0.0-dev`
-(never tagged). The completed fslogisticskampala review was stamped
-`1.0.0-dev` before these amendments; version-pinned checklist fetching
-(rule 1) applies from the first tagged release onward.
+Version note: these amendments ship as part of `v1.0.0`, the first tagged
+release of the standard. The completed fslogisticskampala review was
+stamped `1.0.0-dev` before the tag existed; version-pinned checklist
+fetching (rule 1) applies from `v1.0.0` onward. The fixture-run acceptance
+gate for these amendments (#17) was waived by the maintainer at release
+time and remains open to run afterwards.
