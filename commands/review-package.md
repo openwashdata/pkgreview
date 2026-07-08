@@ -127,9 +127,11 @@ This is the first step in the openwashdata package review process.
   - [ ] Title (descriptive, <65 characters)
   - [ ] Description (clear purpose statement)
   - [ ] Authors with ORCID IDs
+  - [ ] License: CC BY 4.0
   - [ ] Dependencies properly declared
   - [ ] Version follows semantic versioning
 - [ ] If updates are made to DESCRIPTION, run \`washr::update_description()\`
+- [ ] CITATION.cff file present and valid
 - [ ] Generate citation using \`washr::update_citation()\` for now without a DOI
 
 ### Files to Review

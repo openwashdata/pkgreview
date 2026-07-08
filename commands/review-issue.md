@@ -58,7 +58,7 @@ fi
   - Dependencies properly declared
   - Version follows semantic versioning
 - [ ] CITATION.cff file present and valid
-- [ ] Generate citation using `washr::compile_citation()`
+- [ ] Generate citation using `washr::update_citation()`
 
 **Files to Review:**
 - `DESCRIPTION`

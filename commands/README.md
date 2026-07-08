@@ -114,9 +114,9 @@ cd /path/to/package
 ```
 
 ### `/review-issue [number]`
-**Purpose**: Work on specific issue (1-5)
+**Purpose**: Work on a specific review issue (one of the 4 review areas)
 **Package Detection**: Uses current directory
-**Required Argument**: Issue number (1-5)
+**Required Argument**: Actual GitHub issue number
 **Usage**:
 ```bash
 cd /path/to/package

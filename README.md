@@ -30,7 +30,7 @@ That's it! The review system will guide you through the entire process.
 
 The review follows a simple **PLAN → CREATE → TEST → DEPLOY** workflow:
 
-1. **PLAN**: Analyze package structure and create 5 review issues
+1. **PLAN**: Analyze package structure and create the first of 4 review issues
 2. **CREATE**: Fix issues systematically with GitHub CLI integration
 3. **TEST**: Run comprehensive R package checks
 4. **DEPLOY**: Build pkgdown website and prepare for publication
