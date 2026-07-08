@@ -1,0 +1,7 @@
+bibentry(bibtype = "Misc",
+         title = "pkgreviewtest: Water Point Observations for Review Workflow Testing",
+         author = c(person(given = "Firstname",
+                           family = "Lastname")),
+         year = "2026",
+         url = "https://github.com/openwashdata/pkgreviewtest",
+         abstract = "Water point observations from four Swiss regions, including water source type, functional status, installation date, and number of users.")

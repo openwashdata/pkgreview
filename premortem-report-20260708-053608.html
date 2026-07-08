@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premortem Report: pkgreview refactor to Claude Code plugin</title>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --panel: #111827;
+    --panel2: #1a2236;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --line: #273249;
+    --red: #f87171;
+    --amber: #fbbf24;
+    --green: #34d399;
+    --blue: #60a5fa;
+    --purple: #c084fc;
+    --teal: #2dd4bf;
+    --pink: #fb7185;
+    --orange: #fb923c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    padding: 2.5rem 1.5rem 4rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 1.7rem; margin-bottom: 0.3rem; }
+  h2 { font-size: 1.25rem; margin: 2.2rem 0 0.9rem; border-bottom: 1px solid var(--line); padding-bottom: 0.4rem; }
+  h3 { font-size: 1.02rem; margin-bottom: 0.5rem; }
+  p { margin-bottom: 0.8rem; }
+  .sub { color: var(--muted); font-size: 0.95rem; margin-bottom: 2rem; }
+  .frame {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--red);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.98rem;
+  }
+  .synth { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1.4rem 1.6rem; margin-bottom: 1rem; }
+  .synth h3 { color: var(--blue); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.08em; margin-bottom: 0.6rem; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+  table { width: 100%; border-collapse: collapse; margin: 0.6rem 0 1rem; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.7rem; border: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--panel2); color: var(--muted); font-weight: 600; }
+  .matrix { display: grid; grid-template-columns: 110px 1fr 1fr; grid-template-rows: auto auto auto; gap: 6px; margin: 0.8rem 0 1.2rem; font-size: 0.88rem; }
+  .matrix .axis { color: var(--muted); display: flex; align-items: center; justify-content: center; text-align: center; font-size: 0.8rem; }
+  .matrix .cell { background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; padding: 0.7rem; min-height: 90px; }
+  .matrix .hot { border-color: var(--red); background: #2a1520; }
+  .matrix .cell strong { display: block; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+  ul, ol { margin: 0 0 0.9rem 1.3rem; }
+  li { margin-bottom: 0.45rem; }
+  code { background: var(--panel2); border: 1px solid var(--line); border-radius: 4px; padding: 0.08rem 0.35rem; font-size: 0.87em; font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+  @media (max-width: 860px) { .cards { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1.2rem 1.3rem; border-top: 4px solid var(--blue); }
+  .card h3 { font-size: 1rem; margin-bottom: 0.2rem; }
+  .card .meta { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .badge { display: inline-block; border-radius: 4px; padding: 0.05rem 0.5rem; font-size: 0.75rem; font-weight: 600; margin-right: 0.4rem; }
+  .b-red { background: #3b1220; color: var(--red); border: 1px solid var(--red); }
+  .b-amber { background: #332208; color: var(--amber); border: 1px solid var(--amber); }
+  .b-green { background: #0d2b22; color: var(--green); border: 1px solid var(--green); }
+  .card p, .card li { font-size: 0.92rem; }
+  .card .label { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; margin: 0.8rem 0 0.25rem; }
+  .assume { background: var(--panel2); border-radius: 6px; padding: 0.6rem 0.8rem; font-style: italic; font-size: 0.9rem; }
+  .c1 { border-top-color: var(--red); } .c2 { border-top-color: var(--orange); }
+  .c3 { border-top-color: var(--amber); } .c4 { border-top-color: var(--purple); }
+  .c5 { border-top-color: var(--teal); } .c6 { border-top-color: var(--blue); }
+  .c7 { border-top-color: var(--pink); } .c8 { border-top-color: var(--green); }
+  .overview { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; margin: 1rem 0; }
+  @media (max-width: 760px) { .overview { grid-template-columns: repeat(2, 1fr); } }
+  .ov { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 0.8rem; text-align: center; }
+  .ov .n { font-size: 1.6rem; font-weight: 700; color: var(--blue); }
+  .ov .t { font-size: 0.78rem; color: var(--muted); }
+  .hidden-a { background: linear-gradient(135deg, #1e1533, #111827); border: 1px solid var(--purple); border-radius: 10px; padding: 1.3rem 1.5rem; margin: 1rem 0; }
+  .hidden-a h3 { color: var(--purple); }
+  footer { margin-top: 3rem; color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+</style>
+</head>
+<body>
+
+<h1>Premortem Report</h1>
+
+<p class="sub">Refactor of openwashdata/pkgreview: from 8 slash commands + downloaded CLAUDE.md to a Claude Code plugin with skills and shared reference files. Horizon: 6 months (January 2027).</p>
+
+<div class="frame">
+<strong>Premise:</strong> It is January 2027. The refactor has failed. Seven investigators plus one adversarial counter-check worked backward to find out why.
+</div>
+
+<div class="overview">
+  <div class="ov"><div class="n">8</div><div class="t">failure modes found</div></div>
+  <div class="ov"><div class="n">7+1</div><div class="t">investigators + counter-check</div></div>
+  <div class="ov"><div class="n">3</div><div class="t">high probability, high damage</div></div>
+  <div class="ov"><div class="n">1</div><div class="t">hidden assumption</div></div>
+</div>
+
+<h2>Synthesis</h2>
+
+<div class="grid2">
+<div class="synth">
+<h3>Most likely failure</h3>
+<p><strong>Guardrails lost to progressive disclosure (F1).</strong> The current system's value is enforced discipline (check-ins, hard STOP after each PR, never PR to main mid-review), and it works because CLAUDE.md sits in context on every turn. Skills load their body once at invocation and push detail into reference files loaded late or compacted away in long sessions. This is a structural property of the new architecture, not a contingent event: the first long review session is exposed. Address this first.</p>
+</div>
+<div class="synth">
+<h3>Most dangerous failure</h3>
+<p><strong>Consolidation silently changes the review standard (F3).</strong> Merging 3-4 diverging checklist copies plus a mismatched CSV, with no test harness for prompt workflows, can drop checks (the CC BY 4.0 line, UTF-8 checks) or keep the wrong function (<code>compile_citation()</code>). Defects surface months later in published packages with permanent Zenodo DOIs. Irreversible damage to the org's core product. Insure against this with a reconciliation table and a defective fixture package.</p>
+</div>
+</div>
+
+<h3 style="margin-top:1.5rem;">Likelihood x impact</h3>
+
+<div class="matrix">
+  <div class="axis">High<br>damage</div>
+  <div class="cell"><strong>Low probability</strong>F7 Lost per-package CLAUDE.md artifact<br>F8 Plugin version skew on in-flight reviews<br>F4 Platform churn / wrong API details</div>
+  <div class="cell hot"><strong>High probability</strong>F1 Guardrail regression<br>F3 Silent standard drift<br>F2 Adoption fork (old commands keep working)</div>
+  <div class="axis">Low<br>damage</div>
+  <div class="cell"><strong>Low probability</strong>(none)</div>
+  <div class="cell"><strong>High probability</strong>F5 Over-engineering / refactor stalls half-finished<br>F6 Untouched state machine blamed on the plugin</div>
+  <div class="axis"></div>
+  <div class="axis">Damage low</div>
+  <div class="axis">Damage high (top row)</div>
+</div>
+<p style="font-size:0.85rem;color:var(--muted);">Read: top-right cell (likely and damaging) gets priority: F1, F3, F2.</p>
+
+<div class="hidden-a">
+<h3>The hidden assumption</h3>
+<p><strong>"Where instructions live doesn't change how they behave."</strong> The plan treats the system as documentation to reorganize. It is actually a behavioral program whose enforcement depends on three properties the refactor removes without noticing: instructions that are always in context (CLAUDE.md on every turn), a standard that is pinned per package at review start (the downloaded copy), and stability across a weeks-long stateful review (no mid-review version changes). A second fused assumption: CLAUDE.md is one artifact, when it is two (reviewer workflow + package-resident standards). The refactor correctly centralizes the first and must not delete the second.</p>
+</div>
+
+<h3>The revised plan</h3>
+
+<table>
+<tr><th>Revision</th><th>Failure it prevents</th></tr>
+<tr><td><strong>Split CLAUDE.md into its two roles.</strong> Reviewer workflow moves into the plugin. Package-resident standards (vignettes/articles/ rule, standard _pkgdown.yml, analysis/ dir, style) become a small versioned file still written into each package at review start, with a version stamp.</td><td>F7, F8</td></tr>
+<tr><td><strong>Guardrails live in always-loaded positions and in mechanics, not reference files.</strong> STOP and check-in rules go in each SKILL.md body, repeated at the point of action. Add mechanical enforcement: branch protection on main in target repos so a mid-review PR to main is impossible at the GitHub level, and consider a PreToolUse hook that blocks <code>gh pr create --base main</code> unless all four labels are closed.</td><td>F1</td></tr>
+<tr><td><strong>Canonicalization as a reviewed diff, not an editorial merge.</strong> Build a reconciliation table of every item across all 4 copies plus the 27-row CSV; decide each row explicitly; fix known bugs (compile_citation to update_citation, missing CC BY 4.0 line, "issues 1-5" to 4, delete review-package-slash-command.md); commit the table. Then run the new skill against a fixture package with planted defects and confirm it catches all of them.</td><td>F3</td></tr>
+<tr><td><strong>Verify platform behavior firsthand before building all skills.</strong> Prototype one read-only skill (review-status) and test frontmatter fields, plugin-root path resolution from inside a target package directory, and marketplace install on a second machine. Only then convert the rest.</td><td>F4</td></tr>
+<tr><td><strong>Pin the review, not just the tooling.</strong> Stamp the plugin version into the first review issue body and the per-package standards file. create-next-issue reads the stamp and warns on mismatch instead of misreading old issue bodies.</td><td>F8</td></tr>
+<tr><td><strong>Kill the old path in the same release.</strong> Replace commands/*.md with thin deprecation stubs pointing at the plugin, update the README install section, and run one 30-minute install session with the other reviewers. Do not leave both systems documented.</td><td>F2, F5</td></tr>
+<tr><td><strong>Timebox and phase.</strong> Phase 1 is conversion only. Borrowed ideas (pkgcheck-style automated check reports posted to issues, inbo/checklist-style tag-triggered Zenodo release) are phase 2, after the plugin has completed two real reviews.</td><td>F5</td></tr>
+<tr><td><strong>Harden the two cheapest state-machine failures.</strong> create-next-issue checks for an existing issue with the target label before creating (dedupe guard); review-complete reports which specific label/branch reconciliation failed instead of refusing opaquely.</td><td>F6</td></tr>
+</table>
+
+<h3>Kill criteria</h3>
+
+<ol>
+<li>If the read-only prototype skill cannot reliably read plugin reference files while running from a target package directory after one day of testing, stop the plugin approach; instead deduplicate content within the existing command files.</li>
+<li>If during the first real plugin-driven review Claude violates a STOP or check-in even once, halt the rollout to colleagues until guardrails are moved into SKILL.md bodies and a blocking hook exists.</li>
+<li>If two months after release fewer than half of the active reviewers have installed the plugin, either delete the legacy command files to force the cutover or formally revert to commands; do not run both systems past that date.</li>
+</ol>
+
+<h3>Pre-launch checklist</h3>
+
+<ol>
+<li>Reconciliation table of all checklist items (4 markdown copies + 27-row CSV) committed and reviewed; every dropped item listed.</li>
+<li>Fixture package with planted defects (wrong license, broken citation call, non-UTF-8 text, missing R-CMD-check) passes through the new skill and every defect is caught.</li>
+<li>Branch protection enabled on main in openwashdata data package repos.</li>
+<li>Full workflow tested from a colleague's machine via the real marketplace install path, not only the maintainer's machine.</li>
+<li>Per-package standards file with version stamp is written by review-package and verified present in the fixture run.</li>
+</ol>
+
+<h2>Failure modes in detail</h2>
+
+<div class="cards">
+
+<div class="card c1">
+<h3>F1: Guardrails lost to progressive disclosure</h3>
+<div class="meta"><span class="badge b-red">probability: high</span><span class="badge b-red">damage: high</span></div>
+<p>Enforcement language ("STOP COMPLETELY", check-in points, "always base dev") moved into a shared reference file that skills consult once. After 40+ tool calls the rules were compacted out of context; Claude created a PR and continued into the next review area, then later opened a dev-to-main PR with three unfinished areas. A colleague found autonomous commits and told the team the tool "does whatever it wants now".</p>
+<div class="label">Underlying assumption</div>
+<div class="assume">Behavioral guardrails bind wherever they live; in fact only always-in-context instructions survive long sessions and compaction.</div>
+<div class="label">Early warning signs</div>
+<ul><li>Transcripts where Claude creates a PR and continues without printing the mandated STOP message.</li><li>PRs with base main, or commits spanning two review areas on one branch.</li></ul>
+</div>
+
+<div class="card c2">
+<h3>F2: Reviewers never adopt the plugin</h3>
+<div class="meta"><span class="badge b-red">probability: high</span><span class="badge b-red">damage: high</span></div>
+<p>Marketplace add + install + namespaced commands was more friction than "copy eight files", and the old copied commands kept working. The commands/ directory was kept "just in case", an install error was worked around with "use the old files for now", and October checklist fixes landed only in the plugin. By December, half the org reviewed with stale commands: two visibly different package standards, the exact inconsistency the refactor was meant to end.</p>
+<div class="label">Underlying assumption</div>
+<div class="assume">A technically better distribution mechanism migrates users by itself, without deleting the old path.</div>
+<div class="label">Early warning signs</div>
+<ul><li>Install count stays at one or two while commands/*.md still gets copied.</li><li>New review issues missing the newest checklist items or using old PR templates.</li></ul>
+</div>
+
+<div class="card c3">
+<h3>F3: Consolidation silently changes the standard</h3>
+<div class="meta"><span class="badge b-amber">probability: medium-high</span><span class="badge b-red">damage: highest</span></div>
+<p>Merging diverging copies by majority vote made review-package.md canonical for metadata (the one copy missing the CC BY 4.0 check) and took the citation step from review-issue.md (the one copy naming the nonexistent <code>washr::compile_citation()</code>). The CSV was deleted undiffed, losing three items including the UTF-8 check. Smoke-testing on an already-correct package hid everything. Four packages passed review; in January a Zenodo-published package surfaced with License: MIT and a template CITATION.cff.</p>
+<div class="label">Underlying assumption</div>
+<div class="assume">Merging diverging copies is an editorial task you can trust by reading it, rather than a behavioral change needing a diff of every dropped item and a test against a deliberately defective package.</div>
+<div class="label">Early warning signs</div>
+<ul><li>Consolidation PR has no item-by-item reconciliation table; CSV deleted as "unused".</li><li>Completed-checklist sections in review PRs shorter than the old CLAUDE.md checklist for the same phase.</li></ul>
+</div>
+
+<div class="card c4">
+<h3>F4: Platform churn or wrong API details</h3>
+<div class="meta"><span class="badge b-amber">probability: medium</span><span class="badge b-amber">damage: medium-high</span></div>
+<p>The plan was built on secondhand research of a fast-moving surface (commands and skills merged in 2025-2026). Frontmatter fields behaved differently than researched; later, a Claude Code update changed path resolution for plugin reference files, and skills started failing mid-workflow, after issues and branches had been created. The single maintainer was in teaching season; reviewers reverted to hand-copying the old CLAUDE.md, leaving two divergent sources of truth.</p>
+<div class="label">Underlying assumption</div>
+<div class="assume">The plugin/skill surface researched in mid-2026 was stable, documented ground rather than a moving target requiring ongoing maintenance.</div>
+<div class="label">Early warning signs</div>
+<ul><li>Frontmatter fields that produce no error but visibly no effect.</li><li>Claude Code release notes mentioning plugins/skills with no smoke-test afterward.</li></ul>
+</div>
+
+<div class="card c5">
+<h3>F5: Over-engineering; refactor stalls half-finished</h3>
+<div class="meta"><span class="badge b-amber">probability: medium-high</span><span class="badge b-amber">damage: medium</span></div>
+<p>"A weekend of cleanup" became weeks: skill frontmatter, decomposing 632 lines without breaking the stop-after-PR choreography, checklist conflict decisions, marketplace setup. Teaching season froze it with two skills working, others stubbed, and both install paths documented. An onboarding reviewer hit a stubbed skill mid-review and fell back to stale commands. Three packages sat unreviewed; nobody could say which system was canonical.</p>
+<div class="label">Underlying assumption</div>
+<div class="assume">The messy-but-working system was costing more hours than a full migration would consume before teaching season ended.</div>
+<div class="label">Early warning signs</div>
+<ul><li>Two-plus weeks of commits touch only pkgreview infrastructure while zero review issues or PRs open across openwashdata repos.</li><li>Refactor scope grows (marketplace, versioning, docs) before one skill has replaced its command end to end in a real review.</li></ul>
+</div>
+
+<div class="card c6">
+<h3>F6: Untouched state machine, new blame</h3>
+<div class="meta"><span class="badge b-red">probability: high</span><span class="badge b-amber">damage: medium</span></div>
+<p>The label-and-branch state machine (labels, issue open/closed state, branch name prefixes, standing dev branch) is what actually breaks: a colleague tidied labels and create-next-issue made a duplicate; a manually closed issue plus an unprefixed branch made review-complete refuse opaquely; dev diverged from main after a hotfix. All pre-existing fragilities, but every failure now carried the plugin's name, and reviewers concluded the new system was worse.</p>
+<div class="label">Underlying assumption</div>
+<div class="assume">The state machine's known fragilities were tolerable as-is, and only the packaging needed fixing.</div>
+<div class="label">Early warning signs</div>
+<ul><li>First duplicate issue created after a manual label or issue edit.</li><li>Bug reports against the plugin for failures that predate it.</li></ul>
+</div>
+
+<div class="card c7">
+<h3>F7: Per-package CLAUDE.md was load-bearing</h3>
+<div class="meta"><span class="badge b-amber">probability: medium</span><span class="badge b-red">damage: high</span></div>
+<p>The downloaded CLAUDE.md was two things fused: reviewer workflow and package-resident standards. The refactor deleted both from packages. A student contributor later opened Claude in a reviewed package; with no CLAUDE.md, Claude moved vignettes out of articles/ and rewrote _pkgdown.yml, dropping Plausible analytics and the ETH funding sidebar; the PR was merged and analytics silently stopped. Nobody could later tell which standard version a 2026 package had been reviewed against.</p>
+<div class="label">Underlying assumption</div>
+<div class="assume">CLAUDE.md's only consumer was the reviewer running the slash commands, when its real consumers were every future Claude session inside the reviewed package.</div>
+<div class="label">Early warning signs</div>
+<ul><li>First post-refactor PR in a reviewed package touching _pkgdown.yml or vignettes/ paths.</li><li>Plugin reference files edited with no corresponding version marker in any reviewed package.</li></ul>
+</div>
+
+<div class="card c8">
+<h3>F8: Version skew on in-flight reviews (counter-check finding)</h3>
+<div class="meta"><span class="badge b-amber">probability: medium</span><span class="badge b-red">damage: high</span></div>
+<p>A review is a weeks-long stateful process, not a session. The old downloaded CLAUDE.md accidentally pinned the standard at review start; the plugin deliberately removes that pinning. A v1.3 checklist rewording landed while three reviews were mid-flight on v1.2-format issues: create-next-issue could not reconcile old issue bodies, created a duplicate, and forked the state machine, while a never-updated reviewer applied the old standard in the same month. The plan versions the tooling but never versions the review.</p>
+<div class="label">Underlying assumption</div>
+<div class="assume">"One source of truth" and "reviews that span weeks across multiple users" are compatible without a pinning or migration story.</div>
+<div class="label">Early warning signs</div>
+<ul><li>A plugin release merged while any pkgreview-* labeled issue is open, with no note on which reviews it applies to.</li><li>First create-next-issue or review-status run that misreads an issue created by an earlier plugin version.</li></ul>
+</div>
+
+</div>
+
+<footer>
+Premortem of: refactoring openwashdata/pkgreview into a Claude Code plugin (skill-based architecture).
+Generated 2026-07-08 05:36. 7 investigators + 1 adversarial counter-check, run in parallel.
+Companion transcript: premortem-transcript-20260708-053608.md
+</footer>
+
+</body>
+</html>

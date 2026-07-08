@@ -1,0 +1,77 @@
+---
+name: review-status
+description: Show openwashdata package review progress for the R data package in the current directory, derived from the pkgreview-* labeled GitHub issues, and surface state anomalies. Read-only.
+disable-model-invocation: true
+---
+
+# review-status
+
+Report the state of an openwashdata package review. This skill is read-only:
+it inspects GitHub issues, PRs, and git state, and reports. It never creates,
+edits, closes, commits, or pushes anything.
+
+Run from the root of the package under review (the repo whose issues carry
+the `pkgreview-*` labels).
+
+## Step 1: Gather state
+
+```bash
+PACKAGE_NAME=$(basename "$PWD")
+
+# All four review areas, open AND closed
+gh issue list --label "pkgreview-metadata" --state all --json number,state,title
+gh issue list --label "pkgreview-data" --state all --json number,state,title
+gh issue list --label "pkgreview-docs" --state all --json number,state,title
+gh issue list --label "pkgreview-tests" --state all --json number,state,title
+
+# Open PRs and branch state
+gh pr list --state open
+git fetch --quiet origin
+git rev-list --count dev..main 2>/dev/null || echo "no dev branch"
+```
+
+Also read the version stamp: view the first (metadata) issue body with
+`gh issue view [number]` and find the "Review standard version" line, if
+present. The installed tooling version is in
+`${CLAUDE_SKILL_DIR}/../pkgreview-core/VERSION`.
+
+## Step 2: Report
+
+Build the report only from the command output above; do not invent progress.
+
+```
+## Review Status for [package-name]
+
+**Issues Completed**: [N]/4
+**Review standard version**: [stamp from issue 1, or "not stamped"]
+
+### Issue Status
+
+[One line per review area, in order (Metadata, Data, Documentation, Tests):]
+- Issue #[number]: [title] (completed)   [exists and CLOSED]
+- Issue #[number]: [title] (open)        [exists and OPEN]
+- [Area] Review: Not yet created         [no issue with that label]
+
+### Next Action
+
+[Exactly one, based on state:]
+- No issues exist: suggest /review-package to start the review
+- An issue is open: suggest /review-issue [number]
+- Latest issue closed, later ones not created: suggest /create-next-issue
+- All four exist and are closed: suggest /review-complete
+```
+
+## Step 3: Anomaly checks
+
+Surface these rather than only counting progress. For each hit, name the
+failure mode and the recovery path from
+[recovery.md](../pkgreview-core/references/recovery.md):
+
+- More than one issue with the same `pkgreview-*` label (duplicates)
+- An issue closed without a merged PR referencing it
+- `dev` behind `main` (`git rev-list --count dev..main` greater than 0)
+- Version stamp in issue 1 differs from the installed tooling version
+- An open PR whose base branch is `main` while review issues are still open
+
+If no review is in progress (no `pkgreview-*` issues at all), say so and
+suggest `/review-package [package-name]`.

@@ -1,0 +1,40 @@
+---
+title: "Exploring water point functionality"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Exploring water point functionality}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(pkgreviewtest)
+library(dplyr)
+```
+
+## Overview
+
+This article shows a short exploration of the water point observations in
+the `pkgreviewtest` dataset.
+
+## Water points by status
+
+```{r}
+pkgreviewtest |>
+  count(status)
+```
+
+## Users per water source
+
+```{r}
+pkgreviewtest |>
+  group_by(waterSource) |>
+  summarise(mean_users = mean(users_count))
+```

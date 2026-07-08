@@ -1,0 +1,7 @@
+directory,file_name,variable_name,variable_type,description
+data,pkgreviewtest.rda,id,character,Water point identifier
+data,pkgreviewtest.rda,region,character,Region where the water point is located
+data,pkgreviewtest.rda,waterSource,character,Type of water source
+data,pkgreviewtest.rda,status,character,Functional status of the water point
+data,pkgreviewtest.rda,installation_date,character,Date the water point was installed
+data,pkgreviewtest.rda,users_count,integer,Number of people using the water point
