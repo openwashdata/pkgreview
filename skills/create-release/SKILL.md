@@ -29,8 +29,16 @@ wait until they confirm.
 ## Step 2: Version bump
 
 - `usethis::use_version()` to set the version in DESCRIPTION to `$ARGUMENTS`
-- Run `washr::update_citation()` (still without a DOI) so DESCRIPTION,
-  CITATION.cff, and inst/CITATION agree on version and date
+- Run `washr::update_citation(doi = NULL)` (no DOI exists yet) so
+  DESCRIPTION, CITATION.cff, and inst/CITATION agree on version and date
+
+washr 1.0.1 caveats (openwashdata/pkgreview#23):
+
+- The `doi` argument is required and has no default; a bare
+  `update_citation()` errors.
+- `update_citation(doi = NULL)` can inject a broken empty badge into
+  README.Rmd (`zenodo.org/badge/DOI/.svg`). Check README.Rmd after the
+  call and remove it; the real badge is added after the DOI exists.
 
 ## Step 3: NEWS.md
 
@@ -47,31 +55,29 @@ wait until they confirm.
 
 ## Step 4: Commit and release
 
+- Delete washr backup files first: `rm -f inst/CITATION.bk1`
+  (they otherwise slip into the release commit)
 - Commit DESCRIPTION, CITATION.cff, inst/CITATION, NEWS.md with message
   `Release version $ARGUMENTS`, push to main
 - `gh release create v$ARGUMENTS --title "v$ARGUMENTS" --notes "[NEWS.md
   section for this version]"`
 - Zenodo generates the DOI automatically after this step
 
-## Step 5: Post-release DOI update (PAUSE)
+## Step 5: Post-release DOI integration (PAUSE)
 
 Ask:
 
 > "GitHub release created. Please check Zenodo for the generated DOI and
 > provide it (format: 10.5281/zenodo.XXXXXXX):"
 
-With the DOI provided:
+With the DOI provided, follow steps 2 to 6 of the `add-doi` skill
+(`${CLAUDE_SKILL_DIR}/../add-doi/SKILL.md`): citation files, README
+badge, commit and push, website rebuild, DOI verification. That skill is
+the single implementation of DOI integration; do not duplicate its steps
+here.
 
-- `washr::update_citation(doi = "10.5281/zenodo.XXXXXXX")`
-- Add the badge to README.Rmd:
-  `[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX)`
-- Rebuild README: `R -e "devtools::build_readme()"`
-- Commit with message `Add Zenodo DOI to package`, push to main
-
-## Step 6: Website
-
-Rebuild and deploy the pkgdown site so the new version and DOI badge are
-live. Confirm to the user, then stop.
+If the session ends before the DOI exists, the user can resume later with
+`/add-doi [doi]`; nothing is lost.
 
 Note: automating this flow with tag-triggered CI (inbo/checklist pattern) is
 tracked in openwashdata/pkgreview issue #12; until then both pauses are
