@@ -34,139 +34,32 @@ if [ -n "$TESTS_ISSUE" ]; then echo "✓ Tests Issue: #$TESTS_ISSUE"; else echo 
 
 ### Determine Next Issue
 
-Based on the existing issues, I'll create the next one in sequence:
+Based on the existing issues, create the next one in sequence:
 
-{{#if create-issue-2}}
-```bash
-# Create Data Content & Processing Issue
-ISSUE_OUTPUT=$(gh issue create \
-  --title "Data Package Review: Data Content & Processing" \
-  --label "pkgreview-data" \
-  --body "## Review Checklist
+- No `pkgreview-data` issue and the metadata issue is closed: create the
+  Data Content & Processing issue
+- No `pkgreview-docs` issue and the data issue is closed: create the
+  Documentation issue
+- No `pkgreview-tests` issue and the docs issue is closed: create the
+  Tests & CI/CD issue
 
-This is the second step in the openwashdata package review process.
+Build the issue body from the canonical sources; do not retype or paraphrase
+checklist items:
 
-### Prerequisites
-- [x] Metadata review (#$METADATA_ISSUE) has been completed and merged to dev
+1. Fetch the canonical template and the checklist for the next area:
+   - `docs/templates/issue-body.md` (structure, title, and label mapping)
+   - `docs/checklists/[area].md` (the checklist content)
 
-### Tasks
+   Read them from a local clone of openwashdata/pkgreview if available,
+   otherwise fetch from
+   `https://raw.githubusercontent.com/openwashdata/pkgreview/main/docs/...`.
 
-#### File Structure
-- [ ] All primary data files are present in \`data/\` and use \`.rda\` format
-- [ ] All raw or exportable data files (CSV/XLSX) are in \`inst/extdata/\`
-- [ ] No sensitive or personally identifiable information is present
+2. Create the issue with `gh issue create`, using the title and labels from
+   the template's mapping table. Fill the Prerequisites section with the
+   actual issue numbers of the previously completed review issues.
 
-#### Data Quality Checks
-- [ ] Missing values properly coded as \`NA\`
-- [ ] Categorical variables checked for consistency
-- [ ] Date variables in proper format
-- [ ] Numeric variables have reasonable ranges
-- [ ] All text data encoded in UTF-8
-
-#### Data Processing Script
-- [ ] data_processing.R in data-raw/
-- [ ] Script is reproducible and well-commented
-- [ ] Raw data files preserved
-- [ ] dictionary.csv with variable descriptions
-
-### Files to Review
-- \`data/*.rda\`
-- \`data-raw/data_processing.R\`
-- \`data-raw/dictionary.csv\`
-- \`inst/extdata/*\`
-
-### Next Steps
-1. Run `/review-issue $ISSUE_NUMBER` to work on this issue
-2. Create a PR to the \`dev\` branch
-3. After merging, run \`/create-next-issue\` to create the Documentation issue")
-
-# Extract the issue number
-ISSUE_NUMBER=$(echo "$ISSUE_OUTPUT" | grep -oE '[0-9]+$')
-echo "
-✅ Created Data Content & Processing issue #$ISSUE_NUMBER"
-```
-{{/if}}
-
-{{#if create-issue-3}}
-```bash
-# Create Documentation Issue
-ISSUE_OUTPUT=$(gh issue create \
-  --title "Data Package Review: Documentation" \
-  --label "pkgreview-docs" \
-  --body "## Review Checklist
-
-This is the third step in the openwashdata package review process.
-
-### Prerequisites
-- [x] Metadata review (#$METADATA_ISSUE) has been completed
-- [x] Data review (#$DATA_ISSUE) has been completed
-
-### Tasks
-- [ ] README.Rmd follows openwashdata template
-- [ ] Dynamic content generation works
-- [ ] Installation instructions present
-- [ ] Data overview with dimensions
-- [ ] Variable dictionary table rendered
-- [ ] License and citation sections complete
-- [ ] Roxygen documentation for all exported functions
-- [ ] _pkgdown.yml configured with Plausible analytics
-- [ ] Package website builds without errors
-
-### Files to Review
-- \`README.Rmd\`
-- \`_pkgdown.yml\`
-- \`man/*.Rd\`
-
-### Next Steps
-1. Run `/review-issue $ISSUE_NUMBER` to work on this issue
-2. Create a PR to the \`dev\` branch
-3. After merging, run \`/create-next-issue\` to create the Tests & CI/CD issue")
-
-# Extract the issue number
-ISSUE_NUMBER=$(echo "$ISSUE_OUTPUT" | grep -oE '[0-9]+$')
-echo "
-✅ Created Documentation issue #$ISSUE_NUMBER"
-```
-{{/if}}
-
-{{#if create-issue-4}}
-```bash
-# Create Tests & CI/CD Issue
-ISSUE_OUTPUT=$(gh issue create \
-  --title "Data Package Review: Tests & CI/CD" \
-  --label "pkgreview-tests" \
-  --body "## Review Checklist
-
-This is the final step in the openwashdata package review process.
-
-### Prerequisites
-- [x] Metadata review (#$METADATA_ISSUE) has been completed
-- [x] Data review (#$DATA_ISSUE) has been completed
-- [x] Documentation review (#$DOCS_ISSUE) has been completed
-
-### Tasks
-- [ ] Add GitHub Actions workflow for R-CMD-check
-- [ ] Add R-CMD-check badge to README.Rmd
-- [ ] Package passes \`devtools::check()\` with no errors/warnings
-- [ ] Examples run successfully
-- [ ] Data loads correctly
-
-### Files to Create/Review
-- \`.github/workflows/R-CMD-check.yaml\` (to be created)
-- \`README.Rmd\` (add badge)
-- Run comprehensive checks
-
-### Next Steps
-1. Run `/review-issue $ISSUE_NUMBER` to work on this issue
-2. Create a PR to the \`dev\` branch
-3. After merging, run \`/review-complete\` to create final PR from dev to main")
-
-# Extract the issue number
-ISSUE_NUMBER=$(echo "$ISSUE_OUTPUT" | grep -oE '[0-9]+$')
-echo "
-✅ Created Tests & CI/CD issue #$ISSUE_NUMBER"
-```
-{{/if}}
+3. Capture the issue number GitHub assigns from the command output and
+   report it to the user.
 
 ### ✅ Issue Created!
 

@@ -33,31 +33,14 @@ CURRENT_ISSUE=$(echo $CURRENT_BRANCH | grep -o '^[0-9]\+' || echo "unknown")
 ### GitHub CLI Commands
 
 **Create Pull Request:**
+
+Build the PR body from the canonical template
+(`docs/templates/pr-body.md` in openwashdata/pkgreview; fetch from
+`https://raw.githubusercontent.com/openwashdata/pkgreview/main/docs/templates/pr-body.md`
+if no local clone is available). Base branch is `dev`:
+
 ```bash
-gh pr create --title "$PR_TITLE" --body "$(cat <<'EOF'
-## Summary
-$PR_SUMMARY
-
-## Changes Made
-$CHANGES_LIST
-
-## Testing
-- [ ] R CMD check passes
-- [ ] Package builds successfully
-- [ ] Examples run without errors
-- [ ] Documentation renders correctly
-
-## Review Checklist
-- [ ] Code follows tidyverse style guide
-- [ ] Documentation is complete and accurate
-- [ ] All tests pass
-- [ ] No breaking changes
-
-Implements #$CURRENT_ISSUE
-
-🤖 Generated with [Claude Code](https://claude.ai/code)
-EOF
-)"
+gh pr create --base dev --title "$PR_TITLE" --body "[body from canonical template]"
 ```
 
 ### Post-Creation Commands
@@ -80,30 +63,9 @@ gh pr checks $PR_NUMBER
 ### PR Details
 
 **Title**: $PR_TITLE
-**Body**: 
-```
-## Summary
-$PR_SUMMARY
-
-## Changes Made
-$CHANGES_LIST
-
-## Testing
-- [ ] R CMD check passes
-- [ ] Package builds successfully
-- [ ] Examples run without errors
-- [ ] Documentation renders correctly
-
-## Review Checklist
-- [ ] Code follows tidyverse style guide
-- [ ] Documentation is complete and accurate
-- [ ] All tests pass
-- [ ] No breaking changes
-
-Implements #$CURRENT_ISSUE
-
-🤖 Generated with [Claude Code](https://claude.ai/code)
-```
+**Body**: assembled from the canonical template (Summary with
+`Addresses #[number]`, Changes Made, Commits in this PR, Checklist,
+`Closes #[number]`). No attribution trailers or emojis.
 
 ### Next Steps
 

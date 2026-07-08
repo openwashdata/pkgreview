@@ -110,44 +110,25 @@ fi
 
 #### Step 3: Creating First Review Issue
 
-I'll create the first GitHub issue to begin the review process:
+Build the issue body from the canonical sources; do not retype or paraphrase
+checklist items:
 
-```bash
-# Create first review issue: General Information & Metadata with label
-ISSUE_OUTPUT=$(gh issue create \
-  --title "Data Package Review: General Information & Metadata" \
-  --label "pkgreview-metadata" \
-  --label "pkgreview" \
-  --body "## Review Checklist
+1. Fetch the canonical template and checklist:
+   - `docs/templates/issue-body.md` (structure and title/label mapping)
+   - `docs/checklists/metadata.md` (the checklist content)
 
-This is the first step in the openwashdata package review process.
+   Read them from a local clone of openwashdata/pkgreview if available,
+   otherwise fetch:
+   - https://raw.githubusercontent.com/openwashdata/pkgreview/main/docs/templates/issue-body.md
+   - https://raw.githubusercontent.com/openwashdata/pkgreview/main/docs/checklists/metadata.md
 
-### Tasks
-- [ ] DESCRIPTION file completeness
-  - [ ] Title (descriptive, <65 characters)
-  - [ ] Description (clear purpose statement)
-  - [ ] Authors with ORCID IDs
-  - [ ] License: CC BY 4.0
-  - [ ] Dependencies properly declared
-  - [ ] Version follows semantic versioning
-- [ ] If updates are made to DESCRIPTION, run \`washr::update_description()\`
-- [ ] CITATION.cff file present and valid
-- [ ] Generate citation using \`washr::update_citation()\` for now without a DOI
+2. Create the issue with `gh issue create`, title
+   `Data Package Review: General Information & Metadata`, labels
+   `pkgreview` and `pkgreview-metadata`, and the body assembled per the
+   template (this is issue 1, so omit the Prerequisites section).
 
-### Files to Review
-- \`DESCRIPTION\`
-- \`CITATION.cff\`
-- \`inst/CITATION\`
-
-### Next Steps
-1. Run `/review-issue $ISSUE_NUMBER` to work on this issue
-2. Create a PR to the \`dev\` branch
-3. After merging, run \`/create-next-issue\` to create the next issue")
-
-# Extract the issue number from the output
-ISSUE_NUMBER=$(echo "$ISSUE_OUTPUT" | grep -oE '[0-9]+$')
-echo "✅ Created issue #$ISSUE_NUMBER for General Information & Metadata review"
-```
+3. Capture the issue number GitHub assigns from the command output and
+   report it to the user.
 
 **Note**: The review follows a sequential process:
 1. **Issue 1**: General Information & Metadata

@@ -75,7 +75,9 @@ pkgreview/
 │   ├── review-pr.md
 │   └── create-release.md
 ├── docs/              # Documentation and resources
-│   └── review-checklist.csv
+│   ├── checklists/    # Canonical review checklists (one per review area)
+│   ├── templates/     # Canonical issue body, PR body, _pkgdown.yml
+│   └── checklist-reconciliation.md
 ├── .github/           # GitHub configuration
 │   └── workflows/
 │       └── R-CMD-check.yaml
@@ -106,20 +108,22 @@ your-package/
 - **GitHub Integration**: Creates issues, branches, and PRs automatically
 - **Smart Detection**: Uses current directory as package name
 - **Quality Checks**: Ensures consistency across all packages
-- **Comprehensive Review**: 27-point checklist covering all aspects of package quality
+- **Comprehensive Review**: canonical checklists covering all aspects of package quality
 - **Reproducible Workflow**: Standardized process for all reviewers
 
 ## Review Checklist
 
-The review process uses a comprehensive checklist covering:
+The review process uses one canonical checklist per review area, in
+`docs/checklists/`:
 
-- General information and metadata
-- Data content and quality 
-- Data processing reproducibility
-- Documentation completeness
-- Testing and CI/CD setup
+- `metadata.md` - General information and metadata
+- `data.md` - Data content, quality, and processing reproducibility
+- `docs.md` - Documentation completeness
+- `tests.md` - Testing and CI/CD setup
 
-See `docs/review-checklist.csv` for the complete list of review points.
+Issue and PR bodies are built from the templates in `docs/templates/`.
+The record of how the previously diverging checklist copies were merged is
+in `docs/checklist-reconciliation.md`.
 
 ## Contributing
 

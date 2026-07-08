@@ -72,62 +72,26 @@ After user approval, work on issues ONE AT A TIME.
 - When ready, user runs `/review-issue [actual-number]` to start working on it
 - Each issue builds on the previous one, ensuring changes are cumulative throughout the review process
 
-#### Metadata Review: General Information & Metadata
+#### Review checklists (canonical source)
 
-**Claude must check off items as completed and update the issue**
+**Claude must check off items as completed and update the issue.**
 
-- [ ] DESCRIPTION file completeness
-  - Title (descriptive, <65 characters)
-  - Description (clear purpose statement)
-  - Authors with ORCID IDs
-  - License: CC BY 4.0
-  - Dependencies properly declared
-  - Version follows semantic versioning
-- [ ] If updates are made to DESCRIPTION, run `washr::update_description()`
-- [ ] CITATION.cff file present and valid
-- [ ] Generate citation using `washr::update_citation()` for now without a DOI
+The four review checklists live in one canonical place in the
+openwashdata/pkgreview repository; do not duplicate them here or in issue
+bodies typed from memory:
 
-#### Data Review: Data Content & Processing
+- Metadata Review: `docs/checklists/metadata.md`
+- Data Review: `docs/checklists/data.md`
+- Documentation Review: `docs/checklists/docs.md`
+- Tests Review: `docs/checklists/tests.md`
 
-**File Structure**
-- [ ] All primary data files are present in `data/` and use `.rda` format
-- [ ] All raw or exportable data files (CSV/XLSX) are in `inst/extdata/`
-- [ ] Main dataset accessible via function matching package name
-- [ ] No sensitive or personally identifiable information is present
+Read them from a local clone of openwashdata/pkgreview if available, otherwise
+fetch from
+`https://raw.githubusercontent.com/openwashdata/pkgreview/main/docs/checklists/[area].md`.
 
-**Data Quality Checks**
-- [ ] Missing values properly coded as `NA`
-- [ ] Categorical variables checked for consistency
-- [ ] Date variables in proper format
-- [ ] Numeric variables have reasonable ranges
-- [ ] All text data encoded in UTF-8
-
-**Data Processing Script**
-- [ ] data_processing.R in data-raw/
-- [ ] Script is reproducible and well-commented
-- [ ] Raw data files preserved in data-raw/
-- [ ] dictionary.csv with variable descriptions
-- [ ] Uses tidyverse conventions
-- [ ] Handles data cleaning transparently
-- [ ] Analysis and testing scripts preserved in analysis/ directory
-
-#### Documentation Review
-- [ ] README.Rmd follows openwashdata template
-- [ ] Dynamic content generation works
-- [ ] Installation instructions present
-- [ ] Data overview with dimensions
-- [ ] Variable dictionary table rendered
-- [ ] License and citation sections complete
-- [ ] Roxygen documentation for all exported functions
-- [ ] _pkgdown.yml configured with Plausible analytics
-- [ ] Package website builds without errors
-
-#### Tests Review: Tests & CI/CD
-- [ ] Add GitHub Actions workflow for R-CMD-check
-- [ ] Add R-CMD-check badge to README.Rmd
-- [ ] Package passes `devtools::check()` with no errors/warnings
-- [ ] Examples run successfully
-- [ ] Data loads correctly
+Issue bodies are created from `docs/templates/issue-body.md` with the
+checklist content inserted verbatim. The record of every consolidation
+decision is in `docs/checklist-reconciliation.md`.
 
 **MANDATORY PROCESS FOR EACH ISSUE**: 
 1. Present planned changes and request user confirmation before implementing
@@ -145,21 +109,11 @@ After user approval, work on issues ONE AT A TIME.
    - Use `gh issue view [number]` to get current issue body
    - Update checkboxes from `- [ ]` to `- [x]` for completed items
    - Use `gh issue edit [number] --body "[updated body]"` to save
-6. Create PR with detailed summary including all commits:
-   ```
-   gh pr create --base dev --title "Fix: [Description]" \
-   --body "## Summary
-   Addresses #[number]
-   
-   ## Changes Made
-   - [Specific changes]
-   
-   ## Completed Checklist Items
-   - [x] Item 1
-   - [x] Item 2
-   
-   Closes #[number]"
-   ```
+6. Create PR with detailed summary including all commits, using the
+   canonical PR body template (`docs/templates/pr-body.md` in
+   openwashdata/pkgreview): base `dev`, title `Fix: [Description]`, body with
+   Summary (Addresses #[number]), Changes Made, Commits in this PR,
+   Checklist, and `Closes #[number]`
 7. **STOP IMMEDIATELY** - Output: "✅ PR created for issue #[number]. Issue checklist updated. Please review and merge to dev, then run `/create-next-issue` to continue."
 8. **DO NOT PROCEED** to any other issue
 
@@ -347,23 +301,25 @@ When working on each issue via `/review-issue [number]`:
 
 7. **Push** - Push branch: `git push -u origin issue-[number]-description`
 
-8. **Create PR** - ALWAYS against dev with detailed body:
+8. **Create PR** - ALWAYS against dev, with the body built from the
+   canonical PR body template (`docs/templates/pr-body.md` in
+   openwashdata/pkgreview):
    ```
    gh pr create --base dev --title "Fix: [description]" --body "## Summary
    Addresses #[number]
-   
+
    ## Changes Made
    - [List specific changes made]
    - [Include which checklist items were completed]
-   
+
    ## Commits in this PR
    - [List each commit message]
-   
+
    ## Checklist
    - [x] Item 1 completed
    - [x] Item 2 completed
    - [ ] Item 3 (if not completed, explain why)
-   
+
    Closes #[number]"
    ```
 
