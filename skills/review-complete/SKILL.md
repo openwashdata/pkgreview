@@ -19,11 +19,23 @@ gh issue list --label "pkgreview-docs" --state all --json number,state,title
 gh issue list --label "pkgreview-tests" --state all --json number,state,title
 ```
 
-All four must exist and be CLOSED. If not, do not create the PR. Report
-precisely what blocks completion, per area:
+All four must exist and be CLOSED, with one reconcilable exception: an
+OPEN issue whose PR is already merged into dev is the normal post-merge
+state (`Closes #N` only fires on default-branch merges; recovery.md
+failure mode 7). Check with
+`gh pr list --state merged --search "[issue-number]"`, close the issue,
+and continue:
+
+```bash
+gh issue close [issue-number] --comment "Completed via PR #[pr-number], merged into dev."
+```
+
+For anything else, do not create the PR. Report precisely what blocks
+completion, per area:
 
 - missing issue: "[Area]: no issue with label pkgreview-[area] exists"
-- open issue: "[Area]: issue #[N] is still open"
+- open issue without a merged PR: "[Area]: issue #[N] is still open and no
+  merged PR references it"
 - duplicate labels: name both issue numbers
 
 Do not refuse opaquely; for each problem name the matching failure mode and
@@ -44,9 +56,20 @@ git fetch origin main
 git rev-list --count dev..main
 ```
 
-If `dev` is behind `main` (count above 0), stop: failure mode 4 in
-recovery.md. Merge `main` into `dev` first (with the user's approval),
-resolve conflicts, then re-run this skill.
+If `dev` is behind `main` (count above 0), check whether the missing
+commits actually change content:
+
+```bash
+git diff --stat dev origin/main
+```
+
+- Empty diff: the trees are identical, so the behind-ness is bookkeeping
+  only (for example the merge commit of a previous dev-to-main PR). Tell
+  the user, resolve it directly
+  (`git merge origin/main && git push origin dev`), and continue.
+- Non-empty diff: stop: failure mode 4 in recovery.md. Merge `main` into
+  `dev` first (with the user's approval), resolve conflicts, then re-run
+  this skill.
 
 ## Step 3: Create the final PR
 

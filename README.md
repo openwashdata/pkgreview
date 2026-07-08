@@ -55,6 +55,7 @@ they run only when you type them, never on the model's own initiative.
 | `/create-next-issue` | Create next review issue | `/create-next-issue` |
 | `/review-complete` | Create final PR to main | `/review-complete` |
 | `/create-release` | Create a new release | `/create-release [version]` |
+| `/add-doi` | Integrate a Zenodo DOI after release (resume or repair path) | `/add-doi 10.5281/zenodo.XXXXXXX` |
 
 PR creation for an issue happens inside `/review-issue` (step 7); there is
 no separate `/review-pr` anymore.
@@ -90,6 +91,7 @@ pkgreview/
 │   ├── review-status/
 │   ├── review-complete/
 │   ├── create-release/
+│   ├── add-doi/
 │   └── pkgreview-core/        # Shared references (not a skill)
 │       ├── VERSION            # Review standard version
 │       └── references/

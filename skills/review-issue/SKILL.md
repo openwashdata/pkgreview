@@ -39,13 +39,21 @@ the suggested tools and file lists. If body and canonical file disagree, the
 issue body wins (it records this review's pinned standard); mention the
 difference to the user.
 
-## Step 2: Analyze and CHECK-IN #1
+## Step 2: Analyze and CHECK-IN #1 (the single implementation approval)
 
-Analyze what needs to change, item by item. Present the plan:
+Analyze what needs to change, item by item. Present ONE consolidated plan
+covering the whole issue; a table works well:
 
-> "Here's what I found and plan to do: [list]. Should I proceed? (yes/no/edit)"
+| # | Change | Checklist item | Planned commit message |
+|---|--------|----------------|------------------------|
 
-**Wait for the reply. "no" or "edit" means discuss, do not implement.**
+> "Here's the full plan for this issue (table above). Once you approve, I
+> will implement all of it with one atomic commit per change and no
+> further per-change prompts. Proceed? (yes/no/edit)"
+
+**Wait for the reply. "no" or "edit" means discuss, do not implement.
+This is the only approval for implementation; anything beyond the
+approved plan needs a new check-in before it is done.**
 
 ## Step 3: Branch
 
@@ -59,18 +67,20 @@ git checkout -b issue-$ARGUMENTS-[short-slug]
 Branch from `dev`, never from `main`. Keep the `issue-[number]-` prefix; it
 is how later steps link branch to issue.
 
-## Step 4: Implement in stages with per-change CHECK-INs
+## Step 4: Implement the approved plan with atomic commits
 
-For EACH checklist item or significant change:
+For EACH change in the approved plan:
 
 1. Announce the specific change
-2. Make it
-3. Show the result
-4. **CHECK-IN: "Ready to commit this change? (commit/continue)"**
-5. On "commit": `git add -A && git commit -m "[atomic, descriptive message]"`
+2. Make it and show the result
+3. Commit immediately:
+   `git add -A && git commit -m "[the planned commit message]"`
 
-Atomic commits, one logical change each. Never batch the whole issue into
-one commit, and never commit without the user saying "commit".
+Atomic commits, one logical change each; never batch the whole issue into
+one commit. Do not pause between changes: the plan was approved at
+CHECK-IN #1 and the check-in currency is the plan, not the individual
+commit. If implementation reveals work outside the approved plan, stop
+and CHECK-IN before doing it.
 
 ## Step 5: Test and CHECK-IN
 
@@ -99,8 +109,10 @@ git push -u origin issue-$ARGUMENTS-[short-slug]
 Build the PR body from
 `${CLAUDE_SKILL_DIR}/../pkgreview-core/references/templates/pr-body.md`:
 Summary (`Addresses #$ARGUMENTS`), Changes Made, Commits in this PR,
-Checklist (every issue item, checked or unchecked with reasons),
-`Closes #$ARGUMENTS`. No attribution trailers, no emojis.
+Checklist (every issue item, checked or unchecked with reasons). Do NOT
+add `Closes #$ARGUMENTS`: it only fires on default-branch merges, and
+this PR merges into `dev`; `/create-next-issue` closes the issue
+explicitly after the merge. No attribution trailers, no emojis.
 
 ```bash
 gh pr create --base dev --title "Fix: [description]" --body "[body]"
@@ -115,7 +127,8 @@ running the command.**
 Output exactly this and nothing more:
 
 > "PR created for issue #$ARGUMENTS. Issue checklist updated. Please review
-> and merge to dev, then run /create-next-issue to continue."
+> and merge to dev, then run /create-next-issue to continue (it syncs dev,
+> closes this issue, and creates the next one)."
 
 - Do NOT continue with any other task
 - Do NOT suggest further next steps

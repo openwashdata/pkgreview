@@ -140,3 +140,25 @@ Deleted. All 26 rows are accounted for above (M1, M3 to M7, M12, M14, D5, D8 to 
 README claim that the CSV is "the complete list of review points" was false
 (it was used by nothing and diverged from the markdown checklists); README now
 points at `skills/pkgreview-core/references/checklists/`.
+
+## Amendments from the first real review (fslogisticskampala, 2026-07-08)
+
+The first production run of the skill workflow (openwashdata/fslogisticskampala,
+review standard 1.0.0-dev) surfaced checklist and template defects. Decisions,
+recorded per rule 3 of CLAUDE.md:
+
+| Ref | Item | Decision | Rationale |
+|-----|------|----------|-----------|
+| D3 | "Main dataset accessible via a function or object matching the package name" | reworded | The rule was unsatisfiable for multi-dataset packages (fslogisticskampala ships `trips` and `trucks`). Now: single-dataset packages name the object after the package; multi-dataset packages use unique, descriptive names, none matching the package name. Issue #18 |
+| T2 | R-CMD-check badge markdown | updated | The template used the deprecated `workflows/R-CMD-check/badge.svg` form; replaced with `actions/workflows/R-CMD-check.yaml/badge.svg`, linking to the workflow page. Issue #25 |
+| T6 (new) | Workflow triggers include `dev` | added | The usethis default `branches: [main, master]` meant no review PR into `dev` was ever CI-checked during the whole fslogisticskampala review. Issue #25 |
+| PR template | `Closes #N` line | dropped | `Closes` only fires on default-branch merges; review PRs merge into `dev`, so the line never worked. The skills now close issues explicitly with a comment referencing the merged PR. Issue #21 |
+| _pkgdown.yml | `url:` value | changed | Was the GitHub repo URL; pkgdown treats `url` as the site base URL, so canonical links, sitemap.xml, and redirects were broken on every reviewed package. Now the Pages URL; the repo link stays in `home.links`. Issue #24 |
+| standards.md | CLAUDE.html on the website | accepted | pkgdown renders every top-level `.md` and offers no exclusion mechanism (hardcoded exclusion list in `build-home-md.R`). Post-build deletion would not survive rebuilds or CI. Accepted and documented in the standards file: the page publicly records the review standard. Issue #24 |
+
+Version note: these amendments ship as part of `v1.0.0`, the first tagged
+release of the standard. The completed fslogisticskampala review was
+stamped `1.0.0-dev` before the tag existed; version-pinned checklist
+fetching (rule 1) applies from `v1.0.0` onward. The fixture-run acceptance
+gate for these amendments (#17) was waived by the maintainer at release
+time and remains open to run afterwards.

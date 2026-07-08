@@ -15,7 +15,7 @@ workflow ships as Claude Code skills.
 
 - `skills/` - one skill per entry point (`review-package`, `review-issue`,
   `create-next-issue`, `review-status`, `review-complete`,
-  `create-release`), all with `disable-model-invocation: true`. The
+  `create-release`, `add-doi`), all with `disable-model-invocation: true`. The
   behavioral guardrails (STOP after each PR, check-ins before commits, PRs
   only against `dev`) live in the SKILL.md bodies at the point of action;
   never move them into reference files.

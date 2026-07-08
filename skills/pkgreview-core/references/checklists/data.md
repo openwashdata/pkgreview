@@ -6,7 +6,7 @@ Review area 2 of 4. Issue label: `pkgreview-data`.
 
 - [ ] All primary data files are present in `data/` and use `.rda` format
 - [ ] All raw or exportable data files (CSV/XLSX) are in `inst/extdata/`
-- [ ] Main dataset accessible via a function or object matching the package name
+- [ ] Single-dataset package: the dataset is accessible via an object matching the package name. Multi-dataset package: each data object has a unique, descriptive name, and none of them matches the package name
 - [ ] No sensitive or personally identifiable information is present in any data file
 - [ ] Data size is appropriate for an R package (not excessively large, which would require an external download)
 - [ ] No obsolete files; no blank spaces in file names
@@ -51,7 +51,7 @@ Review area 2 of 4. Issue label: `pkgreview-data`.
 ## Files to review
 
 - `data/*.rda`
-- `R/[package-name].R`
+- `R/[package-name].R` (or one `R/[dataset-name].R` per dataset)
 - `data-raw/data_processing.R`
 - `data-raw/dictionary.csv`
 - `data-raw/[raw-data-files]`

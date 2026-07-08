@@ -24,12 +24,14 @@ Addresses #[issue-number]
 - [x] [Completed checklist item]
 - [ ] [Item not completed, with a short explanation why]
 
-Closes #[issue-number]
-
 ---
 
 Notes:
 
 - List every checklist item from the issue, checked or unchecked; an
   unchecked item needs a reason.
+- Do NOT add a `Closes #N` line: it only fires on merges into the default
+  branch, and per-issue PRs merge into `dev`. `/create-next-issue` and
+  `/review-complete` close the issue explicitly, with a comment
+  referencing the merged PR.
 - No attribution trailers or emojis in PR bodies.

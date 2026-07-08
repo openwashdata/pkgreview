@@ -10,7 +10,14 @@ Create the next review issue in the sequence metadata, data, docs, tests for
 the package in the current directory. This skill creates exactly one issue
 and stops; it never starts working on the issue it creates.
 
-## Step 1: Gather state (dedupe guard)
+## Step 1: Sync dev and gather state (dedupe guard)
+
+Sync `dev` first; the previous PR was merged on GitHub and the local
+branch is stale:
+
+```bash
+git checkout dev && git pull
+```
 
 Check ALL states, not just open; a closed or relabeled issue still counts as
 existing (recovery.md failure mode 1):
@@ -27,8 +34,20 @@ Rules:
 - If an issue for the would-be-next area ALREADY EXISTS (any state), abort
   with the issue number and state, and point at `/review-status`. Never
   create a duplicate.
-- If the previous area's issue is still OPEN, abort: its PR must be merged
-  to dev first. Name the open issue.
+- If the previous area's issue is still OPEN, check for a merged PR
+  referencing it:
+  ```bash
+  gh pr list --state merged --search "[issue-number]" --json number,title
+  ```
+  An open issue with a merged PR is the NORMAL post-merge state, not an
+  error: `Closes #N` only fires on merges into the default branch, and
+  review PRs merge into `dev` (recovery.md failure mode 7). Close it now
+  and continue:
+  ```bash
+  gh issue close [issue-number] --comment "Completed via PR #[pr-number], merged into dev."
+  ```
+  Abort only if the previous issue is open and NO merged PR references it:
+  its work has not landed on dev. Name the open issue.
 - If more than one issue carries the same label, abort and follow failure
   mode 1 in
   `${CLAUDE_SKILL_DIR}/../pkgreview-core/references/recovery.md`.
@@ -71,8 +90,9 @@ Capture the new issue number from the `gh issue create` output.
 Tell the user:
 
 1. The created issue number and URL
-2. Make sure the previous PR is merged and dev is pulled
-   (`git checkout dev && git pull`)
-3. Run `/review-issue [new-number]` to start working on it
+2. Whether the previous area's issue was closed by this skill (name the
+   issue and the merged PR)
+3. Run `/review-issue [new-number]` to start working on it (`dev` is
+   already synced from Step 1)
 
 **Stop here. Do not start working on the issue.**
