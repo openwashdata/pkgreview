@@ -120,7 +120,7 @@ your-package/
 
 ## Key Features
 
-- **Automatic Setup**: Downloads latest review standards (CLAUDE.md) to each package
+- **Automatic Setup**: Writes the version-stamped standards file into each reviewed package (as its CLAUDE.md)
 - **GitHub Integration**: Creates issues, branches, and PRs automatically
 - **Smart Detection**: Uses current directory as package name
 - **Quality Checks**: Ensures consistency across all packages
