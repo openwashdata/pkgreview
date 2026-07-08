@@ -1,0 +1,109 @@
+# openwashdata package standards
+
+Standard version: {{PKGREVIEW_VERSION}}
+Source: https://github.com/openwashdata/pkgreview
+
+This package was reviewed against the openwashdata standards recorded in this
+file. It guides every future Claude session working in this package, including
+sessions by student contributors and external collaborators who have no review
+tooling installed. Do not delete this file: it is the only record of which
+standard version this package was reviewed against. The `/review-package`
+command writes it at review start; the version above pins the standard for the
+whole review.
+
+## Rules a future session must not undo
+
+- Vignettes live in `vignettes/articles/`, never directly in `vignettes/`.
+  This keeps pkgdown rendering correct and avoids CRAN issues.
+- `_pkgdown.yml` follows the standard openwashdata configuration below,
+  including the Plausible analytics header and the ETH funding sidebar. Do
+  not remove or reorganize these blocks.
+- Analysis, validation, and testing scripts live in `analysis/` at the
+  package root. They are intentionally outside `R/` and are not built into
+  the installed package. Do not move or delete them; they exist for
+  reproducibility.
+- The license is CC BY 4.0. Do not change it.
+- Missing values are coded as `NA`, never as empty strings, "NULL", "N/A",
+  or sentinel numbers such as -99.
+- After editing DESCRIPTION, run `washr::update_description()`. After
+  version or author changes, run `washr::update_citation()` so DESCRIPTION,
+  CITATION.cff, and inst/CITATION stay in sync.
+- Raw data stays in `data-raw/`, processed `.rda` data in `data/`, and
+  CSV/XLSX exports in `inst/extdata/`. `data-raw/dictionary.csv` documents
+  all variables.
+
+## Package structure
+
+```
+package-name/
+├── DESCRIPTION
+├── NAMESPACE
+├── R/package-name.R          # roxygen data documentation
+├── data/package-name.rda
+├── data-raw/
+│   ├── data_processing.R
+│   └── dictionary.csv
+├── inst/
+│   ├── CITATION
+│   └── extdata/              # CSV and XLSX exports
+├── man/
+├── vignettes/articles/       # all vignettes go here
+├── analysis/                 # analysis scripts, not built
+├── README.Rmd / README.md
+├── NEWS.md
+├── CITATION.cff
+├── _pkgdown.yml
+└── .github/workflows/R-CMD-check.yaml
+```
+
+## Standard _pkgdown.yml
+
+Replace `packagename` with the actual package name.
+
+```yaml
+url: https://github.com/openwashdata/packagename
+template:
+  bootstrap: 5
+  includes:
+    in_header: |
+      <script defer data-domain="openwashdata.github.io" src="https://plausible.io/js/script.js"></script>
+
+home:
+  links:
+    - icon: github
+      text: GitHub repository
+      href: https://github.com/openwashdata/packagename
+  sidebar:
+    structure: [links, citation, authors, dev, custom]
+    components:
+      custom:
+        title: Funding
+        text: This project was funded by the [Open Research Data Program of the ETH Board](https://ethrat.ch/en/eth-domain/open-research-data/).
+
+authors:
+  footer:
+    roles: [cre, fnd]
+    text: "Crafted by"
+  sidebar:
+    roles: [cre, aut, ctb]
+    before: "So *who* does the work?"
+    after: "Thanks all!"
+
+reference:
+- title: "Data"
+  desc: "Access the packagename dataset"
+  contents:
+  - packagename
+```
+
+## Code style
+
+- 2 spaces for indentation, no tabs; maximum 80 characters per line
+- tidyverse style for R code; snake_case for functions and variables
+
+## Useful commands
+
+- Rebuild README: `R -e "devtools::build_readme()"`
+- Rebuild documentation: `R -e "devtools::document()"`
+- Full check: `R -e "devtools::check()"`
+- Build website: `R -e "pkgdown::build_site()"`

@@ -22,13 +22,13 @@ before consolidation so that known bugs were not canonicalized).
 
 | File | Content |
 |------|---------|
-| `docs/checklists/metadata.md` | General Information & Metadata checklist |
-| `docs/checklists/data.md` | Data Content & Processing checklist |
-| `docs/checklists/docs.md` | Documentation checklist |
-| `docs/checklists/tests.md` | Tests & CI/CD checklist |
-| `docs/templates/issue-body.md` | Canonical issue body template (all 4 issues) |
-| `docs/templates/pr-body.md` | Canonical PR body template |
-| `docs/templates/_pkgdown.yml` | Standard pkgdown configuration |
+| `skills/pkgreview-core/references/checklists/metadata.md` | General Information & Metadata checklist |
+| `skills/pkgreview-core/references/checklists/data.md` | Data Content & Processing checklist |
+| `skills/pkgreview-core/references/checklists/docs.md` | Documentation checklist |
+| `skills/pkgreview-core/references/checklists/tests.md` | Tests & CI/CD checklist |
+| `skills/pkgreview-core/references/templates/issue-body.md` | Canonical issue body template (all 4 issues) |
+| `skills/pkgreview-core/references/templates/pr-body.md` | Canonical PR body template |
+| `skills/pkgreview-core/references/templates/_pkgdown.yml` | Standard pkgdown configuration |
 
 Decisions column: **keep** (adopted as-is into the canonical file), **merge**
 (folded into another canonical item; target named), **drop** (removed; reason
@@ -110,7 +110,7 @@ given).
 | O13 | All datasets documented with .Rd files | CSV only | keep | Docs: Function and data documentation |
 | O14 | .Rd files include title, description, usage examples, variable descriptions | CSV only | keep | Docs: Function and data documentation |
 | O15 | Data structures (rows/columns) and types clearly described | CSV only | keep | Docs: Function and data documentation |
-| O16 | `_pkgdown.yml` with Plausible analytics | CM, RI (linked washmalawi copy), CN | keep | Canonical reference is now `docs/templates/_pkgdown.yml` in this repo, not the raw URL of another package |
+| O16 | `_pkgdown.yml` with Plausible analytics | CM, RI (linked washmalawi copy), CN | keep | Canonical reference is now `skills/pkgreview-core/references/templates/_pkgdown.yml` in this repo, not the raw URL of another package |
 | O17 | Package website builds without errors | CM, RI, CN | keep | Docs: Website |
 | O18 | Website published on GitHub Pages | CSV (= M14) | keep | Docs: Website |
 | O19 | Vignettes, if present, live in `vignettes/articles/` | CM (prose convention, never a checklist item) | keep | Promoted to a checklist item in Docs; the convention was enforced nowhere |
@@ -129,7 +129,7 @@ given).
 
 | Variant | Source | Decision |
 |---------|--------|----------|
-| Summary / Changes Made / Commits in this PR / Checklist / Closes #N | CM (Issue Resolution Workflow, step 8) | **keep**: canonical, in `docs/templates/pr-body.md` |
+| Summary / Changes Made / Commits in this PR / Checklist / Closes #N | CM (Issue Resolution Workflow, step 8) | **keep**: canonical, in `skills/pkgreview-core/references/templates/pr-body.md` |
 | Summary / Changes Made / Completed Checklist Items / Closes #N | CM (CREATE phase, step 6) | drop: subset of the canonical variant |
 | Summary / Changes Made / Checklist (3 fixed items) | RI (After Implementation) | drop: less informative than canonical |
 | Summary / Changes / Testing / Review Checklist / "Generated with Claude Code" trailer | `commands/review-pr.md` | drop: fixed checklist items do not reflect actual work; the attribution trailer is dropped deliberately (org style: no emojis, no tool attribution in PR bodies) |
@@ -139,4 +139,4 @@ given).
 Deleted. All 26 rows are accounted for above (M1, M3 to M7, M12, M14, D5, D8 to D10, D17, D19 to D21, D25, D31, D32, O2, O7 to O9, O11, O13 to O15, T3). The
 README claim that the CSV is "the complete list of review points" was false
 (it was used by nothing and diverged from the markdown checklists); README now
-points at `docs/checklists/`.
+points at `skills/pkgreview-core/references/checklists/`.

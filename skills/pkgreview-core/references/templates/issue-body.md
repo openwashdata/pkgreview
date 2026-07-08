@@ -6,10 +6,10 @@ the canonical checklist file for the area; do not retype or paraphrase it.
 
 | Area | Title suffix | Labels | Checklist file |
 |------|--------------|--------|----------------|
-| 1 Metadata | General Information & Metadata | `pkgreview`, `pkgreview-metadata` | `docs/checklists/metadata.md` |
-| 2 Data | Data Content & Processing | `pkgreview`, `pkgreview-data` | `docs/checklists/data.md` |
-| 3 Documentation | Documentation | `pkgreview`, `pkgreview-docs` | `docs/checklists/docs.md` |
-| 4 Tests | Tests & CI/CD | `pkgreview`, `pkgreview-tests` | `docs/checklists/tests.md` |
+| 1 Metadata | General Information & Metadata | `pkgreview`, `pkgreview-metadata` | `skills/pkgreview-core/references/checklists/metadata.md` |
+| 2 Data | Data Content & Processing | `pkgreview`, `pkgreview-data` | `skills/pkgreview-core/references/checklists/data.md` |
+| 3 Documentation | Documentation | `pkgreview`, `pkgreview-docs` | `skills/pkgreview-core/references/checklists/docs.md` |
+| 4 Tests | Tests & CI/CD | `pkgreview`, `pkgreview-tests` | `skills/pkgreview-core/references/checklists/tests.md` |
 
 Issue title: `Data Package Review: [Title suffix]`
 

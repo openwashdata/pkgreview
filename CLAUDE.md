@@ -80,16 +80,16 @@ The four review checklists live in one canonical place in the
 openwashdata/pkgreview repository; do not duplicate them here or in issue
 bodies typed from memory:
 
-- Metadata Review: `docs/checklists/metadata.md`
-- Data Review: `docs/checklists/data.md`
-- Documentation Review: `docs/checklists/docs.md`
-- Tests Review: `docs/checklists/tests.md`
+- Metadata Review: `skills/pkgreview-core/references/checklists/metadata.md`
+- Data Review: `skills/pkgreview-core/references/checklists/data.md`
+- Documentation Review: `skills/pkgreview-core/references/checklists/docs.md`
+- Tests Review: `skills/pkgreview-core/references/checklists/tests.md`
 
 Read them from a local clone of openwashdata/pkgreview if available, otherwise
 fetch from
-`https://raw.githubusercontent.com/openwashdata/pkgreview/main/docs/checklists/[area].md`.
+`https://raw.githubusercontent.com/openwashdata/pkgreview/main/skills/pkgreview-core/references/checklists/[area].md`.
 
-Issue bodies are created from `docs/templates/issue-body.md` with the
+Issue bodies are created from `skills/pkgreview-core/references/templates/issue-body.md` with the
 checklist content inserted verbatim. The record of every consolidation
 decision is in `docs/checklist-reconciliation.md`.
 
@@ -110,7 +110,7 @@ decision is in `docs/checklist-reconciliation.md`.
    - Update checkboxes from `- [ ]` to `- [x]` for completed items
    - Use `gh issue edit [number] --body "[updated body]"` to save
 6. Create PR with detailed summary including all commits, using the
-   canonical PR body template (`docs/templates/pr-body.md` in
+   canonical PR body template (`skills/pkgreview-core/references/templates/pr-body.md` in
    openwashdata/pkgreview): base `dev`, title `Fix: [Description]`, body with
    Summary (Addresses #[number]), Changes Made, Commits in this PR,
    Checklist, and `Closes #[number]`
@@ -302,7 +302,7 @@ When working on each issue via `/review-issue [number]`:
 7. **Push** - Push branch: `git push -u origin issue-[number]-description`
 
 8. **Create PR** - ALWAYS against dev, with the body built from the
-   canonical PR body template (`docs/templates/pr-body.md` in
+   canonical PR body template (`skills/pkgreview-core/references/templates/pr-body.md` in
    openwashdata/pkgreview):
    ```
    gh pr create --base dev --title "Fix: [description]" --body "## Summary

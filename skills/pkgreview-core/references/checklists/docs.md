@@ -23,7 +23,7 @@ Review area 3 of 4. Issue label: `pkgreview-docs`.
 
 ## Website
 
-- [ ] `_pkgdown.yml` follows the standard openwashdata configuration, including the Plausible analytics header (canonical template: `docs/templates/_pkgdown.yml` in openwashdata/pkgreview)
+- [ ] `_pkgdown.yml` follows the standard openwashdata configuration, including the Plausible analytics header (canonical template: `skills/pkgreview-core/references/templates/_pkgdown.yml` in openwashdata/pkgreview)
 - [ ] Package website builds without errors (`pkgdown::build_site()`)
 - [ ] Website published on GitHub Pages
 
