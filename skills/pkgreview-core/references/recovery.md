@@ -39,9 +39,10 @@ Symptom: a branch like `metadata-fixes` instead of `issue-42-metadata` breaks
 issue detection.
 
 Recovery: rename the branch (`git branch -m issue-[number]-[slug]`), or if the
-PR is already open, edit the PR body to include `Closes #[number]` so the link
-exists regardless of the branch name. Branch naming is a convenience; the
-issue-PR link is the record that matters.
+PR is already open, edit the PR body so `Addresses #[number]` names the right
+issue; that reference is what the skills search for when matching merged PRs
+to issues. Branch naming is a convenience; the issue-PR link is the record
+that matters.
 
 ## 4. A hotfix landed directly on main mid-review
 
@@ -70,3 +71,16 @@ Symptom: the first review issue body has no "Review standard version" line.
 
 Recovery: treat the review as pinned to the oldest available standard, tell
 the user, and continue with the installed version only after they confirm.
+
+## 7. Issue still open after its PR merged into dev (expected state)
+
+Symptom: a review issue remains open although its PR was merged.
+
+This is not corruption. `Closes #N` only fires on merges into the default
+branch (`main`); per-issue review PRs merge into `dev`, so GitHub never
+auto-closes review issues. `/create-next-issue` and `/review-complete`
+detect this state, close the issue with a comment referencing the merged
+PR, and continue.
+
+Manual recovery, if needed:
+`gh issue close [number] --comment "Completed via PR #[pr-number], merged into dev."`
