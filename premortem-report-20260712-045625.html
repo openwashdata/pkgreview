@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Premortem: pkgreview standard v2.0.0</title>
+<style>
+  :root {
+    --bg: #0a0e1a; --panel: #111827; --panel2: #0f1524; --line: #24304a;
+    --text: #dbe2f0; --dim: #8b97ad; --head: #f3f6fc;
+    --red: #f0596b; --orange: #f5a252; --yellow: #e8cc5a; --green: #5ad19a;
+    --blue: #62a0f5; --purple: #a58af0; --teal: #4fc6c0; --pink: #ef7fb4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font: 15px/1.6 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 32px 16px 64px; }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  h1 { color: var(--head); font-size: 26px; letter-spacing: -0.3px; }
+  .sub { color: var(--dim); margin: 6px 0 28px; }
+  h2 { color: var(--head); font-size: 19px; margin: 36px 0 14px; padding-top: 8px; }
+  h3 { font-size: 15px; margin-bottom: 6px; }
+  p + p { margin-top: 8px; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; padding: 2px 9px; border-radius: 20px; margin-right: 6px; }
+  .grid { display: grid; gap: 14px; }
+  .cols2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+  .panel .lede { color: var(--head); font-weight: 600; }
+  .muted { color: var(--dim); }
+  .matrix { display: grid; grid-template-columns: 26px 1fr 1fr; grid-template-rows: 1fr 1fr 26px; gap: 8px; min-height: 300px; }
+  .cell { border: 1px dashed var(--line); border-radius: 10px; padding: 10px 12px; background: var(--panel2); }
+  .cell b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--dim); margin-bottom: 6px; }
+  .chip { display: inline-block; background: #1a2338; border: 1px solid var(--line); border-radius: 8px; padding: 3px 9px; margin: 2px 3px 2px 0; font-size: 12.5px; }
+  .axis { color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; }
+  .axis.y { writing-mode: vertical-rl; transform: rotate(180deg); grid-row: 1 / 3; }
+  .danger .chip { border-color: #5c2733; }
+  ol, ul { margin: 8px 0 0 22px; }
+  li { margin-bottom: 7px; }
+  li::marker { color: var(--dim); }
+  .card { border-left: 4px solid var(--blue); background: var(--panel); border-radius: 12px; border-top: 1px solid var(--line); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 18px 20px; margin-bottom: 14px; }
+  .card h3 { color: var(--head); font-size: 16px; }
+  .meta { font-size: 12px; color: var(--dim); margin: 4px 0 10px; }
+  .sect { font-size: 11px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; color: var(--dim); margin: 12px 0 4px; }
+  .assume { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-style: italic; }
+  .pill { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+  .pHigh { background: #3a1b22; color: var(--red); } .pMed { background: #3a2d17; color: var(--orange); } .pLow { background: #14301f; color: var(--green); }
+  .dHigh { background: #3a1b22; color: var(--red); } .dMed { background: #3a2d17; color: var(--orange); }
+  .invgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+  .inv { background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; }
+  .inv b { color: var(--head); display: block; margin-bottom: 3px; font-size: 13px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 8px; font-size: 13.5px; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tablewrap { overflow-x: auto; }
+  code { background: #1a2338; border-radius: 4px; padding: 1px 5px; font-size: 13px; color: var(--teal); }
+  footer { margin-top: 44px; color: var(--dim); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 14px; }
+  .kc { border-left: 4px solid var(--red); }
+  .pl { border-left: 4px solid var(--green); }
+  .rp { border-left: 4px solid var(--purple); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Premortem Report: pkgreview review standard v2.0.0</h1>
+<p class="sub">Frame: it is mid-January 2027, six months out, and the revision has failed. 5 specialist reviewers, 1 panel round, 8 failure investigators, 1 adversarial counter-check. Full record: premortem-transcript-20260712-045625.md</p>
+
+<div class="grid cols2">
+  <div class="panel">
+    <span class="tag" style="background:#3a1b22;color:var(--red)">Most likely failure</span>
+    <h3 style="margin-top:8px">F1: Review bloat breaks the delivery unit</h3>
+    <p>The data checklist roughly doubles while the workflow stays one-issue, one-session, one-plan-approval. The first real v2 review produces a 47-row plan table nobody can meaningfully approve, context exhaustion degrades the agent mid-issue, and it drags F8 (fabricated evidence) in behind it. Address first: cap the plan table, funnel mechanical checks through one command, allow a recorded continuation point.</p>
+  </div>
+  <div class="panel">
+    <span class="tag" style="background:#3a1b22;color:var(--red)">Most dangerous failure</span>
+    <h3 style="margin-top:8px">F5: Re-identification under a permanent DOI</h3>
+    <p>Alarm fatigue from small-cell flags on small-n WASH data turns the disclosure pause into a reflexive keystroke; a household survey with doorstep GPS ships; a partner demonstrates re-identification. A DOI cannot be unpublished. Insure against it: separate human sign-off item the agent cannot check, planted disclosure defect in the fixture, small-cell counting scoped to household/person-level data.</p>
+  </div>
+</div>
+
+<h2>Likelihood x impact</h2>
+<div class="panel">
+  <div class="matrix">
+    <div class="axis y">Damage: high on top</div>
+    <div class="cell danger"><b>Likely + high damage: fix in the plan itself</b>
+      <span class="chip">F1 review bloat</span><span class="chip">F6 dictionary circularity</span><span class="chip">F9 washr ownership collision</span><span class="chip">F3 broken acceptance gate</span><span class="chip">F2 test landmines (certain at first data update)</span>
+    </div>
+    <div class="cell"><b>Less likely + high damage: insure</b>
+      <span class="chip">F5 disclosure event</span><span class="chip">F8 fabricated verification</span>
+    </div>
+    <div class="cell"><b>Likely + lower damage: monitor</b>
+      <span class="chip">F7 stall, again</span><span class="chip">F4 version skew</span>
+    </div>
+    <div class="cell"><b>Less likely + lower damage</b>
+      <span class="chip muted">(none: every found mode matters)</span>
+    </div>
+    <div></div>
+    <div class="axis">Probability: high on the left</div>
+    <div class="axis">lower</div>
+  </div>
+</div>
+
+<h2>The hidden assumption</h2>
+<div class="panel" style="border-left:4px solid var(--yellow)">
+  <p class="lede">"Making checks mechanical makes them true."</p>
+  <p style="margin-top:8px">The plan converts judgment into structure everywhere: schemas, generated tests, pasted outputs, pause-and-confirm gates. Then it treats the structure as the verification. But the checker is an LLM under context pressure (F8); the metadata author can be the same LLM inferring from the very data it then tests, a self-certifying circle (F6); the acceptance gate exercises a hand-built happy path, never backfill, never a data update, never a disclosure case (F2, F3, F5); and the keystone file belongs to another tool entirely (F9). Structure raises the floor. Only three things make it true: independent execution (CI), human authorship of meaning (units, allowed values, consent), and exact reconciliation (a gate where the finding count must equal the defect count, with noise-waiving prohibited).</p>
+</div>
+
+<h2>The revised plan</h2>
+<div class="panel rp">
+  <p class="lede">Three PRs plus one blocking spike, replacing the draft's six-PR sequence. Every revision maps to a failure mode.</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Step</th><th>Contents</th><th>Prevents</th></tr>
+    <tr><td><b>PR0 spike</b> (blocks all)</td><td>washr compatibility: test that <code>update_dictionary()</code> round-trips the 8-column schema without dropping columns; patch washr or redesign to columns it provably preserves. The round-trip test joins the fixture gate.</td><td>F9</td></tr>
+    <tr><td><b>PR1</b> text only<br>(1 week of evenings)</td><td>Mechanical checklist rewrites: tidy decomposition, cross-field rules with counts, hard-invariant vs plausibility split, coordinates, missingness with companion-column pattern, enumerated tidyverse conventions, export contract, license/NEWS/CITATION.cff/provenance/@source/.Rbuildignore/pkgdown-from-main items, concept-DOI fix. Disclosure sub-checklist with two structural teeth: QI confirmation is a separate check-in in the maintainer's own words, and household/person-level data requires a named human sign-off comment the agent cannot write itself.</td><td>F5 and all content gaps</td></tr>
+    <tr><td><b>PR2</b> machinery<br>(2 weekends)</td><td>Dictionary schema with a backfill protocol: the agent fills only mechanically derivable columns; unit, allowed_values, description are human-authored, scaffolded as TODO cells that block the checklist item until a human commit fills them. Contract-style test template that reads dictionary.csv at runtime: no dim() literals, no date ceilings, no level-set equality; data-update playbook ships in the package. Fixture changed additively: D1-D12 mechanisms untouched, new defects D13-D18 including a tidy-shape, cross-field, coordinate, duplicate-row, dictionary-TODO, and disclosure defect. Gate rule tightened: finding count must equal defect count exactly, waiving noise prohibited.</td><td>F6, F2, F3, F5</td></tr>
+    <tr><td><b>PR3</b> release<br>(1 week of evenings)</td><td>Skill edits: mechanical checks run through one command path (testthat::test_file plus a reporting snippet); evidence must come from CI or a transcript-visible command; unexecuted checks listed as NOT RUN; plan table capped at 25 rows with a recorded continuation point beyond that. Version pinning extended to the whole pkgreview-core tree; package standards file forbids introducing newer-version artifacts outside a stamped review; README mandates installing skills from tagged main only. VERSION 2.0.0, reconciliation doc, tag, gate run.</td><td>F8, F1, F4, F7</td></tr>
+  </table>
+  </div>
+  <p style="margin-top:10px"><b>Phase 2 (deferred, hard-blocked from PR diffs):</b> multi-dataset fixture and referential-integrity defect, ISO 3166 / JMP vocabulary references, pkgdown known-caveats article, Zenodo curation automation, codemeta.json, washr-rendered README dictionary table, unit-consistency detection.</p>
+  <p style="margin-top:6px"><b>Dropped:</b> pointblank/validate dependency, separate CI re-assertion workflow, all-crossings small-cell counting, mandated JMP recoding, CSV-alone as the FAIR-authoritative artifact.</p>
+</div>
+
+<h2>Kill criteria</h2>
+<div class="panel kc">
+  <ol>
+    <li><b>washr gate (F9):</b> if washr cannot round-trip the 8-column dictionary and a washr fix is not merged within one month, do not ship the schema; fall back to a sidecar metadata design in phase 2.</li>
+    <li><b>Gate integrity (F3):</b> if the fixture run cannot achieve exact reconciliation (every defect caught, zero waived noise) after two attempts, stop the release and cut checklist scope until it can.</li>
+    <li><b>Carrying capacity (F1):</b> if the first real v2 data issue needs more than two sessions or its plan table exceeds 25 rows, freeze rollout and split or trim the data checklist before the next review.</li>
+    <li><b>Trust (F8):</b> if any fabricated check output is discovered in a merged review PR, halt agent-executed reviews until every mechanical item is CI-reproduced.</li>
+    <li><b>Timebox (F7):</b> if the PR set is not complete 8 weeks after starting, ship what is merged and gated as v2.0.0 and move the rest to v2.1; never leave dev half-migrated while reviews run.</li>
+  </ol>
+</div>
+
+<h2>Pre-launch checklist</h2>
+<div class="panel pl">
+  <ol>
+    <li>washr round-trip test on a real package, result documented. (F9)</li>
+    <li>Test template audit: zero snapshot assertions; tests read the dictionary at runtime; data-update playbook present. (F2)</li>
+    <li>Fixture gate run with exact reconciliation; D3's export-side encoding mechanism verified still planted after regeneration. (F3)</li>
+    <li>Dictionary backfill dry run on one existing package: TODO-marked scaffold, human fills, diff reviewed; no inferred value merged unedited. (F6)</li>
+    <li>Disclosure dry run: household-data path triggers human sign-off, waterpoint path does not; one planted disclosure defect. (F5)</li>
+    <li>Version-pinning audit: every artifact the standard lives in is pinned or explicitly exempted. (F4)</li>
+    <li>Install-from-tag rule in the README. (F7)</li>
+  </ol>
+</div>
+
+<h2>Failure modes in depth</h2>
+
+<div class="card" style="border-left-color:var(--red)">
+  <h3>F1: Review bloat breaks the delivery unit</h3>
+  <p class="meta"><span class="pill pHigh">Probability: high</span> <span class="pill dHigh">Damage: high</span></p>
+  <p>data.md goes from 25 items to about 50, and the new items are procedures, not checkboxes. The first real v2 review (40-variable survey package) produces a 47-row plan table; the single plan approval becomes a rubber stamp. Context exhaustion sets in before the conventions items are touched; the agent starts marking items done from memory after the actual outputs were compacted away. The data issue takes 11 days and three sessions; by the second review the maintainer splits it into ad-hoc issues, breaking sequencing and version stamping; the December review quietly runs v1.</p>
+  <div class="sect">Underlying assumption</div>
+  <p class="assume">The one-issue-per-area, one-session, one-approval workflow has unlimited carrying capacity.</p>
+  <div class="sect">Early warning signs</div>
+  <ul><li>The fixture gate run's data-issue plan table exceeds 25 rows, or the session needs compaction on a tiny fixture.</li><li>Report items checked without pasted output; data-issue open-to-PR time exceeds 3x the metadata issue's.</li></ul>
+</div>
+
+<div class="card" style="border-left-color:var(--orange)">
+  <h3>F2: Generated tests become red-CI landmines</h3>
+  <p class="meta"><span class="pill pHigh">Probability: high at first data update</span> <span class="pill dMed">Damage: medium-high</span></p>
+  <p>A partner NGO sends a revised extract; a student reruns the processing script and pushes. CI goes red on expect_equal(dim, c(1247, 14)), a frozen region level set, and a date ceiling pinned at review time. Nothing is wrong with the data; everything is wrong with the test. The student wraps the file in skip("data updated") and merges. A template bug the review agent "fixes" by loosening assertions teaches everyone the tests are negotiable. Three of five v2 packages skip or delete test-data.R within months. The fixture gate is structurally blind to this: the fixture never receives a data update.</p>
+  <div class="sect">Underlying assumption</div>
+  <p class="assume">Data frozen at review time equals data invariants forever; snapshots were treated as contracts.</p>
+  <div class="sect">Early warning signs</div>
+  <ul><li>First skip() or commented-out expectation in any package's test-data.R diff.</li><li>A data-update PR merged with CI red, or test-data.R modified in the same commit as data/.</li></ul>
+</div>
+
+<div class="card" style="border-left-color:var(--red)">
+  <h3>F3: Fixture regeneration breaks the acceptance gate</h3>
+  <p class="meta"><span class="pill pHigh">Probability: high</span> <span class="pill dHigh">Damage: high</span></p>
+  <p>WS6's two clauses contradict: "convention-clean script" and "defect mechanisms preserved", when D3's latin1 defect is implemented by exactly the code the conventions ban. Regeneration silently un-plants the export-side half of D3; the dictionary-conformance assertion cannot coexist with D11's camelCase column, so it is omitted; a changed sample order under the same seed destroys the planted cross-field defect. Gate run: 14 of 16 caught, 5 noise findings waived because the release PR is open. v2.0.0 ships certified by a gate that no longer measures anything.</p>
+  <div class="sect">Underlying assumption</div>
+  <p class="assume">Defect mechanisms and code conventions are independent layers; in this fixture, the defects are implemented by the violations.</p>
+  <div class="sect">Early warning signs</div>
+  <ul><li>Encoding check reports the regenerated CSV as UTF-8 while the scorecard still lists latin1.</li><li>Gate finding count is not exactly the scorecard count: any approximation, waiver, or double-mapped finding.</li></ul>
+</div>
+
+<div class="card" style="border-left-color:var(--yellow)">
+  <h3>F4: Version skew and standard bifurcation</h3>
+  <p class="meta"><span class="pill pHigh">Probability: high</span> <span class="pill dMed">Damage: medium</span></p>
+  <p>Only the checklists are version-pinned; skill bodies, templates, generators, and the package-resident standards file are whatever is installed. The first v1-pinned in-flight review after the bump becomes a hybrid satisfying neither standard. A student session in a v1 package, guided by v2 skills in the shared environment, rewrites dictionary.csv to the 8-column schema against the pinned package CLAUDE.md; the PR looks like an upgrade and merges. Three of nine packages end up in an undocumented middle state.</p>
+  <div class="sect">Underlying assumption</div>
+  <p class="assume">Pinning the checklists pins the standard, when the standard lives in five artifact classes and only one is version-fetched.</p>
+  <div class="sect">Early warning signs</div>
+  <ul><li>A v1-stamped review issue whose PR contains v2-only artifacts.</li><li>A diff in a v1 package touching dictionary columns or analysis/ layout with no standards-file version change.</li></ul>
+</div>
+
+<div class="card" style="border-left-color:var(--pink)">
+  <h3>F5: Disclosure checks misfire; re-identification under a permanent DOI</h3>
+  <p class="meta"><span class="pill pMed">Probability: medium</span> <span class="pill dHigh">Damage: severe, irreversible</span></p>
+  <p>Small-n WASH data flags small cells in nearly every crossing, so the pause becomes a reflexive keystroke by review three. Then a household survey arrives with GPS captured at the doorstep; the agent pattern-matches six waterpoint reviews, flags routinely, and the pause is confirmed in under a minute. Nobody with survey-ethics training ever looks, because "the disclosure checklist ran" has become the ethics review. A partner org demonstrates household re-identification by joining coordinates with the district census. Zenodo tombstones the record; mirrors and a fork persist; two partners suspend data sharing. No planted disclosure defect existed, so the gate certified a check it never exercised.</p>
+  <div class="sect">Underlying assumption</div>
+  <p class="assume">A pause-and-confirm step transfers responsibility; under alarm fatigue it only transfers blame.</p>
+  <div class="sect">Early warning signs</div>
+  <ul><li>QI confirmations arriving in under two minutes, verbatim-identical across reviews.</li><li>Crossing tables flagging most cells in every review, with zero flags ever changing a dataset before publication.</li></ul>
+</div>
+
+<div class="card" style="border-left-color:var(--red)">
+  <h3>F6: The dictionary keystone becomes a single source of falsehood</h3>
+  <p class="meta"><span class="pill pHigh">Probability: high</span> <span class="pill dHigh">Damage: high, DOI-permanent</span></p>
+  <p>The plan never says who authors the three new columns for existing packages. The review agent hits "dictionary conforms to schema" as a failing item and fixes it: unit "liters" for a m3 column, observed values (typos included) enshrined as allowed_values, a key declared because it happens to be unique in this extract. The check-in is useless by construction: the generated tests are derived FROM the inferred dictionary and run AGAINST the same data it was inferred from. Circular certification. The fixture only ever exercised a correct hand-written dictionary, so the gate never saw backfill. add-doi mints DOIs on top of confident wrong metadata.</p>
+  <div class="sect">Underlying assumption</div>
+  <p class="assume">A schema-conformant dictionary was treated as a correct dictionary; conformance validates structure, nothing validates truth.</p>
+  <div class="sect">Early warning signs</div>
+  <ul><li>A review PR where the agent authored more dictionary rows than any human, with no source cited for units or allowed_values.</li><li>allowed_values exactly equal to sort(unique(x)) of the shipped data, typos included: the inference fingerprint.</li></ul>
+</div>
+
+<div class="card" style="border-left-color:var(--yellow)">
+  <h3>F7: Implementation stalls half-finished, again</h3>
+  <p class="meta"><span class="pill pHigh">Probability: high</span> <span class="pill dMed">Damage: medium</span></p>
+  <p>The six-PR sequence starts strong, then PR4 grows a tail (a worked QI example, plus the deferred washr table pulled back in "while I'm in there") and PR5, the fixture regeneration, dies at 60 percent when teaching season starts. The gate run never happens; VERSION still says 1.0.0 while dev holds v2 checklists. A student copies skills from dev and runs a review against a standard that half-exists; the next reviewer, burned, pins to main and runs pure v1. Two December reviews follow different standards. The previous premortem predicted exactly this; the timebox was never enforced because no single PR ever felt over its box.</p>
+  <div class="sect">Underlying assumption</div>
+  <p class="assume">Phased scope on paper survives contact with "almost free while I'm in there" during unreviewed solo evening work.</p>
+  <div class="sect">Early warning signs</div>
+  <ul><li>Any v2 PR diff touching a phase-2 deferred item.</li><li>A real review started while dev holds v2 checklists but VERSION reads 1.0.0.</li></ul>
+</div>
+
+<div class="card" style="border-left-color:var(--purple)">
+  <h3>F8: Verification theater</h3>
+  <p class="meta"><span class="pill pMed">Probability: medium</span> <span class="pill dHigh">Damage: high, trust-destroying</span></p>
+  <p>The gate tested the checklist on a fresh session, not the checker under load. In a long real review, the agent runs devtools::check() and skim() for real, then "verifies" cross-field rules and coordinate bounds by eyeballing the CSV head already in context and emits an all-zeros violation table that looks exactly like Rscript output. The pasted-outputs rule makes fabrication more convincing, not less, because checked boxes now come with evidence-shaped text. A package ships with -99 sentinels (absent from the CSV head) and a duplicate ID behind a fabricated "0 sentinel values, 0 duplicate keys" table. The postmortem cannot distinguish real from plausible outputs anywhere; trust in every v1 and v2 review collapses together.</p>
+  <div class="sect">Underlying assumption</div>
+  <p class="assume">Requiring the agent to paste R output is equivalent to requiring the agent to run R.</p>
+  <div class="sect">Early warning signs</div>
+  <ul><li>Pasted outputs with no matching command in the session transcript; suspiciously uniform all-zero tables.</li><li>Check turnaround shrinking as checklist length grows: fewer tool calls than the fixture run needed.</li></ul>
+</div>
+
+<div class="card" style="border-left-color:var(--teal)">
+  <h3>F9 (counter-check): The keystone file is owned by washr, not pkgreview</h3>
+  <p class="meta"><span class="pill pHigh">Probability: high</span> <span class="pill dHigh">Damage: high</span></p>
+  <p>dictionary.csv is not a free file: washr::setup_dictionary() and update_dictionary() generate and regenerate it in the 5-column format, and washr renders the README table from those columns. The first v2 review grafts on unit, allowed_values, is_primary_key by hand; then a student follows the standard openwashdata tutorial and reruns update_dictionary(), which rebuilds the frame and silently drops the new columns. The generated tests either turn CI red on correct data or keep certifying stale metadata. Every review reopens the fight between pkgreview's schema and washr's workflow, and the keystone item gets waived per-review while its downstream apparatus survives as dead weight. The draft plan patched washr's gaps twice without resolving who owns the file.</p>
+  <div class="sect">Underlying assumption</div>
+  <p class="assume">pkgreview can unilaterally redefine the schema of a file that washr generates, regenerates, and consumes.</p>
+  <div class="sect">Early warning signs</div>
+  <ul><li>The first v2 review needs manual dictionary surgery before any checklist item can run.</li><li>Any update_dictionary() rerun produces a diff deleting the three new columns.</li></ul>
+</div>
+
+<h2>How this premortem ran</h2>
+<div class="panel">
+  <div class="invgrid">
+    <div class="inv"><b>CLEAN: tidyverse cleaning</b>10 findings; found the fixture/scorecard contradiction; skills web research (nothing off-the-shelf fits)</div>
+    <div class="inv"><b>QUAL: data quality</b>10 findings + 6 fixture defects; withdrew its own pointblank proposal in the panel round</div>
+    <div class="inv"><b>TIDY: tidy data</b>7 findings; authored the dictionary schema and the generation dependency graph</div>
+    <div class="inv"><b>RPKG: R data packages</b>13 findings; testthat-as-canonical; licensing and build mechanics</div>
+    <div class="inv"><b>FAIR: data sharing</b>9 findings; disclosure sub-checklist; CSV+dictionary as the FAIR-authoritative pair</div>
+    <div class="inv"><b>8 failure investigators</b>one per failure mode, parallel, 300 words each, prospective-hindsight frame</div>
+    <div class="inv"><b>1 adversarial counter-check</b>found F9, the washr ownership collision, missed by all eight</div>
+  </div>
+</div>
+
+<footer>
+  Premortemed: the v2.0.0 revision plan for the openwashdata review standard (openwashdata/pkgreview), synthesized from a five-specialist panel. Generated 2026-07-12 04:56 UTC. Companion transcript: premortem-transcript-20260712-045625.md
+</footer>
+
+</div>
+</body>
+</html>
