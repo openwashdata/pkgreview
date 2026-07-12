@@ -1,9 +1,17 @@
 # Roadmap: incremental v1.1 progression of the review standard
 
 Date: 2026-07-12
-Status: PLAN ONLY. Nothing in this document is implemented. Each issue
-below is written so it can be posted to openwashdata/pkgreview as-is,
-with the milestone attached.
+Status: PLAN ONLY. Nothing in this document is implemented. All issues
+below were posted to openwashdata/pkgreview on 2026-07-12:
+
+- Milestone v1.1.0: issue 1.1 = #27, 1.2 = #28, 1.3 = #29, 1.4 = #30,
+  1.5 = #31, 1.6 = #32
+- Milestone v1.2.0: issue 2.1 = #33, 2.2 = #34, 2.3 = #35, 2.4 = #36
+- Milestone v1.3.0: issue 3.1 = #37, 3.2 = #38, 3.3 = #39
+
+The three milestones must be created manually (the GitHub integration
+used to post the issues cannot create milestones); each issue names its
+milestone in the first line of its body so attachment is unambiguous.
 
 ## Background
 
