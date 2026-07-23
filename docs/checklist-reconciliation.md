@@ -232,3 +232,23 @@ handling and evidence rule (#29), the guidebook (#30), and the fixture
 additions (#31) ship together as `v1.1.0`. The package-resident standards
 file gains the tier distinction, the PII-first rule, and the dictionary
 description emphasis in the same release (#32).
+
+## Mechanical rewordings of the unverifiable data checks (issue #33, v1.2.0)
+
+Date: 2026-07-23. The specialist panel found the advisory tier's vaguest
+items unverifiable by an agent: it either rubber-stamps them or
+hallucinates findings. They become checkable items with countable
+outputs; the required tier does not grow. Wording is kept one-to-one
+implementable by the deterministic check script proposed in #13. Fixture
+additions exercising the new items land with the v1.2.0 release issue
+(#36).
+
+| Ref | Decision | New wording (short form) | Rationale |
+|-----|----------|--------------------------|-----------|
+| D10 | dropped, replaced by D34-D36 | "No data entry errors or inconsistencies" is not a check an agent can execute | Replaced by three mechanical items with countable outputs |
+| D34 (new) | added | Exact duplicate rows counted and reported, including rows identical on all non-ID columns (double-submission pattern) | The common data entry error, made countable |
+| D35 (new) | added | Cross-field consistency checks with violation counts (date ordering, part not exceeding whole) | Consistency made mechanical per field pair |
+| D36 (new) | added | Hard-range violations counted (counts >= 0, percentages in [0, 100]); unusual but possible values flagged separately as plausibility concerns for maintainer judgment, never reported as errors | Separates the checkable from the judgment call; the agent stops inventing "unreasonable range" findings |
+| D37 (new) | added | Coordinate columns: latitude in [-90, 90], longitude in [-180, 180], no (0, 0) points, no points outside the stated region; precision assessed as disclosure risk consistent with the intake screen outcome | Coordinates were previously uncovered; links to the intake screen from #28 |
+| D15 | reworded | "Date variables stored as `Date` class and rendered as ISO 8601 (`YYYY-MM-DD`) in the CSV/XLSX exports" | The old wording conflated class and format: a `Date` has no stored print format, so "stored in YYYY-MM-DD format" was uncheckable as written; class and export rendering are separately checkable. Scorecard D8 quote updated in the same change |
+| D16 | reworded | "value ranges are reasonable (for example age between 0 and 120)" clause removed | Range checking moved to D36, which splits hard ranges from plausibility; the rest of the item (class, outliers, no numbers as character) is unchanged |
