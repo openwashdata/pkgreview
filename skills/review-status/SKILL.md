@@ -30,6 +30,19 @@ git fetch --quiet origin
 git rev-list --count dev..main 2>/dev/null || echo "no dev branch"
 ```
 
+Fallback when ALL FOUR label queries return empty: the review may predate
+the labeling convention (failure mode 8 in recovery.md). Search titles
+before concluding no review exists:
+
+```bash
+gh issue list --state all --search "Data Package Review: in:title" --json number,state,title
+```
+
+If this finds issues, treat them as the review record for the report
+below and add the retro-labeling recommendation from recovery.md to the
+Next Action section. Only when both the label queries and the title
+search are empty does "no review exists" hold.
+
 Also read the version stamp: view the first (metadata) issue body with
 `gh issue view [number]` and find the "Review standard version" line, if
 present. The installed tooling version is in
@@ -73,5 +86,9 @@ failure mode and the recovery path from
 - Version stamp in issue 1 differs from the installed tooling version
 - An open PR whose base branch is `main` while review issues are still open
 
-If no review is in progress (no `pkgreview-*` issues at all), say so and
-suggest `/review-package [package-name]`.
+If no review is in progress (no `pkgreview-*` issues AND no
+title-matched issues from the Step 1 fallback), say so and suggest
+`/review-package [package-name]`. If title-matched issues exist without
+labels, report the review from them and recommend the retro-labeling
+commands from failure mode 8 in recovery.md instead of suggesting a
+fresh review.

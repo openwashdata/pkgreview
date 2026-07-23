@@ -84,3 +84,21 @@ PR, and continue.
 
 Manual recovery, if needed:
 `gh issue close [number] --comment "Completed via PR #[pr-number], merged into dev."`
+
+## 8. Pre-label review invisible to label queries
+
+Symptom: all four `pkgreview-*` label queries return empty, yet the repo
+was reviewed. Reviews created before the labeling convention (the older
+CLAUDE.md-driven workflow) used title conventions only, so their issues
+carry no labels. Observed on openwashdata/artesianwells: four closed
+"Data Package Review: ..." issues and a merged dev-to-main PR, reported
+as 0/4 with a suggestion to start a fresh review.
+
+Recovery: search titles before concluding no review exists:
+`gh issue list --state all --search "Data Package Review: in:title" --json number,state,title`.
+If title-matched issues are found, report them as the review record and
+recommend retro-labeling so subsequent runs use the label path:
+`gh label create pkgreview-[area]` (if missing) plus
+`gh issue edit [number] --add-label pkgreview-[area]` for each of the
+four areas. Retro-labeling is a write action: /review-status only
+recommends the commands, it never runs them.
