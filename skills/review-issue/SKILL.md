@@ -44,6 +44,17 @@ difference to the user.
 
 ## Step 2: Analyze and CHECK-IN #1 (the single implementation approval)
 
+Run the deterministic check script first and read its section for this
+issue's area:
+
+```bash
+Rscript "${CLAUDE_SKILL_DIR}/../pkgreview-core/check/pkgreview-check.R" . > /tmp/pkgreview-check.md
+```
+
+Its FAIL lines for the area are verified facts and seed the plan; do not
+re-derive what the script already measured. Its PII line is a FLAG
+signal, never a verdict.
+
 Analyze what needs to change, item by item, using the Required and
 Advisory tiers from the issue body. Present ONE consolidated plan
 covering the whole issue; a table works well, required fixes first,
@@ -98,10 +109,19 @@ and CHECK-IN before doing it.
 
 ## Step 5: Test
 
-Run the checks relevant to the area (from the canonical checklist file),
-for example `R -e "devtools::check()"`, `R -e "devtools::build_readme()"`,
-`R -e "pkgdown::build_site()"`. Show the results faithfully; if something
-fails, say so with the output.
+Rerun the deterministic check script and confirm the FAIL lines for this
+issue's area that the approved plan addressed are now PASS; post the
+fresh report on the issue so it records the after-state:
+
+```bash
+Rscript "${CLAUDE_SKILL_DIR}/../pkgreview-core/check/pkgreview-check.R" . > /tmp/pkgreview-check.md
+gh issue comment $ARGUMENTS --body-file /tmp/pkgreview-check.md
+```
+
+Then run the checks the script cannot cover (from the canonical checklist
+file), for example `R -e "devtools::check()"`,
+`R -e "devtools::build_readme()"`, `R -e "pkgdown::build_site()"`. Show
+the results faithfully; if something fails, say so with the output.
 
 Evidence rule: every required item that gets checked off must be backed
 by a command run in this session with its output shown. A check that was

@@ -14,7 +14,7 @@ The canonical checklists live in `skills/pkgreview-core/references/checklists/` 
 | D4 | Four missing values in `users_count` coded as -99 instead of `NA` | `data/pkgreviewtest.rda`, `inst/extdata/*` | data | advisory | data.md: "Missing values are coded as `NA`, not as empty strings, \"NULL\", \"N/A\", sentinel numbers (such as -99), or similar; report the count and percentage of missing values per variable" |
 | D5 | No `.github/workflows/R-CMD-check.yaml` and no R-CMD-check badge in README | `.github/workflows/` (absent), `README.Rmd`, `README.md` | tests | required (workflow); the badge half is advisory | tests.md: "GitHub Actions workflow for R-CMD-check present (`.github/workflows/R-CMD-check.yaml`)" and "R-CMD-check badge added to README.Rmd" |
 | D6 | Vignette placed directly in `vignettes/`, not in `vignettes/articles/` | `vignettes/example.Rmd` | docs | advisory | docs.md: "Vignettes, if present, live in `vignettes/articles/`, not directly in `vignettes/`" |
-| D7 | `_pkgdown.yml` lacks the `includes: in_header:` block with the Plausible analytics script | `_pkgdown.yml` | docs | advisory | docs.md: "`_pkgdown.yml` follows the standard openwashdata configuration, including the Plausible analytics header (canonical template: `skills/pkgreview-core/references/templates/_pkgdown.yml` in openwashdata/pkgreview)" |
+| D7 | `_pkgdown.yml` deviates from the standard configuration: no `includes: in_header:` block with the Plausible analytics script, and `url:` is the repo URL instead of the Pages URL | `_pkgdown.yml` | docs | advisory | docs.md: "`_pkgdown.yml` follows the standard openwashdata configuration, including the Plausible analytics header (canonical template: `skills/pkgreview-core/references/templates/_pkgdown.yml` in openwashdata/pkgreview)" |
 | D8 | `installation_date` stored as character in mixed formats ("2021-03-15" and "30/10/2021"), not `Date` class | `data/pkgreviewtest.rda`, `inst/extdata/*` | data | advisory | data.md: "Date variables stored as `Date` class and rendered as ISO 8601 (`YYYY-MM-DD`) in the CSV/XLSX exports; no impossible or out-of-range dates" |
 | D9 | Inconsistent categorical values in `status`: "functional", "Functional", "FUNCTIONAL", "non-functional", "Non-Functional" | `data/pkgreviewtest.rda`, `inst/extdata/*` | data | advisory | data.md: "Categorical variables: frequency tables prepared; similar or misspelled values flagged (for example \"male\" vs \"Male\" vs \"MALE\"); ordinal variables stored as `factor` with correct level order; unused factor levels removed" |
 | D10 | One duplicated `id` value (WP-005 appears twice; row 17 repeats row 5) | `data/pkgreviewtest.rda`, `inst/extdata/*` | data | advisory | data.md: "Unique identifiers are unique where expected" |
@@ -32,6 +32,13 @@ Notes on D13 and D14:
 - D14 must be caught by the intake screen, which STOPS the review before any issue is created and before anything is pushed. A gate run that reaches issue creation without having flagged `owner_phone` has missed D14, regardless of what the data issue later finds.
 - D13 also surfaces at the intake screen (dictionary floor check); its canonical mapping is the required dictionary item in data.md.
 
+Note on D7: like D5, one defect spanning two clauses of the same
+checklist item (the `_pkgdown.yml` configuration item): the missing
+Plausible header and the repo-URL `url:` value. Both surface as separate
+check lines but map to the single defect D7. The url clause was part of
+the fixture all along and went unobserved by the manual v1.1.0 and
+v1.2.0 gate runs; the deterministic check script (#13) surfaced it.
+
 Note on D4 and the hard-range item: the four -99 sentinel values in `users_count` also trip the hard-range check (counts are >= 0). Both observations trace to the single root cause D4; a gate run reports them as one consolidated finding mapped to D4, following the D5 precedent of one defect spanning more than one checklist clause.
 
 Note on D17 and the intake screen: the coordinates are waterpoint-level at two-decimal precision (about 1 km), deliberately below household-level precision, so they are not a direct identifier and must NOT stop the review at the intake screen. D17 is a data-area range defect, not a PII defect; the disclosure-risk clause of the coordinate item is satisfied by the fixture and produces no finding.
@@ -41,6 +48,8 @@ Note on D15 (decision from issue #34): the script's convention violations are pl
 ## How to use this scorecard
 
 Run the full review workflow against `fixtures/pkgreviewtest` after every significant change to the checklists in `skills/pkgreview-core/references/checklists/` or to the review skills and commands.
+
+The mechanical layer of the gate is scripted: `Rscript skills/pkgreview-core/check/pkgreview-check.R fixtures/pkgreviewtest` runs the machine-checkable subset and must reproduce the defect mapping exactly (every FAIL/FLAG line maps to a defect ID, no unmapped lines). The judgment items, the intake conversation, and the guardrail behavior still require the workflow run.
 
 Because D14 stops the review at the intake screen, a gate run has two stages: first confirm the intake screen flags `owner_phone` (D14) and the defective dictionary descriptions (D13) and stops; then the maintainer explicitly acknowledges the intake findings at the check-in and lets the review proceed, so the remaining defects are exercised through the review issues.
 
