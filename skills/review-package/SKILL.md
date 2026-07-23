@@ -1,6 +1,6 @@
 ---
 name: review-package
-description: Start an openwashdata R data package review. Analyzes the package in the current directory, writes the version-stamped standards file into it, and creates the first review issue (metadata). Stops for user approval before and after.
+description: Start an openwashdata R data package review. Runs the PII and sensitivity intake screen first, then analyzes the package in the current directory, writes the version-stamped standards file into it, and creates the first review issue (metadata). Stops for user approval before and after.
 disable-model-invocation: true
 argument-hint: "[package-name]"
 ---
@@ -37,7 +37,44 @@ reply.**
    something looks wrong, the recovery paths in
    `${CLAUDE_SKILL_DIR}/../pkgreview-core/references/recovery.md`.
 
-## Step 1: Write the package-resident standards file
+## Step 1: Intake screen (PII and sensitivity first)
+
+The PII and data sensitivity check runs before any review issue exists
+and before anything else is written into the package. Every screen check
+is backed by a command run in this session with its output shown; a
+check that was not executed is reported as NOT RUN with a reason, never
+treated as passed.
+
+1. Raw data present: `data-raw/` exists and contains the raw data files
+   and a processing script.
+2. Direct-identifier scan over the column names and sampled values of
+   every dataset (`data/*.rda` and `inst/extdata/*`): person names,
+   phone numbers, email addresses, national or beneficiary IDs,
+   household-level GPS coordinates.
+3. Sensitivity flags: household- or person-level records, small-area or
+   small-group cells, protection-relevant contexts.
+4. Data description exists: DESCRIPTION `Description` field and README
+   introduction.
+5. Dictionary present: `data-raw/dictionary.csv` with a description per
+   variable.
+
+Outcome handling:
+
+- Any direct identifier or sensitivity flag: STOP at a check-in. Present
+  the findings and wait for the user; do not create issues, do not push
+  anything.
+- Household- or person-level data: the review may proceed after the
+  check-in, but record in the intake results that the data issue cannot
+  complete without a named human sign-off comment on the review issue.
+  The review agent never certifies the PII item on its own.
+- Missing floor items (raw data, processing script, description, or
+  dictionary): STOP and point the contributor at the guidebook
+  (`docs/guidebook.md` in openwashdata/pkgreview) for how to get the
+  package to the publication floor.
+- All clear: continue; the results are recorded in an "Intake screen"
+  section at the top of the first review issue body (Step 4).
+
+## Step 2: Write the package-resident standards file
 
 Read `${CLAUDE_SKILL_DIR}/../pkgreview-core/references/standards.md`, replace
 the `{{PKGREVIEW_VERSION}}` placeholder with `[VERSION]`, and write it into
@@ -51,7 +88,7 @@ the package:
 This file is the package's record of the standard it was reviewed against.
 It stays in the package permanently; never delete it in later steps.
 
-## Step 2: Analyze the package
+## Step 3: Analyze the package
 
 - Check the structure against the standards file just written (required
   directories and files, washr template compliance).
@@ -60,7 +97,7 @@ It stays in the package permanently; never delete it in later steps.
 - If no `dev` branch exists, create it from `main` and push it; all review
   work happens on branches off `dev`.
 
-## Step 3: Create the first review issue
+## Step 4: Create the first review issue
 
 Build the issue body from the canonical sources; insert checklist content
 verbatim, never retype or paraphrase it:
@@ -75,13 +112,20 @@ Prerequisites section. Include the line
 `Review standard version: [VERSION]` in the body; later commands read this
 stamp to keep the whole review on one standard.
 
+At the top of the body, before the checklist, add an "Intake screen"
+section recording the Step 1 results: each screen check with its outcome
+(pass, NOT RUN with reason, or flagged with details), and, for
+household- or person-level data, the pending named human sign-off
+requirement.
+
 Capture the issue number GitHub assigns from the `gh issue create` output.
 
-## Step 4: Present the plan and STOP
+## Step 5: Present the plan and STOP
 
 Report to the user:
 
-- Summary of structural findings from Step 2
+- Intake screen outcome from Step 1
+- Summary of structural findings from Step 3
 - The created issue number and URL
 - Explicit next steps:
   1. Review the issue on GitHub and adjust checklist items if needed
