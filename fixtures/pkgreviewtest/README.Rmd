@@ -31,6 +31,12 @@ number of people using it. The data support exploratory analyses of
 water point functionality and coverage. This package is a fixture used
 to test the openwashdata package review workflow.
 
+The data are synthetic: they were generated deterministically by the
+openwashdata team with `make_pkgreviewtest.R` in
+[openwashdata/pkgreview](https://github.com/openwashdata/pkgreview) in
+July 2026, cover four Swiss regions, and carry no license or permission
+constraints from any source data because no external source exists.
+
 ## Installation
 
 You can install the development version of pkgreviewtest from GitHub
@@ -40,6 +46,13 @@ with:
 # install.packages("devtools")
 devtools::install_github("openwashdata/pkgreviewtest")
 ```
+
+## Download
+
+Non-R users can download the data directly:
+
+- [pkgreviewtest.csv](https://github.com/openwashdata/pkgreview/raw/main/fixtures/pkgreviewtest/inst/extdata/pkgreviewtest.csv)
+- [pkgreviewtest.xlsx](https://github.com/openwashdata/pkgreview/raw/main/fixtures/pkgreviewtest/inst/extdata/pkgreviewtest.xlsx)
 
 ## Data
 

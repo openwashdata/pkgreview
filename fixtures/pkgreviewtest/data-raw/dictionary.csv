@@ -6,3 +6,6 @@ data,pkgreviewtest.rda,status,character,
 data,pkgreviewtest.rda,installation_date,character,Date the water point was installed
 data,pkgreviewtest.rda,users_count,integer,TODO
 data,pkgreviewtest.rda,owner_phone,character,Phone number of the water point owner
+data,pkgreviewtest.rda,women_users,integer,Number of women among the water point users
+data,pkgreviewtest.rda,latitude,numeric,Latitude of the water point in decimal degrees
+data,pkgreviewtest.rda,longitude,numeric,Longitude of the water point in decimal degrees

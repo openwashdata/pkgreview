@@ -16,6 +16,11 @@ authors:
   given-names: Firstname
 repository-code: https://github.com/openwashdata/pkgreviewtest
 url: https://github.com/openwashdata/pkgreviewtest
+keywords:
+- open data
+- washdata
+- water points
+- Switzerland
 date-released: '2026-07-08'
 contact:
 - family-names: Lastname

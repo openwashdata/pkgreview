@@ -14,6 +14,12 @@ number of people using it. The data support exploratory analyses of
 water point functionality and coverage. This package is a fixture used
 to test the openwashdata package review workflow.
 
+The data are synthetic: they were generated deterministically by the
+openwashdata team with `make_pkgreviewtest.R` in
+[openwashdata/pkgreview](https://github.com/openwashdata/pkgreview) in
+July 2026, cover four Swiss regions, and carry no license or permission
+constraints from any source data because no external source exists.
+
 ## Installation
 
 You can install the development version of pkgreviewtest from GitHub
@@ -23,6 +29,13 @@ with:
 # install.packages("devtools")
 devtools::install_github("openwashdata/pkgreviewtest")
 ```
+
+## Download
+
+Non-R users can download the data directly:
+
+- [pkgreviewtest.csv](https://github.com/openwashdata/pkgreview/raw/main/fixtures/pkgreviewtest/inst/extdata/pkgreviewtest.csv)
+- [pkgreviewtest.xlsx](https://github.com/openwashdata/pkgreview/raw/main/fixtures/pkgreviewtest/inst/extdata/pkgreviewtest.xlsx)
 
 ## Data
 
@@ -34,7 +47,7 @@ library(pkgreviewtest)
 
 ### pkgreviewtest
 
-The dataset `pkgreviewtest` has 30 observations and 7 variables.
+The dataset `pkgreviewtest` has 30 observations and 10 variables.
 
 ``` r
 pkgreviewtest |>
@@ -43,10 +56,10 @@ pkgreviewtest |>
 #> 1 WP-001 Genève        rainwater     functional        2018-03-11         377
 #> 2 WP-002   Bern protected spring Non-Functional        2020-09-06          70
 #> 3 WP-003  Basel    hand-dug well     functional        30/10/2021         269
-#>        owner_phone
-#> 1 +41 79 137 11 23
-#> 2 +41 79 174 22 46
-#> 3 +41 79 211 33 69
+#>        owner_phone women_users latitude longitude
+#> 1 +41 79 137 11 23         150    46.27      6.31
+#> 2 +41 79 174 22 46          28    46.34      6.42
+#> 3 +41 79 211 33 69         107    46.41      6.53
 ```
 
 For an overview of the variable names, see the following table.
@@ -209,6 +222,63 @@ character
 <td style="text-align:left;">
 
 Phone number of the water point owner
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+women_users
+</td>
+
+<td style="text-align:left;">
+
+integer
+</td>
+
+<td style="text-align:left;">
+
+Number of women among the water point users
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+latitude
+</td>
+
+<td style="text-align:left;">
+
+numeric
+</td>
+
+<td style="text-align:left;">
+
+Latitude of the water point in decimal degrees
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+longitude
+</td>
+
+<td style="text-align:left;">
+
+numeric
+</td>
+
+<td style="text-align:left;">
+
+Longitude of the water point in decimal degrees
 </td>
 
 </tr>

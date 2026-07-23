@@ -297,3 +297,25 @@ Fixture reconciliation for M14 and O20-O22 is deferred to the v1.2.0
 fixture issue (#36): the fixture currently satisfies none of the four,
 so #36 must either satisfy them or plant them as defects before the
 v1.2.0 gate can reconcile exactly.
+
+## Fixture and scorecard for v1.2.0 (issue #36)
+
+Date: 2026-07-23. Strictly additive; the D1-D15 mechanisms are untouched
+and the regenerated CSVs are byte-identical on the earlier columns.
+Planted defects only for items the gate must exercise: D16 (cross-field
+violation, `women_users` exceeds `users_count` in two rows) and D17
+(coordinate defects, one (0, 0) point and one out-of-range longitude at
+waterpoint-level precision that deliberately does not trip the intake
+screen). The three new columns are derived from the row index and
+`users_count` with no RNG consumed. The remaining new v1.2.0 items are
+satisfied by the fixture instead of planted: exact duplicate rows (count
+zero), roxygen `@source` (added, synthetic-data provenance), README
+provenance sentence and Download section (added), CITATION.cff
+`keywords` (added without touching the D2 placeholder authors). Two
+scorecard notes record consolidation rules: the -99 sentinels trip both
+the NA-coding and hard-range items but map to the single defect D4, and
+D17 is a range defect, not a PII defect.
+
+Version note: the mechanical rewordings (#33), the tidyverse enumeration
+(#34), the provenance and FAIR items (#35), and these fixture additions
+(#36) ship together as `v1.2.0`.
