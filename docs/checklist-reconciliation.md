@@ -272,3 +272,28 @@ in-package mechanism of encoding defect D3 (premortem F3) and
 `read_csv()` without `col_types` is the mechanism that lets D8's
 character dates slip through. No fixture file changed in this issue; the
 defect already existed in `data-raw/data_processing.R` and is now named.
+
+## Provenance and FAIR light (issue #35, v1.2.0)
+
+Date: 2026-07-23. The FAIR specialist review found the standard treated
+FAIR as "has a DOI and a license": no provenance requirements, no
+discovery keywords, no non-R access path, no concept-vs-version DOI
+distinction. All new items are advisory; the release-flow fixes live in
+skills/add-doi/SKILL.md (the manual floor; automation remains #12).
+
+| Ref | Decision | New wording (short form) | Rationale |
+|-----|----------|--------------------------|-----------|
+| M14 (new) | added, advisory | CITATION.cff carries `keywords` for discovery (open data, washdata, topic, country or region); verify manually after `washr::update_citation()`, which may not write them | Discovery metadata was absent from the standard |
+| O20 (new) | added, advisory | README provenance sentence: collector, method, period, region, source-data license or permission | Provenance was entirely uncovered |
+| O21 (new) | added, advisory | README Download section with direct links to the CSV/XLSX exports | Non-R users had no documented access path |
+| O22 (new) | added, advisory | Roxygen `@source` per dataset: original collector, URL or reference, access date | The single most important Rd field for a data package after the description |
+
+add-doi flow (not checklist items): concept DOI vs version DOI sentence
+added (concept DOI in citation files and badge); one manual "review the
+Zenodo record" prompt added (openwashdata community, resource type
+Dataset not Software, related identifiers for repo and pkgdown site).
+
+Fixture reconciliation for M14 and O20-O22 is deferred to the v1.2.0
+fixture issue (#36): the fixture currently satisfies none of the four,
+so #36 must either satisfy them or plant them as defects before the
+v1.2.0 gate can reconcile exactly.

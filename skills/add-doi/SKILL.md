@@ -10,6 +10,11 @@ argument-hint: "[doi]"
 Integrate DOI `$ARGUMENTS` (format `10.5281/zenodo.XXXXXXX`) into the
 package in the current directory.
 
+Zenodo mints two DOIs: the concept DOI, which stays stable across
+releases and is the one to use in the citation files and the README
+badge, and the version DOI, which points at one release snapshot and is
+only for citing that exact version.
+
 This is the post-release DOI integration of `/create-release` (its Step 5
 delegates here; keep one implementation). It exists standalone because a
 session can end between creating the GitHub release and Zenodo minting the
@@ -71,7 +76,16 @@ git push origin main
 Rebuild and deploy the pkgdown site so the DOI badge and the citation page
 are live.
 
-## Step 6: Verify and stop
+## Step 6: Review the Zenodo record
+
+Prompt the user once to review the Zenodo record in the web UI (record
+edits stay manual; nothing here is scripted):
+
+> "Please check the Zenodo record: is it in the openwashdata community,
+> is the resource type Dataset (not Software), and do the related
+> identifiers link the GitHub repository and the pkgdown site?"
+
+## Step 7: Verify and stop
 
 - The DOI resolves: `curl -sI https://doi.org/$ARGUMENTS` returns a
   redirect to the Zenodo record.
