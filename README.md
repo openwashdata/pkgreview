@@ -6,6 +6,10 @@ A comprehensive system for reviewing R data packages in the openwashdata ecosyst
 
 This repository provides a structured review workflow for openwashdata R packages, with automated GitHub integration and quality checks. The review process follows a systematic **PLAN → CREATE → TEST → DEPLOY** workflow.
 
+The review standard has two tiers. Required items are the publication floor: a package is not published until every required item passes. Advisory items are quality improvements; the reviewer may fix them or record them as optional follow-ups, and they never block publication. The tier of every item is recorded in the checklists under `skills/pkgreview-core/references/checklists/`.
+
+Creating a data package for openwashdata? Start with the [contributor guidebook](docs/guidebook.md). It walks from "I have a dataset" to a package that meets the publication floor, including the PII and sensitivity check to run before pushing data anywhere public.
+
 ## Quick Start
 
 ```bash
