@@ -252,3 +252,23 @@ additions exercising the new items land with the v1.2.0 release issue
 | D37 (new) | added | Coordinate columns: latitude in [-90, 90], longitude in [-180, 180], no (0, 0) points, no points outside the stated region; precision assessed as disclosure risk consistent with the intake screen outcome | Coordinates were previously uncovered; links to the intake screen from #28 |
 | D15 | reworded | "Date variables stored as `Date` class and rendered as ISO 8601 (`YYYY-MM-DD`) in the CSV/XLSX exports" | The old wording conflated class and format: a `Date` has no stored print format, so "stored in YYYY-MM-DD format" was uncheckable as written; class and export rendering are separately checkable. Scorecard D8 quote updated in the same change |
 | D16 | reworded | "value ranges are reasonable (for example age between 0 and 120)" clause removed | Range checking moved to D36, which splits hard ranges from plausibility; the rest of the item (class, outliers, no numbers as character) is unchanged |
+
+## Tidyverse conventions enumerated, tools table updated (issue #34, v1.2.0)
+
+Date: 2026-07-23. "Uses tidyverse conventions" was unverifiable as
+written; it stays advisory (style never blocks publication) but becomes
+concrete.
+
+| Ref | Decision | New wording (short form) | Rationale |
+|-----|----------|--------------------------|-----------|
+| D28 | reworded, enumerated | Tidyverse conventions in the processing script: `readr::read_csv()` with explicit `col_types`; exports via `readr::write_csv()` / `writexl::write_xlsx()` (always UTF-8, never base `write.csv()` with `fileEncoding`); native pipe preferred | Each clause is mechanically checkable; silent type guessing is how character dates slip in |
+| D28 | deviation from the issue text | "no commented-out code" NOT repeated in the enumerated list | Already covered verbatim by D24/D25 two lines above; repeating it would duplicate checklist content (repo rule 4) and let one fixture defect (scorecard D12) map to two items, breaking exact reconciliation |
+| D33 | tools table updated | Added `janitor::make_clean_names()` (snake_case) and a lubridate parsing row (`ymd()` / `dmy()` / `parse_date_time()`); dropped both dlookr rows | skimr plus `dplyr::count()` cover the dlookr diagnostics without a heavy dependency; the "reasonable value ranges" row also lost its checklist item in #33 |
+
+Fixture decision (recorded in the scorecard next to D15): the fixture
+script's convention violations become planted defect D15 rather than
+being cleaned, because `write.csv(fileEncoding = "latin1")` is the
+in-package mechanism of encoding defect D3 (premortem F3) and
+`read_csv()` without `col_types` is the mechanism that lets D8's
+character dates slip through. No fixture file changed in this issue; the
+defect already existed in `data-raw/data_processing.R` and is now named.

@@ -43,7 +43,7 @@ block publication.
 ### Data processing script
 
 - [ ] Script is reproducible and well-commented; no commented-out code
-- [ ] Uses tidyverse conventions
+- [ ] Tidyverse conventions in the processing script: data read with `readr::read_csv()` and explicit `col_types` (silent type guessing is how character dates slip in); exports written with `readr::write_csv()` and `writexl::write_xlsx()` (both always UTF-8, never base `write.csv()` with `fileEncoding`); native pipe `|>` preferred
 - [ ] Handles data cleaning transparently
 - [ ] Analysis and testing scripts preserved in the `analysis/` directory
 
@@ -55,9 +55,9 @@ block publication.
 | Frequency tables for categoricals | `dplyr::count()` |
 | Similar string values | `stringdist::stringdist()` |
 | Date format and class | `lubridate::is.Date()` |
+| Parsing mixed-format dates | `lubridate::ymd()` / `lubridate::dmy()` / `lubridate::parse_date_time()` |
+| Syntactically valid snake_case names | `janitor::make_clean_names()` |
 | Ordinal as factor | `is.ordered()` |
-| Consistent data types | `dlookr::diagnose()` |
-| Reasonable value ranges | `dlookr::diagnose_numeric()` |
 | UTF-8 encoding | `stringi::stri_enc_isutf8()` |
 
 ## Files to review
