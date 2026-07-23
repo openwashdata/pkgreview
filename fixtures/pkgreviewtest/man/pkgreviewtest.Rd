@@ -5,7 +5,7 @@
 \alias{pkgreviewtest}
 \title{pkgreviewtest: Water point observations for review workflow testing}
 \format{
-A data frame with 30 rows and 6 variables
+A data frame with 30 rows and 7 variables
 \describe{
   \item{id}{Water point identifier}
   \item{region}{Region where the water point is located}
@@ -13,6 +13,7 @@ A data frame with 30 rows and 6 variables
   \item{status}{Functional status of the water point}
   \item{installation_date}{Date the water point was installed}
   \item{users_count}{Number of people using the water point}
+  \item{owner_phone}{Phone number of the water point owner}
 }
 }
 \usage{

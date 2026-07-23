@@ -3,7 +3,7 @@
 #' Water point observations from four Swiss regions, including water source
 #' type, functional status, installation date, and number of users.
 #'
-#' @format A data frame with 30 rows and 6 variables
+#' @format A data frame with 30 rows and 7 variables
 #' \describe{
 #'   \item{id}{Water point identifier}
 #'   \item{region}{Region where the water point is located}
@@ -11,6 +11,7 @@
 #'   \item{status}{Functional status of the water point}
 #'   \item{installation_date}{Date the water point was installed}
 #'   \item{users_count}{Number of people using the water point}
+#'   \item{owner_phone}{Phone number of the water point owner}
 #' }
 #'
 #' @examples
