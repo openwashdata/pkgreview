@@ -27,10 +27,13 @@ block publication.
 
 - [ ] Missing values are coded as `NA`, not as empty strings, "NULL", "N/A", sentinel numbers (such as -99), or similar; report the count and percentage of missing values per variable
 - [ ] Processed, analysis-ready data follows tidy data principles
-- [ ] No data entry errors or inconsistencies
+- [ ] Exact duplicate rows counted and reported, including rows identical on all non-ID columns (the double-submission pattern)
+- [ ] Cross-field consistency checks run with violation counts reported (for example a date column that must not precede a related date column, a part that must not exceed its whole)
+- [ ] Hard-range violations counted and reported (counts are >= 0, percentages within [0, 100]); values that are unusual but possible are flagged separately as plausibility concerns for maintainer judgment, never reported as errors
 - [ ] Categorical variables: frequency tables prepared; similar or misspelled values flagged (for example "male" vs "Male" vs "MALE"); ordinal variables stored as `factor` with correct level order; unused factor levels removed
-- [ ] Date variables stored as `Date` class in `YYYY-MM-DD` format; no impossible or out-of-range dates
-- [ ] Numeric variables stored as `numeric` or `integer` class; value ranges are reasonable (for example age between 0 and 120); outliers flagged using summary statistics; no numeric values stored as character strings
+- [ ] Date variables stored as `Date` class and rendered as ISO 8601 (`YYYY-MM-DD`) in the CSV/XLSX exports; no impossible or out-of-range dates
+- [ ] Coordinate columns, if present: latitude within [-90, 90], longitude within [-180, 180], no (0, 0) points, no points outside the stated study region; coordinate precision assessed as a disclosure risk consistent with the intake screen outcome
+- [ ] Numeric variables stored as `numeric` or `integer` class; outliers flagged using summary statistics; no numeric values stored as character strings
 - [ ] Variable types are appropriate: `factor` for ordinal categories, `double` for continuous values, `integer` for counts, `Date` for dates
 - [ ] No mixed types within a column; data types consistent across all datasets
 - [ ] Column names are syntactically valid snake_case, with no unexplained acronyms and no unexplained numbers in variable names
@@ -40,7 +43,7 @@ block publication.
 ### Data processing script
 
 - [ ] Script is reproducible and well-commented; no commented-out code
-- [ ] Uses tidyverse conventions
+- [ ] Tidyverse conventions in the processing script: data read with `readr::read_csv()` and explicit `col_types` (silent type guessing is how character dates slip in); exports written with `readr::write_csv()` and `writexl::write_xlsx()` (both always UTF-8, never base `write.csv()` with `fileEncoding`); native pipe `|>` preferred
 - [ ] Handles data cleaning transparently
 - [ ] Analysis and testing scripts preserved in the `analysis/` directory
 
@@ -52,9 +55,9 @@ block publication.
 | Frequency tables for categoricals | `dplyr::count()` |
 | Similar string values | `stringdist::stringdist()` |
 | Date format and class | `lubridate::is.Date()` |
+| Parsing mixed-format dates | `lubridate::ymd()` / `lubridate::dmy()` / `lubridate::parse_date_time()` |
+| Syntactically valid snake_case names | `janitor::make_clean_names()` |
 | Ordinal as factor | `is.ordered()` |
-| Consistent data types | `dlookr::diagnose()` |
-| Reasonable value ranges | `dlookr::diagnose_numeric()` |
 | UTF-8 encoding | `stringi::stri_enc_isutf8()` |
 
 ## Files to review

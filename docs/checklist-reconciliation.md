@@ -232,3 +232,90 @@ handling and evidence rule (#29), the guidebook (#30), and the fixture
 additions (#31) ship together as `v1.1.0`. The package-resident standards
 file gains the tier distinction, the PII-first rule, and the dictionary
 description emphasis in the same release (#32).
+
+## Mechanical rewordings of the unverifiable data checks (issue #33, v1.2.0)
+
+Date: 2026-07-23. The specialist panel found the advisory tier's vaguest
+items unverifiable by an agent: it either rubber-stamps them or
+hallucinates findings. They become checkable items with countable
+outputs; the required tier does not grow. Wording is kept one-to-one
+implementable by the deterministic check script proposed in #13. Fixture
+additions exercising the new items land with the v1.2.0 release issue
+(#36).
+
+| Ref | Decision | New wording (short form) | Rationale |
+|-----|----------|--------------------------|-----------|
+| D10 | dropped, replaced by D34-D36 | "No data entry errors or inconsistencies" is not a check an agent can execute | Replaced by three mechanical items with countable outputs |
+| D34 (new) | added | Exact duplicate rows counted and reported, including rows identical on all non-ID columns (double-submission pattern) | The common data entry error, made countable |
+| D35 (new) | added | Cross-field consistency checks with violation counts (date ordering, part not exceeding whole) | Consistency made mechanical per field pair |
+| D36 (new) | added | Hard-range violations counted (counts >= 0, percentages in [0, 100]); unusual but possible values flagged separately as plausibility concerns for maintainer judgment, never reported as errors | Separates the checkable from the judgment call; the agent stops inventing "unreasonable range" findings |
+| D37 (new) | added | Coordinate columns: latitude in [-90, 90], longitude in [-180, 180], no (0, 0) points, no points outside the stated region; precision assessed as disclosure risk consistent with the intake screen outcome | Coordinates were previously uncovered; links to the intake screen from #28 |
+| D15 | reworded | "Date variables stored as `Date` class and rendered as ISO 8601 (`YYYY-MM-DD`) in the CSV/XLSX exports" | The old wording conflated class and format: a `Date` has no stored print format, so "stored in YYYY-MM-DD format" was uncheckable as written; class and export rendering are separately checkable. Scorecard D8 quote updated in the same change |
+| D16 | reworded | "value ranges are reasonable (for example age between 0 and 120)" clause removed | Range checking moved to D36, which splits hard ranges from plausibility; the rest of the item (class, outliers, no numbers as character) is unchanged |
+
+## Tidyverse conventions enumerated, tools table updated (issue #34, v1.2.0)
+
+Date: 2026-07-23. "Uses tidyverse conventions" was unverifiable as
+written; it stays advisory (style never blocks publication) but becomes
+concrete.
+
+| Ref | Decision | New wording (short form) | Rationale |
+|-----|----------|--------------------------|-----------|
+| D28 | reworded, enumerated | Tidyverse conventions in the processing script: `readr::read_csv()` with explicit `col_types`; exports via `readr::write_csv()` / `writexl::write_xlsx()` (always UTF-8, never base `write.csv()` with `fileEncoding`); native pipe preferred | Each clause is mechanically checkable; silent type guessing is how character dates slip in |
+| D28 | deviation from the issue text | "no commented-out code" NOT repeated in the enumerated list | Already covered verbatim by D24/D25 two lines above; repeating it would duplicate checklist content (repo rule 4) and let one fixture defect (scorecard D12) map to two items, breaking exact reconciliation |
+| D33 | tools table updated | Added `janitor::make_clean_names()` (snake_case) and a lubridate parsing row (`ymd()` / `dmy()` / `parse_date_time()`); dropped both dlookr rows | skimr plus `dplyr::count()` cover the dlookr diagnostics without a heavy dependency; the "reasonable value ranges" row also lost its checklist item in #33 |
+
+Fixture decision (recorded in the scorecard next to D15): the fixture
+script's convention violations become planted defect D15 rather than
+being cleaned, because `write.csv(fileEncoding = "latin1")` is the
+in-package mechanism of encoding defect D3 (premortem F3) and
+`read_csv()` without `col_types` is the mechanism that lets D8's
+character dates slip through. No fixture file changed in this issue; the
+defect already existed in `data-raw/data_processing.R` and is now named.
+
+## Provenance and FAIR light (issue #35, v1.2.0)
+
+Date: 2026-07-23. The FAIR specialist review found the standard treated
+FAIR as "has a DOI and a license": no provenance requirements, no
+discovery keywords, no non-R access path, no concept-vs-version DOI
+distinction. All new items are advisory; the release-flow fixes live in
+skills/add-doi/SKILL.md (the manual floor; automation remains #12).
+
+| Ref | Decision | New wording (short form) | Rationale |
+|-----|----------|--------------------------|-----------|
+| M14 (new) | added, advisory | CITATION.cff carries `keywords` for discovery (open data, washdata, topic, country or region); verify manually after `washr::update_citation()`, which may not write them | Discovery metadata was absent from the standard |
+| O20 (new) | added, advisory | README provenance sentence: collector, method, period, region, source-data license or permission | Provenance was entirely uncovered |
+| O21 (new) | added, advisory | README Download section with direct links to the CSV/XLSX exports | Non-R users had no documented access path |
+| O22 (new) | added, advisory | Roxygen `@source` per dataset: original collector, URL or reference, access date | The single most important Rd field for a data package after the description |
+
+add-doi flow (not checklist items): concept DOI vs version DOI sentence
+added (concept DOI in citation files and badge); one manual "review the
+Zenodo record" prompt added (openwashdata community, resource type
+Dataset not Software, related identifiers for repo and pkgdown site).
+
+Fixture reconciliation for M14 and O20-O22 is deferred to the v1.2.0
+fixture issue (#36): the fixture currently satisfies none of the four,
+so #36 must either satisfy them or plant them as defects before the
+v1.2.0 gate can reconcile exactly.
+
+## Fixture and scorecard for v1.2.0 (issue #36)
+
+Date: 2026-07-23. Strictly additive; the D1-D15 mechanisms are untouched
+and the regenerated CSVs are byte-identical on the earlier columns.
+Planted defects only for items the gate must exercise: D16 (cross-field
+violation, `women_users` exceeds `users_count` in two rows) and D17
+(coordinate defects, one (0, 0) point and one out-of-range longitude at
+waterpoint-level precision that deliberately does not trip the intake
+screen). The three new columns are derived from the row index and
+`users_count` with no RNG consumed. The remaining new v1.2.0 items are
+satisfied by the fixture instead of planted: exact duplicate rows (count
+zero), roxygen `@source` (added, synthetic-data provenance), README
+provenance sentence and Download section (added), CITATION.cff
+`keywords` (added without touching the D2 placeholder authors). Two
+scorecard notes record consolidation rules: the -99 sentinels trip both
+the NA-coding and hard-range items but map to the single defect D4, and
+D17 is a range defect, not a PII defect.
+
+Version note: the mechanical rewordings (#33), the tidyverse enumeration
+(#34), the provenance and FAIR items (#35), and these fixture additions
+(#36) ship together as `v1.2.0`.

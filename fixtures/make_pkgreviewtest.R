@@ -19,14 +19,18 @@
 #   D10 one duplicated id
 #   D11 camelCase column name waterSource
 #   D14 direct-identifier column owner_phone (PII for the intake screen)
+#   D16 cross-field violation: women_users exceeds users_count in two rows
+#   D17 coordinate defects: one (0, 0) point, one longitude out of range
 #
 # D13 (defective dictionary descriptions) lives in the static file
-# data-raw/dictionary.csv and is not generated here.
+# data-raw/dictionary.csv, and D15 (processing script convention
+# violations) lives in data-raw/data_processing.R; neither is generated
+# here.
 #
-# Fixture changes are strictly additive: the D1-D12 defect mechanisms must
-# stay untouched. New columns are generated AFTER all random draws, with
-# deterministic values that consume no RNG, so the RNG stream for D1-D12
-# does not shift (premortem constraint, issue #31).
+# Fixture changes are strictly additive: the existing defect mechanisms
+# must stay untouched. New columns are generated AFTER all random draws,
+# with deterministic values that consume no RNG, so the RNG stream for
+# the earlier defects does not shift (premortem constraint, issue #31).
 #
 # Uses base R only, plus writexl or openxlsx for the optional xlsx export.
 
@@ -107,6 +111,26 @@ owner_phone <- sprintf(
   (i * 23) %% 100
 )
 
+# D16: cross-field violation. women_users is derived deterministically from
+# users_count (no RNG); rows 4 and 22 then get values exceeding users_count,
+# so the part exceeds its whole.
+women_users <- ifelse(
+  users_count < 0,
+  0L,
+  as.integer(floor(users_count * 0.4))
+)
+women_users[c(4, 22)] <- as.integer(users_count[c(4, 22)] + 25L)
+
+# D17: coordinate defects. Waterpoint-level coordinates inside Switzerland
+# at two-decimal precision (about 1 km, deliberately not a disclosure
+# risk), derived from the row index (no RNG). Row 9 becomes a (0, 0)
+# point; row 21 gets an out-of-range longitude.
+latitude <- round(46.20 + ((i * 7) %% 140) / 100, 2)
+longitude <- round(6.20 + ((i * 11) %% 400) / 100, 2)
+latitude[9] <- 0
+longitude[9] <- 0
+longitude[21] <- 181.50
+
 pkgreviewtest <- data.frame(
   id = id,
   region = region,
@@ -115,6 +139,9 @@ pkgreviewtest <- data.frame(
   installation_date = installation_date,
   users_count = as.integer(users_count),
   owner_phone = owner_phone,
+  women_users = women_users,
+  latitude = latitude,
+  longitude = longitude,
   stringsAsFactors = FALSE
 )
 
@@ -177,4 +204,16 @@ message(
   "owner_phone" %in% names(pkgreviewtest),
   ", all match +41 pattern: ",
   all(grepl("^\\+41 79 \\d{3} \\d{2} \\d{2}$", pkgreviewtest$owner_phone))
+)
+message(
+  "  women_users > users_count (D16): ",
+  sum(pkgreviewtest$women_users > pkgreviewtest$users_count &
+        pkgreviewtest$users_count >= 0),
+  " rows (expected 2)"
+)
+message(
+  "  coordinate defects (D17): (0,0) points = ",
+  sum(pkgreviewtest$latitude == 0 & pkgreviewtest$longitude == 0),
+  ", longitude out of range = ",
+  sum(abs(pkgreviewtest$longitude) > 180)
 )
