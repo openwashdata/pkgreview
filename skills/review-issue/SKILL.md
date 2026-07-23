@@ -41,11 +41,19 @@ difference to the user.
 
 ## Step 2: Analyze and CHECK-IN #1 (the single implementation approval)
 
-Analyze what needs to change, item by item. Present ONE consolidated plan
-covering the whole issue; a table works well:
+Analyze what needs to change, item by item, using the Required and
+Advisory tiers from the issue body. Present ONE consolidated plan
+covering the whole issue; a table works well, required fixes first,
+advisory suggestions after them:
 
-| # | Change | Checklist item | Planned commit message |
-|---|--------|----------------|------------------------|
+| # | Tier | Change | Checklist item | Planned commit message |
+|---|------|--------|----------------|------------------------|
+
+Required fixes block publication and must all be in the plan. Advisory
+findings are optional improvements: plan to fix the quick ones in this
+issue's PR and record the rest as optional follow-ups; they never block
+publication. Separating the tiers keeps the required half of the plan
+small enough to approve at a glance.
 
 > "Here's the full plan for this issue (table above). Once you approve, I
 > will implement all of it with one atomic commit per change and no
@@ -89,6 +97,17 @@ for example `R -e "devtools::check()"`, `R -e "devtools::build_readme()"`,
 `R -e "pkgdown::build_site()"`. Show the results faithfully; if something
 fails, say so with the output.
 
+Evidence rule: every required item that gets checked off must be backed
+by a command run in this session with its output shown. A check that was
+not executed is reported as NOT RUN with a reason, never checked. Example
+of a NOT RUN line in the PR body:
+
+```markdown
+- [ ] Package passes `devtools::check()` with no errors or warnings:
+      NOT RUN (check takes too long in this session; run locally before
+      the final review PR)
+```
+
 **CHECK-IN: "Tests done (results above). Ready to finalize? (yes/no)"**
 
 ## Step 6: Update the issue and CHECK-IN
@@ -109,8 +128,12 @@ git push -u origin issue-$ARGUMENTS-[short-slug]
 Build the PR body from
 `${CLAUDE_SKILL_DIR}/../pkgreview-core/references/templates/pr-body.md`:
 Summary (`Addresses #$ARGUMENTS`), Changes Made, Commits in this PR,
-Checklist (every issue item, checked or unchecked with reasons). Do NOT
-add `Closes #$ARGUMENTS`: it only fires on default-branch merges, and
+Checklist with a Required and an Advisory section (every issue item,
+checked or unchecked with reasons; unexecuted checks marked NOT RUN per
+the evidence rule in Step 5). Unresolved advisory findings stay listed as
+optional follow-ups; they are collected in the final review PR body and
+never block the merge to `dev`, the dev-to-main merge, or the release. Do
+NOT add `Closes #$ARGUMENTS`: it only fires on default-branch merges, and
 this PR merges into `dev`; `/create-next-issue` closes the issue
 explicitly after the merge. No attribution trailers, no emojis.
 
