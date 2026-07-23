@@ -1,6 +1,6 @@
 ---
 name: review-issue
-description: Work on one openwashdata review issue (by actual GitHub issue number) with mandatory check-ins, atomic commits, and a hard stop after the PR to dev is created.
+description: Work on one openwashdata review issue (by actual GitHub issue number) with a single plan-approval check-in, atomic commits, and a hard stop after the PR to dev is created.
 disable-model-invocation: true
 argument-hint: "[issue-number]"
 ---
@@ -9,10 +9,13 @@ argument-hint: "[issue-number]"
 
 Work on review issue `$ARGUMENTS` for the package in the current directory.
 
-**Core discipline, non-negotiable: pause at every CHECK-IN below and wait
-for the user's reply. After creating the PR, STOP COMPLETELY. One
-invocation of this skill handles exactly one issue and ends at its PR;
-never continue to another issue or another review area.**
+**Core discipline, non-negotiable: pause at CHECK-IN #1 and wait for the
+user's reply. Once the plan is approved, implement, test, update the
+issue, and create the PR without further prompts; the only reason to
+pause again is a failure or work outside the approved plan. After
+creating the PR, STOP COMPLETELY. One invocation of this skill handles
+exactly one issue and ends at its PR; never continue to another issue or
+another review area.**
 
 ## Step 1: Verify the issue
 
@@ -56,12 +59,15 @@ publication. Separating the tiers keeps the required half of the plan
 small enough to approve at a glance.
 
 > "Here's the full plan for this issue (table above). Once you approve, I
-> will implement all of it with one atomic commit per change and no
-> further per-change prompts. Proceed? (yes/no/edit)"
+> will implement all of it with one atomic commit per change, run the
+> tests, update the issue checklist, and open the PR against dev, with
+> no further prompts. Proceed? (yes/no/edit)"
 
 **Wait for the reply. "no" or "edit" means discuss, do not implement.
-This is the only approval for implementation; anything beyond the
-approved plan needs a new check-in before it is done.**
+This is the only approval in the whole flow: it covers implementation,
+testing, the issue checklist update, and PR creation. Anything beyond
+the approved plan, and any failing check, needs a new check-in before
+the flow continues.**
 
 ## Step 3: Branch
 
@@ -90,7 +96,7 @@ CHECK-IN #1 and the check-in currency is the plan, not the individual
 commit. If implementation reveals work outside the approved plan, stop
 and CHECK-IN before doing it.
 
-## Step 5: Test and CHECK-IN
+## Step 5: Test
 
 Run the checks relevant to the area (from the canonical checklist file),
 for example `R -e "devtools::check()"`, `R -e "devtools::build_readme()"`,
@@ -108,16 +114,19 @@ of a NOT RUN line in the PR body:
       the final review PR)
 ```
 
-**CHECK-IN: "Tests done (results above). Ready to finalize? (yes/no)"**
+If every check passed (or is honestly marked NOT RUN with a reason),
+continue to Step 6 without pausing: the plan approval at CHECK-IN #1
+already covers finalization. If a check FAILED, stop and CHECK-IN with
+the output; a failing state is a decision the user makes, not the skill.
 
-## Step 6: Update the issue and CHECK-IN
+## Step 6: Update the issue
 
 Check off completed items in the issue body: `gh issue view $ARGUMENTS` to
 get the body, flip `- [ ]` to `- [x]` for completed items only, save with
 `gh issue edit $ARGUMENTS --body "..."`. Leave genuinely incomplete items
 unchecked.
 
-**CHECK-IN: "Issue checklist updated. Ready to create the PR? (yes/no)"**
+Continue straight to Step 7; do not ask for permission to create the PR.
 
 ## Step 7: Push and create the PR (against dev, never main)
 
@@ -149,9 +158,9 @@ running the command.**
 
 Output exactly this and nothing more:
 
-> "PR created for issue #$ARGUMENTS. Issue checklist updated. Please review
-> and merge to dev, then run /create-next-issue to continue (it syncs dev,
-> closes this issue, and creates the next one)."
+> "PR created for issue #$ARGUMENTS: [PR URL]. Issue checklist updated.
+> Please review and merge to dev, then run /create-next-issue to continue
+> (it syncs dev, closes this issue, and creates the next one)."
 
 - Do NOT continue with any other task
 - Do NOT suggest further next steps
