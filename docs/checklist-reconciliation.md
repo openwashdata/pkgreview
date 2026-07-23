@@ -210,3 +210,25 @@ D33 (suggested tools table) stays a non-checklist section.
 | M3 | reworded | "Description is an informative and accurate statement of what the data contains" | Was "statement of purpose"; the required floor names a description of the data, and the issue #27 required-tier text uses the data framing |
 | D4 | reworded | "No sensitive or personally identifiable information is present in any data file. The intake screen outcome is recorded in the first review issue; household- or person-level data requires a named human sign-off comment on the review issue. The review agent never certifies this item on its own." | Encodes premortem constraint P6 (human sign-off); ties the item to the intake screen added in #28 |
 | D27 | reworded | "`data-raw/dictionary.csv` covers every variable in every dataset, each with a one-sentence plain-language description. The description is the most important field; it is written or confirmed by a human." | Encodes premortem constraint P4 (no agent-invented metadata); the description is the floor's most important field |
+
+## Fixture and scorecard for v1.1.0 (issue #31)
+
+Date: 2026-07-23. No checklist item changed in this issue; recorded here
+because the scorecard is the acceptance instrument for every checklist
+change. The fixture gains two strictly additive defects: D13 (dictionary
+present but with an empty description for `status` and a placeholder for
+`users_count`; caught by the reworded required dictionary item D27) and
+D14 (direct-identifier column `owner_phone`; caught by the intake screen
+from #28, which stops the review before any issue exists). The D1-D12
+mechanisms are untouched; the regenerated CSVs are byte-identical on the
+D1-D12 columns. The scorecard now maps fourteen defects, marks each with
+its tier, and adopts the exact-reconciliation rule (premortem constraint
+P1): the gate passes only when the finding count equals the defect count,
+every finding maps to exactly one defect ID, and waiving findings as
+noise is prohibited.
+
+Version note: the tier split (#27), the intake screen (#28), the advisory
+handling and evidence rule (#29), the guidebook (#30), and the fixture
+additions (#31) ship together as `v1.1.0`. The package-resident standards
+file gains the tier distinction, the PII-first rule, and the dictionary
+description emphasis in the same release (#32).
