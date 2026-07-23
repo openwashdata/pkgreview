@@ -2,16 +2,28 @@
 
 Review area 2 of 4. Issue label: `pkgreview-data`.
 
-## File structure
+Required items block publication. Advisory items are quality improvements:
+the reviewer may fix them or record them as optional follow-ups; they never
+block publication.
 
+## Required
+
+- [ ] Raw data files preserved in `data-raw/`
+- [ ] `data_processing.R` in `data-raw/`
 - [ ] All primary data files are present in `data/` and use `.rda` format
 - [ ] All raw or exportable data files (CSV/XLSX) are in `inst/extdata/`
+- [ ] No sensitive or personally identifiable information is present in any data file. The intake screen outcome is recorded in the first review issue; household- or person-level data requires a named human sign-off comment on the review issue. The review agent never certifies this item on its own.
+- [ ] `data-raw/dictionary.csv` covers every variable in every dataset, each with a one-sentence plain-language description. The description is the most important field; it is written or confirmed by a human.
+
+## Advisory
+
+### File structure
+
 - [ ] Single-dataset package: the dataset is accessible via an object matching the package name. Multi-dataset package: each data object has a unique, descriptive name, and none of them matches the package name
-- [ ] No sensitive or personally identifiable information is present in any data file
 - [ ] Data size is appropriate for an R package (not excessively large, which would require an external download)
 - [ ] No obsolete files; no blank spaces in file names
 
-## Data quality
+### Data quality
 
 - [ ] Missing values are coded as `NA`, not as empty strings, "NULL", "N/A", sentinel numbers (such as -99), or similar; report the count and percentage of missing values per variable
 - [ ] Processed, analysis-ready data follows tidy data principles
@@ -25,12 +37,9 @@ Review area 2 of 4. Issue label: `pkgreview-data`.
 - [ ] Unique identifiers are unique where expected
 - [ ] All text data is encoded in UTF-8; no encoding errors
 
-## Data processing script
+### Data processing script
 
-- [ ] `data_processing.R` in `data-raw/`
 - [ ] Script is reproducible and well-commented; no commented-out code
-- [ ] Raw data files preserved in `data-raw/`
-- [ ] `dictionary.csv` with variable descriptions
 - [ ] Uses tidyverse conventions
 - [ ] Handles data cleaning transparently
 - [ ] Analysis and testing scripts preserved in the `analysis/` directory
