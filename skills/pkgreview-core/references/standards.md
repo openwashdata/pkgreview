@@ -16,8 +16,32 @@ package website as `CLAUDE.html`. That is accepted openwashdata behavior (it
 publicly records the standard the package was reviewed against); pkgdown
 offers no configuration to exclude it. Do not delete the file to hide it.
 
+## Required floor and advisory tier
+
+The standard has two tiers. Required items are the publication floor and
+block publication: raw data preserved in `data-raw/` with a processing
+script, the PII and sensitivity check done up front, a description of the
+data, a dictionary with a description per variable, plus the publication
+mechanics (CC BY 4.0 license, valid citation files, `devtools::check()`
+passes, data loads, `.rda` in `data/` with CSV/XLSX exports in
+`inst/extdata/`). Advisory items are quality improvements (for example
+tidyverse style in the processing script or NA coding); fix them when
+practical, record the rest as optional follow-ups, and never let them
+block publication.
+
 ## Rules a future session must not undo
 
+- PII and sensitivity come first: no data is pushed anywhere public
+  before the PII and sensitivity check has run over the column names and
+  sampled values of every dataset. No direct identifiers (person names,
+  phone numbers, email addresses, national or beneficiary IDs,
+  household-level GPS coordinates) in any data file. Household- or
+  person-level data requires a named human sign-off on the review issue;
+  an agent never certifies this on its own.
+- `data-raw/dictionary.csv` covers every variable in every dataset, each
+  with a one-sentence plain-language description. The description is the
+  most important field; it is written or confirmed by a human, never
+  invented by an agent.
 - Vignettes live in `vignettes/articles/`, never directly in `vignettes/`.
   This keeps pkgdown rendering correct and avoids CRAN issues.
 - `_pkgdown.yml` follows the standard openwashdata configuration below,
@@ -41,8 +65,7 @@ offers no configuration to exclude it. Do not delete the file to hide it.
   README.Rmd, which must be removed; and it leaves `inst/CITATION.bk1`
   backup files that must not be committed.
 - Raw data stays in `data-raw/`, processed `.rda` data in `data/`, and
-  CSV/XLSX exports in `inst/extdata/`. `data-raw/dictionary.csv` documents
-  all variables.
+  CSV/XLSX exports in `inst/extdata/`.
 
 ## Package structure
 

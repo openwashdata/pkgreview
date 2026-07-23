@@ -18,6 +18,15 @@
 #   D9  inconsistent capitalisation in status
 #   D10 one duplicated id
 #   D11 camelCase column name waterSource
+#   D14 direct-identifier column owner_phone (PII for the intake screen)
+#
+# D13 (defective dictionary descriptions) lives in the static file
+# data-raw/dictionary.csv and is not generated here.
+#
+# Fixture changes are strictly additive: the D1-D12 defect mechanisms must
+# stay untouched. New columns are generated AFTER all random draws, with
+# deterministic values that consume no RNG, so the RNG stream for D1-D12
+# does not shift (premortem constraint, issue #31).
 #
 # Uses base R only, plus writexl or openxlsx for the optional xlsx export.
 
@@ -87,6 +96,17 @@ installation_date[mixed_idx] <- format(dates_iso[mixed_idx], "%d/%m/%Y")
 users_count <- sample(20:400, n, replace = TRUE)
 users_count[c(6, 12, 19, 25)] <- -99L
 
+# D14: direct-identifier column owner_phone. Generated after all random
+# draws above, from row-index arithmetic only (no RNG consumed), so the
+# D1-D12 columns stay byte-identical to the pre-D14 fixture.
+i <- seq_len(n)
+owner_phone <- sprintf(
+  "+41 79 %03d %02d %02d",
+  100 + ((i * 37) %% 900),
+  (i * 11) %% 100,
+  (i * 23) %% 100
+)
+
 pkgreviewtest <- data.frame(
   id = id,
   region = region,
@@ -94,6 +114,7 @@ pkgreviewtest <- data.frame(
   status = status,
   installation_date = installation_date,
   users_count = as.integer(users_count),
+  owner_phone = owner_phone,
   stringsAsFactors = FALSE
 )
 
@@ -150,4 +171,10 @@ message(
 message(
   "  status values: ",
   paste(sort(unique(pkgreviewtest$status)), collapse = ", ")
+)
+message(
+  "  owner_phone (D14) present: ",
+  "owner_phone" %in% names(pkgreviewtest),
+  ", all match +41 pattern: ",
+  all(grepl("^\\+41 79 \\d{3} \\d{2} \\d{2}$", pkgreviewtest$owner_phone))
 )

@@ -162,3 +162,73 @@ stamped `1.0.0-dev` before the tag existed; version-pinned checklist
 fetching (rule 1) applies from `v1.0.0` onward. The fixture-run acceptance
 gate for these amendments (#17) was waived by the maintainer at release
 time and remains open to run afterwards.
+
+## Tier split: Required and Advisory (issue #27, v1.1.0)
+
+Date: 2026-07-23. Each checklist gains exactly one `## Required` and one
+`## Advisory` section with a two-line tier definition at the top. Required
+items block publication; advisory items never do. No item was dropped; the
+tables below record where every item moved, keyed to the item numbers used
+earlier in this document. Wording is unchanged except for the three
+rewordings listed at the end. The fixture gate run for this split happens
+in the fixture issue of the milestone (#31).
+
+### Area 1: General Information & Metadata
+
+| Items | Tier |
+|-------|------|
+| M3/M4 (Description informative and accurate), M5/M6 (authors and maintainer with ORCID and contact email), M7 (CC BY 4.0), M11 (CITATION.cff present and valid), M12 (CITATION.cff version matches DESCRIPTION), M13 (citation via `washr::update_citation()`) | Required |
+| M1 (package name conventions), M2 (title under 65 characters), M8 (dependencies declared), M9 (semantic versioning), M10 (run `washr::update_description()` after edits) | Advisory |
+
+### Area 2: Data Content & Processing
+
+| Items | Tier |
+|-------|------|
+| D26 (raw data preserved in `data-raw/`), D23 (`data_processing.R` in `data-raw/`), D1 (primary data in `data/` as `.rda`), D2 (CSV/XLSX in `inst/extdata/`), D4 (PII, reworded below), D27 (dictionary, reworded below) | Required |
+| D3 (dataset naming), D5 (data size), D31/D32 (obsolete files, blank spaces), D6-D8 (NA coding), D9 (tidy data), D10 (entry errors), D11-D14 (categorical checks), D15 (dates), D16 (numeric ranges), D17 (variable types), D18 (consistent types), D19/D20 (snake_case names), D21 (unique identifiers), D22 (UTF-8), D24/D25 (script well-commented, no commented-out code), D28 (tidyverse conventions), D29 (transparent cleaning), D30 (`analysis/` scripts) | Advisory |
+
+D33 (suggested tools table) stays a non-checklist section.
+
+### Area 3: Documentation
+
+| Items | Tier |
+|-------|------|
+| O2 (one-paragraph introduction), O3 (dynamic generation works), O4 (installation instructions), O5 (data overview with dimensions), O6 (dictionary table rendered), O10 license item, O10/O11 citation item, O13/O14 (datasets documented with `.Rd` incl. per-variable descriptions), O17 (website builds), O18 (published on GitHub Pages) | Required |
+| O1 (README template conformance), O7-O9 (visualisation polish), O12 (roxygen for exported functions), O15 (data structures and types described in `.Rd`), O19 (vignettes location), O16 (`_pkgdown.yml` conformance) | Advisory |
+
+### Area 4: Tests & CI/CD
+
+| Items | Tier |
+|-------|------|
+| T1 (R-CMD-check workflow present), T6 (`dev` trigger), T3 (`devtools::check()` passes, notes explained), T4 (examples run), T5 (data loads) | Required |
+| T2 (R-CMD-check badge; badge markdown block kept with it) | Advisory |
+
+### Rewordings
+
+| Ref | Decision | New wording | Rationale |
+|-----|----------|-------------|-----------|
+| M3 | reworded | "Description is an informative and accurate statement of what the data contains" | Was "statement of purpose"; the required floor names a description of the data, and the issue #27 required-tier text uses the data framing |
+| D4 | reworded | "No sensitive or personally identifiable information is present in any data file. The intake screen outcome is recorded in the first review issue; household- or person-level data requires a named human sign-off comment on the review issue. The review agent never certifies this item on its own." | Encodes premortem constraint P6 (human sign-off); ties the item to the intake screen added in #28 |
+| D27 | reworded | "`data-raw/dictionary.csv` covers every variable in every dataset, each with a one-sentence plain-language description. The description is the most important field; it is written or confirmed by a human." | Encodes premortem constraint P4 (no agent-invented metadata); the description is the floor's most important field |
+
+## Fixture and scorecard for v1.1.0 (issue #31)
+
+Date: 2026-07-23. No checklist item changed in this issue; recorded here
+because the scorecard is the acceptance instrument for every checklist
+change. The fixture gains two strictly additive defects: D13 (dictionary
+present but with an empty description for `status` and a placeholder for
+`users_count`; caught by the reworded required dictionary item D27) and
+D14 (direct-identifier column `owner_phone`; caught by the intake screen
+from #28, which stops the review before any issue exists). The D1-D12
+mechanisms are untouched; the regenerated CSVs are byte-identical on the
+D1-D12 columns. The scorecard now maps fourteen defects, marks each with
+its tier, and adopts the exact-reconciliation rule (premortem constraint
+P1): the gate passes only when the finding count equals the defect count,
+every finding maps to exactly one defect ID, and waiving findings as
+noise is prohibited.
+
+Version note: the tier split (#27), the intake screen (#28), the advisory
+handling and evidence rule (#29), the guidebook (#30), and the fixture
+additions (#31) ship together as `v1.1.0`. The package-resident standards
+file gains the tier distinction, the PII-first rule, and the dictionary
+description emphasis in the same release (#32).
