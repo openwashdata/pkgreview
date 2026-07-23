@@ -90,6 +90,18 @@ It stays in the package permanently; never delete it in later steps.
 
 ## Step 3: Analyze the package
 
+- Run the deterministic check script and keep its full report:
+
+  ```bash
+  Rscript "${CLAUDE_SKILL_DIR}/../pkgreview-core/check/pkgreview-check.R" . > /tmp/pkgreview-check.md
+  ```
+
+  It verifies the mechanical subset of the checklists (file presence,
+  license, citation consistency, sentinel values, encoding, naming,
+  ranges, coordinates) and prints a Markdown report. Its PII line is a
+  FLAG signal only; the intake screen in Step 1 remains the decision
+  point. The analysis below starts from the report's verified facts
+  instead of re-deriving them.
 - Check the structure against the standards file just written (required
   directories and files, washr template compliance).
 - Check git state: current branch, existing `dev` branch, open PRs
@@ -119,6 +131,13 @@ household- or person-level data, the pending named human sign-off
 requirement.
 
 Capture the issue number GitHub assigns from the `gh issue create` output.
+
+Then post the Step 3 check report as the first comment on the issue, so
+the review starts from verified facts:
+
+```bash
+gh issue comment [number] --body-file /tmp/pkgreview-check.md
+```
 
 ## Step 5: Present the plan and STOP
 
