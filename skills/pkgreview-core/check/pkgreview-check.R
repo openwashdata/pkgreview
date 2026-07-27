@@ -171,6 +171,89 @@ add("data", "required",
     if (length(pii_cols)) paste("suspicious columns:", paste(unique(pii_cols), collapse = ", "))
     else "no suspicious column names or value patterns detected; the item still requires the intake screen and human judgment")
 
+# Git-history PII signal scan (issue #52): identifying data removed from
+# the working tree stays recoverable from any clone. This is the text-file
+# part of the intake screen's history check; the .rda column scan and the
+# commit-message read stay with the reviewer (review-package Step 2). FLAG
+# only, never PASS (premortem P6). NOT RUN when pkg is not a git repo.
+git_ok <- tryCatch(
+  system2("git", c("-C", shQuote(pkg), "rev-parse", "--is-inside-work-tree"),
+          stdout = TRUE, stderr = FALSE),
+  warning = function(w) character(), error = function(e) character())
+git_prefix <- tryCatch(
+  system2("git", c("-C", shQuote(pkg), "rev-parse", "--show-prefix"),
+          stdout = TRUE, stderr = FALSE),
+  warning = function(w) character(), error = function(e) character())
+is_repo <- length(git_ok) && identical(trimws(git_ok[1]), "true")
+# A package nested inside a larger repo (non-empty prefix) has no history
+# of its own: the visible commits belong to the enclosing repo, not to the
+# package, so a history scan there would report the wrong repo's data. A
+# package under review is its own repo root (empty prefix). This is also
+# what keeps the fixture scan deterministic: fixtures/pkgreviewtest is a
+# subdir of the tooling repo, so its D18 defect is exercised by the
+# throwaway repo from make_history_fixture.sh, not from here.
+in_subdir <- is_repo && length(git_prefix) && nzchar(trimws(git_prefix[1]))
+if (!is_repo) {
+  add("data", "required", "NOT RUN",
+      "Git-history PII signal scan (text data files)",
+      "package directory is not a git repository; run the history scan manually if the package is versioned elsewhere")
+} else if (in_subdir) {
+  add("data", "required", "NOT RUN",
+      "Git-history PII signal scan (text data files)",
+      "package is a subdirectory of a larger git repository; the visible history is the enclosing repo's, not the package's. Run the scan against the package's own repository")
+} else {
+  # pkg is the repo root here (empty prefix; the subdir case returned NOT
+  # RUN above). `git log --name-only` prints repo-root-relative paths and
+  # `git show rev:PATH` takes a root-relative path, so both are anchored at
+  # the repo root and the data directories can be named directly.
+  # Every path that ever existed under the data directories, including
+  # files deleted before the current commit.
+  hist_paths <- tryCatch(
+    system2("git", c("-C", shQuote(pkg), "log", "--all", "--pretty=format:",
+                     "--name-only", "--diff-filter=AMD", "--",
+                     "data-raw/", "inst/extdata/"),
+            stdout = TRUE, stderr = FALSE),
+    warning = function(w) character(), error = function(e) character())
+  hist_paths <- unique(hist_paths[nzchar(hist_paths)])
+  text_paths <- grep("\\.(csv|tsv|txt|json|geojson)$", hist_paths,
+                     ignore.case = TRUE, value = TRUE)
+  # Identifier column names or coordinate/value patterns in any historical
+  # revision of each text data file. Paths are root-relative, so the per
+  # file revision list and each blob read use them directly.
+  hist_hits <- character()
+  for (p in text_paths) {
+    header_hit <- tryCatch({
+      # `p` is repo-root-relative and pkg is the repo root, so the
+      # pathspec and the blob reference both resolve directly.
+      revs <- system2("git", c("-C", shQuote(pkg), "log", "--all",
+                               "--pretty=format:%H", "--", p),
+                      stdout = TRUE, stderr = FALSE)
+      hit <- FALSE
+      for (rev in revs[nzchar(revs)]) {
+        blob <- system2("git", c("-C", shQuote(pkg), "show",
+                                 paste0(rev, ":", p)),
+                        stdout = TRUE, stderr = FALSE)
+        if (length(blob) &&
+            (grepl(pii_name_re, blob[1], ignore.case = TRUE) ||
+             any(grepl("(^|,)(lat|latitude|lon|long|longitude|gps)($|,)",
+                       blob[1], ignore.case = TRUE))))
+          { hit <- TRUE; break }
+      }
+      hit
+    }, warning = function(w) FALSE, error = function(e) FALSE)
+    if (isTRUE(header_hit)) hist_hits <- c(hist_hits, p)
+  }
+  add("data", "required", "FLAG",
+      "Git-history PII signal scan (text data files)",
+      if (length(hist_hits))
+        paste("identifier-like columns in historical revisions of:",
+              paste(unique(hist_hits), collapse = ", "),
+              "- inspect these revisions and treat as disclosed if confirmed")
+      else paste("no identifier-like column names or value patterns found in the",
+                 length(text_paths),
+                 "text data file path(s) across history; the .rda history and commit messages still need the reviewer's judgment"))
+}
+
 # Per-dataset mechanical checks
 for (nm in names(datasets)) {
   df <- datasets[[nm]]
@@ -388,6 +471,9 @@ cat("evidence rule): description and provenance prose quality, tidy-data\n")
 cat("structure, plausibility of values, devtools::check(), README rebuild,\n")
 cat("website build, ORCID and maintainer identification, dictionary\n")
 cat("description accuracy (a present description can still be wrong), PII\n")
-cat("certification (the FLAG above is a signal, never a verdict).\n")
+cat("certification (the FLAG above is a signal, never a verdict), and the\n")
+cat("history parts the script does not cover: historical .rda column names\n")
+cat("(compressed, not text-searchable) and commit-message wording that\n")
+cat("names identifying data being added or removed.\n")
 
 quit(status = if (n_fail_req > 0) 1L else 0L)

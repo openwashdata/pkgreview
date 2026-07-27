@@ -357,3 +357,42 @@ checklist wording in the scorecard was updated to the reworded item; the
 defect mechanism (missing analytics header, repo URL as `url:`) is
 untouched and still fails under `--analytics=plausible`, the setting the
 openwashdata profile implies.
+
+## Git-history PII scan (issue #52, v1.4.0)
+
+Date: 2026-07-27. The PII floor covered the current data files only. A
+review of Global-Health-Engineering/malawihcf passed the intake screen,
+then a manual search found facility GPS coordinates in three historical
+commits; the columns had been added and removed before the review
+started, so no current file held them. A clean working tree is not the
+publication floor: anyone who clones the repository can recover the
+removed data. The scan now covers every revision in the git history.
+
+| Ref | Decision | New wording (short form) | Rationale |
+|-----|----------|--------------------------|-----------|
+| D4 (PII item) | reworded, scope extended | No sensitive or PII in any data file, in the current files or in any earlier revision of the git history (deleted data files, historical text-file revisions, historical `.rda` column names, commit-message wording); history hits block publication until the history is cleaned (recovery.md failure mode 10) | The item read as current-files-only; the malawihcf finding showed the history is part of the floor |
+
+Standards and skill changes (not new checklist items): the standards.md
+rule "PII and sensitivity come first" now states the check covers every
+revision, not only the current files, and that history hits block
+publication until cleaned; review-package Step 2 gains a four-part
+history scan (all-time data paths, historical text-file value scan,
+historical `.rda` column scan, commit-message read), FLAG only, full
+scan with a slowness note; the check script gains the text-file part of
+the scan (FLAG, or NOT RUN when the directory is not a git repo or is a
+subdirectory of a larger repo); recovery.md gains failure mode 10 (git
+history remediation: filter-repo or clean root, force-push, GitHub
+support purge, collaborator re-clone, treat as disclosed); the guidebook
+PII section gains the same history warning.
+
+Fixture note (D18): `fixtures/pkgreviewtest/` is a subdirectory of the
+tooling repo and has no git history of its own, so the history scan
+reports NOT RUN there and the D1 to D17 reconciliation against it is
+unchanged (still 17 findings, 19 FAIL + 1 FLAG, plus the new NOT RUN
+line, which is a not-applicable report, not a finding). The history
+defect D18 is planted in a throwaway repository built deterministically
+by `fixtures/make_history_fixture.sh` (identifiers added then removed, so
+only the history carries them); the gate scans that repository and must
+produce the D18 FLAG. The `.rda`-history and commit-message parts of the
+scan stay with the reviewer, so a full D18 gate is script plus workflow,
+as for D13 and D14.
