@@ -1,6 +1,6 @@
 ---
 name: create-release
-description: Create a versioned release of an openwashdata R data package after the review PR is merged to main. Handles version bump, NEWS.md, GitHub release, and the two-step Zenodo DOI flow with mandatory pauses.
+description: Create a versioned release of a reviewed R data package after the review PR is merged to main. Handles version bump, NEWS.md, GitHub release, and the two-step Zenodo DOI flow with mandatory pauses.
 disable-model-invocation: true
 argument-hint: "[version]"
 ---
@@ -12,6 +12,13 @@ package in the current directory.
 
 Prerequisites: the final review PR is merged, you are on `main`, no
 uncommitted changes, R with `usethis` and `washr` installed.
+
+Resolve the organization profile before starting: derive the org from
+`git remote get-url origin`, lowercase it, and read
+`${CLAUDE_SKILL_DIR}/../pkgreview-core/references/orgs/[org].md`. It
+provides the Zenodo community used in the DOI steps. If no profile
+exists, stop: the organization is not registered (registration path in
+`orgs/README.md` there).
 
 **This skill has two mandatory PAUSE points (Zenodo pre-check and DOI
 entry). Wait for the user's answer at each; do not assume or skip.**

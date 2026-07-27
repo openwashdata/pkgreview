@@ -1,6 +1,6 @@
 ---
 name: review-complete
-description: After all four openwashdata review issues are closed and merged to dev, create the final PR from dev to main. Reports precisely what blocks completion if the state does not reconcile.
+description: After all four review issues are closed and merged to dev, create the final PR from dev to main. Reports precisely what blocks completion if the state does not reconcile.
 disable-model-invocation: true
 ---
 
@@ -80,9 +80,11 @@ Title: `Complete package review for [package-name]`. Base: `main`, head:
 ## Summary
 
 This PR completes the review of the [package-name] R data package
-following openwashdata standards.
+following the pkgreview standards with the [org] organization profile.
 
 Review standard version: [stamp from the metadata issue body]
+
+Organization profile: [org stamp from the metadata issue body]
 
 ## Completed Review Issues
 

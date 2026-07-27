@@ -1,18 +1,20 @@
-# openwashdata package standards
+# {{ORG_NAME}} package standards
 
 Standard version: {{PKGREVIEW_VERSION}}
+Organization profile: {{ORG_NAME}}
 Source: https://github.com/openwashdata/pkgreview
 
-This package was reviewed against the openwashdata standards recorded in this
-file. It guides every future Claude session working in this package, including
-sessions by student contributors and external collaborators who have no review
-tooling installed. Do not delete this file: it is the only record of which
-standard version this package was reviewed against. The `/review-package`
-command writes it at review start; the version above pins the standard for the
-whole review.
+This package was reviewed against the pkgreview standards recorded in this
+file, applied with the {{ORG_NAME}} organization profile. It guides every
+future Claude session working in this package, including sessions by student
+contributors and external collaborators who have no review tooling installed.
+Do not delete this file: it is the only record of which standard version and
+organization profile this package was reviewed against. The `/review-package`
+command writes it at review start; the stamps above pin the standard and the
+org values for the whole review.
 
 Note: pkgdown renders every top-level `.md` file, so this file appears on the
-package website as `CLAUDE.html`. That is accepted openwashdata behavior (it
+package website as `CLAUDE.html`. That is accepted behavior (it
 publicly records the standard the package was reviewed against); pkgdown
 offers no configuration to exclude it. Do not delete the file to hide it.
 
@@ -44,9 +46,9 @@ block publication.
   invented by an agent.
 - Vignettes live in `vignettes/articles/`, never directly in `vignettes/`.
   This keeps pkgdown rendering correct and avoids CRAN issues.
-- `_pkgdown.yml` follows the standard openwashdata configuration below,
-  including the Plausible analytics header and the ETH funding sidebar. Do
-  not remove or reorganize these blocks.
+- `_pkgdown.yml` follows the standard configuration below,
+  including the analytics header and the funding sidebar from the
+  organization profile. Do not remove or reorganize these blocks.
 - Analysis, validation, and testing scripts live in `analysis/` at the
   package root. They are intentionally outside `R/` and are not built into
   the installed package. Do not move or delete them; they exist for
@@ -102,18 +104,18 @@ URL (canonical links, sitemap.xml, redirects), so it must be the Pages URL,
 never the GitHub repo URL; the repo link lives in `home.links`.
 
 ```yaml
-url: https://openwashdata.github.io/packagename/
+url: https://{{ORG_DOMAIN}}/packagename/
 template:
   bootstrap: 5
   includes:
     in_header: |
-      <script defer data-domain="openwashdata.github.io" src="https://plausible.io/js/script.js"></script>
+      <script defer data-domain="{{ORG_DOMAIN}}" src="https://plausible.io/js/script.js"></script>
 
 home:
   links:
     - icon: github
       text: GitHub repository
-      href: https://github.com/openwashdata/packagename
+      href: https://github.com/{{ORG_NAME}}/packagename
   sidebar:
     structure: [links, citation, authors, dev, custom]
     components:

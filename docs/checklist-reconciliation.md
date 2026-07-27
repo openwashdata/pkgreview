@@ -319,3 +319,41 @@ D17 is a range defect, not a PII defect.
 Version note: the mechanical rewordings (#33), the tidyverse enumeration
 (#34), the provenance and FAIR items (#35), and these fixture additions
 (#36) ship together as `v1.2.0`.
+
+## Organization profile layer (issue #49, v1.3.0)
+
+Date: 2026-07-27. pkgreview now reviews packages for registered
+organizations; org-specific values moved out of the checklists into
+per-org profile files (`skills/pkgreview-core/references/orgs/`),
+decided in #48. No checklist item was added or dropped; the rewordings
+below replace hardcoded openwashdata values with references to the org
+profile. openwashdata and Global-Health-Engineering are the registered
+orgs; both currently share the washr tooling, the washr README template,
+and the Plausible analytics stack, differing in domains, discovery
+keyword, and Zenodo community.
+
+| Ref | Decision | New wording (short form) | Rationale |
+|-----|----------|--------------------------|-----------|
+| M1 | reworded | Package name is clear, concise, and indicative of the data content | The "follows openwashdata conventions" attribution added nothing; the convention itself is shared by all registered orgs |
+| M14 (v1.2.0 keywords item) | reworded | keywords at minimum: open data, the organization's discovery keyword from its org profile, the topic, and the country or region | "washdata" is the openwashdata profile value; Global-Health-Engineering uses "global health" (#48 decision 3) |
+| docs: README template item | reworded | README.Rmd follows the README template named in the org profile | Template choice is an org field; both registered orgs name the washr template |
+| docs: `_pkgdown.yml` item | reworded | follows the standard configuration for the registered organization, including the analytics header when the org profile defines one | Site URL domain and analytics domain are org fields; scorecard D7 quote updated in the same change |
+| tests: badge markdown | reworded | badge URL uses `ORGNAME` placeholder filled from the org profile | The badge path follows the package's org |
+| M10, M13 (washr steps) | unchanged | | Citation tooling is an org profile field, but every registered org uses washr; registering a non-washr org requires reworking these items and the standards template, a standard change with its own version bump |
+
+Template changes (not checklist items): the issue body gains an
+`Organization profile: [org]` stamp line next to the version stamp;
+`templates/_pkgdown.yml` and `references/standards.md` carry
+`ORGDOMAIN`/`ORGNAME` (respectively `{{ORG_DOMAIN}}`/`{{ORG_NAME}}`)
+placeholders filled from the profile at review start; the check script
+takes `--analytics=plausible|none` and reports the analytics check as
+NOT RUN for profile-less analytics; recovery.md gains failure mode 9
+(reviews without an org stamp predate v1.3.0 and are openwashdata
+reviews by definition).
+
+Fixture note: the fixture remains an openwashdata-profile package; the
+planted defects D1 to D17 and their mappings are unchanged. D7's quoted
+checklist wording in the scorecard was updated to the reworded item; the
+defect mechanism (missing analytics header, repo URL as `url:`) is
+untouched and still fails under `--analytics=plausible`, the setting the
+openwashdata profile implies.

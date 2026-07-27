@@ -17,9 +17,11 @@ Issue title: `Data Package Review: [Title suffix]`
 
 ## Review Checklist
 
-This is step [N] of 4 in the openwashdata package review process.
+This is step [N] of 4 in the [organization] package review process.
 
 Review standard version: [version stamp: the git tag, or short commit hash, of openwashdata/pkgreview that the reviewer has installed]
+
+Organization profile: [the GitHub organization whose profile was resolved at review start, for example openwashdata]
 
 ### Prerequisites
 

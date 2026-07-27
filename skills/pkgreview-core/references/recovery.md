@@ -62,7 +62,9 @@ review was in flight.
 
 Recovery: in-flight reviews finish on the version they started with. Fetch
 the checklist pinned to the stamped version:
-`https://raw.githubusercontent.com/openwashdata/pkgreview/[stamp]/skills/pkgreview-core/references/checklists/[area].md`.
+`https://raw.githubusercontent.com/openwashdata/pkgreview/[stamp]/skills/pkgreview-core/references/checklists/[area].md`,
+and the organization profile pinned the same way:
+`.../[stamp]/skills/pkgreview-core/references/orgs/[org].md`.
 Warn the user, and never mix two standard versions within one review.
 
 ## 6. No version stamp found (review predates stamping)
@@ -102,3 +104,14 @@ recommend retro-labeling so subsequent runs use the label path:
 `gh issue edit [number] --add-label pkgreview-[area]` for each of the
 four areas. Retro-labeling is a write action: /review-status only
 recommends the commands, it never runs them.
+
+## 9. No organization stamp found (review predates org profiles)
+
+Symptom: the first review issue body has a "Review standard version" line
+but no "Organization profile" line. The review started before v1.3.0
+introduced organization profiles.
+
+Recovery: the review is an openwashdata review by definition; openwashdata
+was the only organization before profiles existed. Tell the user and
+continue with the openwashdata profile
+(`skills/pkgreview-core/references/orgs/openwashdata.md`).

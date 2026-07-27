@@ -29,7 +29,7 @@ block publication.
 
 ## Advisory
 
-- [ ] README.Rmd follows the openwashdata template
+- [ ] README.Rmd follows the README template named in the org profile
 - [ ] README contains a provenance sentence: who collected the source data, the collection method, the collection period, the region, and any license or permission attached to the source data
 - [ ] README contains a Download section with direct links to the CSV/XLSX exports in `inst/extdata/` for non-R users
 - [ ] Each data visualisation has edited human-readable labels (axis labels, legend title), is described in the narrative, and is cross-referenced using its code-chunk label
@@ -37,7 +37,7 @@ block publication.
 - [ ] Data structures (number of rows and columns) and types clearly described
 - [ ] Roxygen `@source` present for every dataset: original collector, URL or reference, and access date; for a data package this is the single most important Rd field after the description
 - [ ] Vignettes, if present, live in `vignettes/articles/`, not directly in `vignettes/`
-- [ ] `_pkgdown.yml` follows the standard openwashdata configuration, including the Plausible analytics header (canonical template: `skills/pkgreview-core/references/templates/_pkgdown.yml` in openwashdata/pkgreview)
+- [ ] `_pkgdown.yml` follows the standard configuration for the registered organization, including the analytics header when the org profile defines one (canonical template: `skills/pkgreview-core/references/templates/_pkgdown.yml` in openwashdata/pkgreview, with the org profile values substituted)
 
 ## Files to review
 

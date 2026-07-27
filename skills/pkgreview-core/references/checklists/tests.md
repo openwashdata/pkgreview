@@ -18,10 +18,11 @@ block publication.
 
 - [ ] R-CMD-check badge added to README.Rmd
 
-Badge markdown (replace `PACKAGENAME`):
+Badge markdown (replace `ORGNAME` with the GitHub organization from the
+org profile and `PACKAGENAME` with the package name):
 
 ```markdown
-[![R-CMD-check](https://github.com/openwashdata/PACKAGENAME/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/openwashdata/PACKAGENAME/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/ORGNAME/PACKAGENAME/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ORGNAME/PACKAGENAME/actions/workflows/R-CMD-check.yaml)
 ```
 
 ## Files to review or create
