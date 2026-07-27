@@ -74,8 +74,15 @@ JSON
 ```
 
 This blocks direct pushes to `main` and requires one approving review on
-the final dev-to-main PR. Apply it at review start (or org-wide via a
-ruleset at https://github.com/organizations/openwashdata/settings/rules).
+the final dev-to-main PR. Apply it at review start.
+
+Note (2026-07-23): the org-wide alternative, a ruleset at
+https://github.com/organizations/openwashdata/settings/rules, was tried
+and is gated to GitHub Team plans; it is not available on the current
+openwashdata plan. Per-repo protection with the command above works on
+the current plan for public repositories. As of the same date, neither
+layer 2 nor layer 3 is deployed by maintainer decision (issue #8);
+enforcement stands on layer 1.
 
 ## Rollout gate
 
