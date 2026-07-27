@@ -115,3 +115,37 @@ Recovery: the review is an openwashdata review by definition; openwashdata
 was the only organization before profiles existed. Tell the user and
 continue with the openwashdata profile
 (`skills/pkgreview-core/references/orgs/openwashdata.md`).
+
+## 10. Identifying data found in the git history
+
+Symptom: the intake screen's history scan (review-package Step 2, or the
+check script's history FLAG) surfaces identifiers in an earlier revision:
+a data file that was added and later removed, an identifier column present
+in a historical `.rda`, or a commit message naming identifying data being
+added or removed. The current working tree can be completely clean and the
+package still fails the publication floor, because anyone who clones the
+repository can recover the removed data. Observed on
+Global-Health-Engineering/malawihcf (facility GPS coordinates in three
+historical commits; documented in
+Global-Health-Engineering/malawihcf#6).
+
+Recovery: publication (making the repository public, or archiving it
+together with its history) stays blocked until the history is clean. This
+is a write action on the reviewed package and its clones; the review skill
+recommends the path and stops, it never rewrites history on its own.
+
+1. Rewrite the history to drop the identifying blobs: `git filter-repo`
+   (preferred) over the affected paths, or restart the history from a
+   clean root commit when the identifiers are spread across many commits.
+2. Force-push the rewritten branches and re-apply branch protection.
+3. Ask GitHub support to purge unreachable objects and cached views;
+   until they do, the old blobs remain reachable by SHA.
+4. Have every collaborator delete their old clones and clone again; a
+   rewritten remote does not clean local copies.
+5. Treat the data as disclosed to everyone who had access to the
+   repository for the window it was present, and decide with the data
+   owner whether that needs follow-up.
+
+Only after the history scan comes back clean does the package clear the
+PII floor. Record the remediation and the clean re-scan on the review
+issue.

@@ -12,7 +12,7 @@ block publication.
 - [ ] `data_processing.R` in `data-raw/`
 - [ ] All primary data files are present in `data/` and use `.rda` format
 - [ ] All raw or exportable data files (CSV/XLSX) are in `inst/extdata/`
-- [ ] No sensitive or personally identifiable information is present in any data file. The intake screen outcome is recorded in the first review issue; household- or person-level data requires a named human sign-off comment on the review issue. The review agent never certifies this item on its own.
+- [ ] No sensitive or personally identifiable information is present in any data file, in the current files or in any earlier revision of the git history (identifying data removed in an earlier commit stays recoverable from any clone; the history scan covers deleted data files, historical revisions of text files, historical `.rda` column names, and commit-message wording). The intake screen outcome is recorded in the first review issue; household- or person-level data requires a named human sign-off comment on the review issue. Identifying data found in the history blocks publication until the history is cleaned (recovery.md failure mode 10). The review agent never certifies this item on its own.
 - [ ] `data-raw/dictionary.csv` covers every variable in every dataset, each with a one-sentence plain-language description. The description is the most important field; it is written or confirmed by a human.
 
 ## Advisory

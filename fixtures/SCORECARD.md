@@ -1,6 +1,8 @@
 # pkgreviewtest expected-findings scorecard
 
-The fixture package `fixtures/pkgreviewtest/` contains exactly seventeen planted defects, listed below. It is otherwise correct: any additional finding produced by a review run against it means either the fixture drifted or the checklist produces false positives, and the gate fails until that is resolved.
+The fixture package `fixtures/pkgreviewtest/` contains exactly seventeen planted defects (D1 to D17), listed below. It is otherwise correct: any additional finding produced by a review run against it means either the fixture drifted or the checklist produces false positives, and the gate fails until that is resolved.
+
+One further defect, D18 (identifying data in the git history, issue #52), is exercised separately. `fixtures/pkgreviewtest/` is a subdirectory of the tooling repo and has no git history of its own, so the git-history scan reports NOT RUN there (the visible history belongs to the enclosing repo). D18 is planted in a throwaway repository built on demand by `fixtures/make_history_fixture.sh`; the gate scans that repository. D18 is the eighteenth defect of the standard, but it is not a file inside `pkgreviewtest/`, so the pkgreviewtest count stays at seventeen.
 
 ## Planted defects
 
@@ -25,6 +27,7 @@ The canonical checklists live in `skills/pkgreview-core/references/checklists/` 
 | D15 | Processing script convention violations: `read_csv()` without explicit `col_types`, and the CSV export written with base `write.csv(fileEncoding = "latin1")` instead of `readr::write_csv()` | `data-raw/data_processing.R` | data | advisory | data.md: "Tidyverse conventions in the processing script: data read with `readr::read_csv()` and explicit `col_types` (silent type guessing is how character dates slip in); exports written with `readr::write_csv()` and `writexl::write_xlsx()` (both always UTF-8, never base `write.csv()` with `fileEncoding`); native pipe `|>` preferred" |
 | D16 | Cross-field violation: `women_users` exceeds `users_count` in rows 4 and 22 (the part exceeds its whole) | `data/pkgreviewtest.rda`, `inst/extdata/*`, `data-raw/waterpoints_raw.csv` | data | advisory | data.md: "Cross-field consistency checks run with violation counts reported (for example a date column that must not precede a related date column, a part that must not exceed its whole)" |
 | D17 | Coordinate defects: row 9 is a (0, 0) point and row 21 has longitude 181.5, outside [-180, 180] | `data/pkgreviewtest.rda`, `inst/extdata/*`, `data-raw/waterpoints_raw.csv` | data | advisory | data.md: "Coordinate columns, if present: latitude within [-90, 90], longitude within [-180, 180], no (0, 0) points, no points outside the stated study region; coordinate precision assessed as a disclosure risk consistent with the intake screen outcome" |
+| D18 | Identifying data in the git history only: a first commit adds `gps_latitude`, `gps_longitude`, and `owner_phone` columns to `inst/extdata/facilities.csv`, a second commit removes them, so the working tree at HEAD is clean but the identifiers remain in the first revision | throwaway repo from `fixtures/make_history_fixture.sh` (not `pkgreviewtest/`) | data | required | data.md: "No sensitive or personally identifiable information is present in any data file, in the current files or in any earlier revision of the git history"; review-package Step 2 intake screen history scan |
 
 Notes on D13 and D14:
 
@@ -45,11 +48,21 @@ Note on D17 and the intake screen: the coordinates are waterpoint-level at two-d
 
 Note on D15 (decision from issue #34): the script's convention violations are planted defects, not accidents, and the script must never be made convention-clean. The `write.csv(fileEncoding = "latin1")` line is the in-package mechanism of D3 (premortem finding F3: cleaning it to `readr::write_csv()` would narratively un-plant the encoding defect), and `read_csv()` without `col_types` is how D8's character dates slip through. Like D5, D15 spans two clauses of one checklist item and counts as one defect with one finding. The script's commented-out block remains D12; the "no commented-out code" wording lives only in the D12 item, not in the conventions item, so the two cannot double-map.
 
+Note on D18 and the fixture layout (issue #52): `fixtures/pkgreviewtest/` cannot carry D18, because it is a subdirectory of the tooling repo and has no independent git history. Against `pkgreviewtest/` the git-history scan reports NOT RUN with the reason "package is a subdirectory of a larger git repository"; that NOT RUN line is a not-applicable report, not a finding, and maps to no defect (the cross-field NOT RUN line is the same shape). D18 is planted in a throwaway repository that `fixtures/make_history_fixture.sh` builds deterministically (fixed author, fixed dates, no RNG): commit one adds `gps_latitude`, `gps_longitude`, and `owner_phone` to `inst/extdata/facilities.csv`, commit two removes them, so the working tree at HEAD is clean and the identifiers survive only in the first revision. A gate run scans that repository and must produce the D18 FLAG naming `facilities.csv`; a run whose working tree is clean and that still misses the history has missed D18. The check script covers the text-file part of the scan; the historical `.rda` column names and the commit-message wording stay with the reviewer (review-package Step 2), so a full gate for D18 is script plus workflow, as for D13 and D14.
+
 ## How to use this scorecard
 
 Run the full review workflow against `fixtures/pkgreviewtest` after every significant change to the checklists in `skills/pkgreview-core/references/checklists/` or to the review skills and commands.
 
 The mechanical layer of the gate is scripted: `Rscript skills/pkgreview-core/check/pkgreview-check.R fixtures/pkgreviewtest` runs the machine-checkable subset and must reproduce the defect mapping exactly (every FAIL/FLAG line maps to a defect ID, no unmapped lines). The judgment items, the intake conversation, and the guardrail behavior still require the workflow run.
+
+The git-history defect D18 is exercised against its own repository, since `pkgreviewtest/` reports NOT RUN for history:
+
+```
+HISTREPO=$(bash fixtures/make_history_fixture.sh)
+Rscript skills/pkgreview-core/check/pkgreview-check.R "$HISTREPO"   # expect the D18 history FLAG naming facilities.csv
+rm -rf "$HISTREPO"
+```
 
 Because D14 stops the review at the intake screen, a gate run has two stages: first confirm the intake screen flags `owner_phone` (D14) and the defective dictionary descriptions (D13) and stops; then the maintainer explicitly acknowledges the intake findings at the check-in and lets the review proceed, so the remaining defects are exercised through the review issues.
 
@@ -57,7 +70,8 @@ Because D14 stops the review at the intake screen, a gate run has two stages: fi
 
 The gate passes only under exact reconciliation (premortem constraint P1):
 
-- The finding count equals the defect count: exactly seventeen findings, one per defect D1 to D17.
+- Against `fixtures/pkgreviewtest`, the finding count equals the defect count: exactly seventeen findings, one per defect D1 to D17. The git-history line there is a NOT RUN report (package is a subdirectory), not a finding.
+- Against the `make_history_fixture.sh` repository, the history scan produces the one D18 FLAG naming `facilities.csv`.
 - Every finding maps to exactly one defect ID, attributed to the correct review area.
 - Every defect is caught. A missed defect means the change weakened the standard; the change must not merge until the defect is caught again.
 - Waiving findings as noise is prohibited. A finding that maps to no defect ID fails the gate: either the fixture drifted or the checklist produces false positives, and either cause must be fixed before merge.

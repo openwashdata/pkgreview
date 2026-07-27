@@ -35,11 +35,15 @@ block publication.
 
 - PII and sensitivity come first: no data is pushed anywhere public
   before the PII and sensitivity check has run over the column names and
-  sampled values of every dataset. No direct identifiers (person names,
-  phone numbers, email addresses, national or beneficiary IDs,
-  household-level GPS coordinates) in any data file. Household- or
+  sampled values of every dataset. The check covers every revision in the
+  git history, not only the current files: identifying data removed in an
+  earlier commit stays recoverable from any clone, so a clean working tree
+  is not enough. No direct identifiers (person names, phone numbers, email
+  addresses, national or beneficiary IDs, household-level GPS coordinates)
+  in any data file or in any historical revision. Household- or
   person-level data requires a named human sign-off on the review issue;
-  an agent never certifies this on its own.
+  an agent never certifies this on its own. Identifying data found in the
+  history blocks publication until the history is cleaned.
 - `data-raw/dictionary.csv` covers every variable in every dataset, each
   with a one-sentence plain-language description. The description is the
   most important field; it is written or confirmed by a human, never

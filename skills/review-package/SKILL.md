@@ -70,18 +70,49 @@ treated as passed.
    every dataset (`data/*.rda` and `inst/extdata/*`): person names,
    phone numbers, email addresses, national or beneficiary IDs,
    household-level GPS coordinates.
-3. Sensitivity flags: household- or person-level records, small-area or
+3. Git-history scan. A clean working tree is not enough: identifying data
+   removed in an earlier commit stays recoverable from any clone, so the
+   scan covers every revision, not only the current files (issue #52).
+   Skip only when `git rev-parse --is-inside-work-tree` fails (the package
+   is not a git repository); record that as NOT RUN with the reason. A
+   full history scan can be slow on a large repository; run it anyway, the
+   intake screen is a one-time gate. Four parts, each with its command
+   shown:
+   - Every data file path that ever existed, so deleted datasets are found:
+     `git log --all --pretty=format: --name-only --diff-filter=AMD -- data-raw/ inst/extdata/ | sort -u`.
+   - Identifier column names and value patterns (person names, phone
+     numbers, emails, national or beneficiary IDs, GPS coordinates) in the
+     historical revisions of the text data files (`.csv`, `.tsv`, `.txt`,
+     `.json`). The deterministic check script covers this part; start from
+     its FLAG line and confirm.
+   - Historical `.rda` column names. The files are compressed, so a text
+     search cannot see into them: for each historical blob, load it in a
+     throwaway R session and read `names()`. The check script cannot do
+     this; it is the reviewer's to run.
+   - Commit messages for wording that names identifying data being added
+     or removed: `git log --all --oneline` plus a keyword read (phone,
+     email, name, ID, GPS, coordinate, anonymi, redact, remove PII).
+   Report every hit as a FLAG for a human decision; the agent never
+   certifies this on its own.
+4. Sensitivity flags: household- or person-level records, small-area or
    small-group cells, protection-relevant contexts.
-4. Data description exists: DESCRIPTION `Description` field and README
+5. Data description exists: DESCRIPTION `Description` field and README
    introduction.
-5. Dictionary present: `data-raw/dictionary.csv` with a description per
+6. Dictionary present: `data-raw/dictionary.csv` with a description per
    variable.
 
 Outcome handling:
 
-- Any direct identifier or sensitivity flag: STOP at a check-in. Present
-  the findings and wait for the user; do not create issues, do not push
-  anything.
+- Any direct identifier or sensitivity flag in the current files: STOP at
+  a check-in. Present the findings and wait for the user; do not create
+  issues, do not push anything.
+- Identifying data found in the git history (a history-scan FLAG the user
+  confirms): STOP. Publication stays blocked until the history is clean,
+  even when the current files are clean. Point the user at the history
+  remediation path in
+  `${CLAUDE_SKILL_DIR}/../pkgreview-core/references/recovery.md`
+  (failure mode 10) and treat the data as disclosed to everyone who had
+  access to the repository.
 - Household- or person-level data: the review may proceed after the
   check-in, but record in the intake results that the data issue cannot
   complete without a named human sign-off comment on the review issue.

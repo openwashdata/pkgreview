@@ -35,9 +35,13 @@ ships as Claude Code skills.
     with the version and organization profile stamped in
   - `references/recovery.md` - review-state failure modes and recovery paths
   - `VERSION` - the review standard version
-- `fixtures/` - `pkgreviewtest`, a deliberately defective package, plus
-  `SCORECARD.md` listing every planted defect and the checklist item that
-  must catch it
+- `fixtures/` - `pkgreviewtest`, a deliberately defective package (17
+  planted defects D1-D17), plus `SCORECARD.md` listing every planted
+  defect and the checklist item that must catch it. The git-history
+  defect D18 (issue #52) cannot live in `pkgreviewtest` (it is a subdir
+  of this repo with no history of its own); `make_history_fixture.sh`
+  builds a throwaway repo with a planted add-then-remove history for the
+  scan to catch.
 - `docs/checklist-reconciliation.md` - the record of how the previously
   diverging checklist copies were merged (issue #5)
 - `commands/` - deprecated slash-command stubs, kept only as pointers
