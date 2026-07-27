@@ -1,6 +1,6 @@
 ---
 name: review-issue
-description: Work on one openwashdata review issue (by actual GitHub issue number) with a single plan-approval check-in, atomic commits, and a hard stop after the PR to dev is created.
+description: Work on one review issue (by actual GitHub issue number) with a single plan-approval check-in, atomic commits, and a hard stop after the PR to dev is created.
 disable-model-invocation: true
 argument-hint: "[issue-number]"
 ---

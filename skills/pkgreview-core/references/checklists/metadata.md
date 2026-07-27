@@ -22,12 +22,12 @@ block publication.
 
 ## Advisory
 
-- [ ] Package name follows openwashdata conventions: clear, concise, and indicative of the data content
+- [ ] Package name is clear, concise, and indicative of the data content
 - [ ] Title is descriptive and under 65 characters
 - [ ] Dependencies properly declared
 - [ ] Version follows semantic versioning
 - [ ] If updates are made to DESCRIPTION, run `washr::update_description()`
-- [ ] CITATION.cff carries `keywords` for discovery (at minimum: open data, washdata, the topic, and the country or region); verify manually after `washr::update_citation()`, which may not write them
+- [ ] CITATION.cff carries `keywords` for discovery (at minimum: open data, the organization's discovery keyword from its org profile, the topic, and the country or region); verify manually after `washr::update_citation()`, which may not write them
 
 ## Files to review
 

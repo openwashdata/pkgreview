@@ -1,6 +1,6 @@
 ---
 name: create-next-issue
-description: Create the next openwashdata review issue in sequence (data, docs, or tests) after the previous review issue's PR has been merged to dev. Includes a duplicate guard and version-stamp check.
+description: Create the next review issue in sequence (data, docs, or tests) after the previous review issue's PR has been merged to dev. Includes a duplicate guard plus version and organization stamp checks.
 disable-model-invocation: true
 ---
 
@@ -54,17 +54,24 @@ Rules:
 - If all four areas have issues, say so and suggest `/review-status` or
   `/review-complete`.
 
-## Step 2: Version stamp check
+## Step 2: Version and organization stamp check
 
-Read the `Review standard version` line from the metadata issue body and
-compare with `${CLAUDE_SKILL_DIR}/../pkgreview-core/VERSION`.
+Read the `Review standard version` and `Organization profile` lines from
+the metadata issue body and compare the version with
+`${CLAUDE_SKILL_DIR}/../pkgreview-core/VERSION`.
 
 On mismatch: warn the user, and use the checklist pinned to the STAMPED
 version, fetched from
-`https://raw.githubusercontent.com/openwashdata/pkgreview/v[stamp]/skills/pkgreview-core/references/checklists/[area].md`
+`https://raw.githubusercontent.com/openwashdata/pkgreview/v[stamp]/skills/pkgreview-core/references/checklists/[area].md`,
+and the org profile pinned the same way from
+`.../v[stamp]/skills/pkgreview-core/references/orgs/[org].md`
 (failure mode 5 in recovery.md: in-flight reviews finish on the version they
 started with). If the stamped version cannot be fetched, ask the user before
 falling back to the installed checklists.
+
+If there is no `Organization profile` line, the review predates org
+profiles: it is an openwashdata review by definition (failure mode 9 in
+recovery.md). Tell the user and continue with the openwashdata profile.
 
 ## Step 3: Create the issue
 
@@ -81,7 +88,8 @@ verbatim:
 
 Fill the Prerequisites section with the actual issue numbers of the
 completed earlier areas, and carry the same
-`Review standard version: [stamp]` line forward.
+`Review standard version: [stamp]` and `Organization profile: [org]`
+lines forward.
 
 Capture the new issue number from the `gh issue create` output.
 

@@ -1,10 +1,13 @@
 # pkgreview-check.R
 #
-# Deterministic checks for the mechanical subset of the openwashdata
+# Deterministic checks for the mechanical subset of the pkgreview
 # review standard (pkgcheck pattern, openwashdata/pkgreview#13).
 #
 # Usage:
-#   Rscript pkgreview-check.R [package-dir]     # default: current directory
+#   Rscript pkgreview-check.R [package-dir] [--analytics=plausible|none]
+#     package-dir  default: current directory
+#     --analytics  default plausible; pass none when the org profile
+#                  (references/orgs/) defines no analytics header
 #
 # Output: a Markdown report on stdout, grouped by review area, one line
 # per check with PASS / FAIL / FLAG / NOT RUN and the observed counts.
@@ -21,7 +24,13 @@
 # part/whole or date-order relations.
 
 args <- commandArgs(trailingOnly = TRUE)
-pkg <- if (length(args) >= 1) args[[1]] else "."
+flags <- grep("^--", args, value = TRUE)
+pos <- setdiff(args, flags)
+analytics <- sub("^--analytics=", "", grep("^--analytics=", flags, value = TRUE))
+analytics <- if (length(analytics)) analytics[[1]] else "plausible"
+if (!analytics %in% c("plausible", "none"))
+  stop("Unknown --analytics value: ", analytics, " (expected plausible or none)")
+pkg <- if (length(pos) >= 1) pos[[1]] else "."
 if (!dir.exists(pkg)) stop("Package directory not found: ", pkg)
 
 CROSS_FIELD_PAIRS <- list(
@@ -82,7 +91,7 @@ if (length(cff) == 0) {
     any(grepl("Firstname|Lastname", read_lines_if("inst", "CITATION")))
   add("metadata", "required",
       if (placeholder_auth) "FAIL" else "PASS",
-      "Citation files carry real authors, not washr placeholders",
+      "Citation files carry real authors, not template placeholders",
       if (placeholder_auth) "\"Firstname Lastname\" found in citation files" else "")
   add("metadata", "advisory",
       if (any(grepl("^keywords:", cff))) "PASS" else "FAIL",
@@ -322,9 +331,15 @@ add("docs", "advisory", if (length(vig) == 0) "PASS" else "FAIL",
 
 pd <- read_lines_if("_pkgdown.yml")
 if (length(pd)) {
-  add("docs", "advisory",
-      if (any(grepl("plausible\\.io", pd))) "PASS" else "FAIL",
-      "_pkgdown.yml carries the Plausible analytics header", "")
+  if (analytics == "plausible") {
+    add("docs", "advisory",
+        if (any(grepl("plausible\\.io", pd))) "PASS" else "FAIL",
+        "_pkgdown.yml carries the Plausible analytics header", "")
+  } else {
+    add("docs", "advisory", "NOT RUN",
+        "_pkgdown.yml analytics header",
+        "org profile defines no analytics header (--analytics=none)")
+  }
   url_line <- grep("^url:", pd, value = TRUE)
   add("docs", "advisory",
       if (length(url_line) && grepl("github\\.io", url_line[1])) "PASS" else "FAIL",
@@ -351,7 +366,7 @@ add("tests", "advisory",
 
 cat("# pkgreview mechanical check report\n\n")
 cat(sprintf("Package: `%s`  \n", normalizePath(pkg)))
-cat(sprintf("Standard: mechanical subset of the openwashdata review checklists  \n"))
+cat(sprintf("Standard: mechanical subset of the pkgreview checklists  \n"))
 n_fail_req <- sum(results$status == "FAIL" & results$tier == "required")
 cat(sprintf("Result: %d PASS, %d FAIL (%d required-tier), %d FLAG, %d NOT RUN\n\n",
             sum(results$status == "PASS"), sum(results$status == "FAIL"),

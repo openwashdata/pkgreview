@@ -1,25 +1,31 @@
-# Standard openwashdata _pkgdown.yml configuration.
-# Replace `packagename` with the actual package name.
+# Standard _pkgdown.yml configuration.
+# Replace `packagename` with the actual package name, `ORGDOMAIN` with the
+# pages domain from the org profile, and `ORGNAME` with its GitHub
+# organization (profiles: skills/pkgreview-core/references/orgs/).
 # `url` is the site base URL (canonical links, sitemap.xml, redirects),
 # so it must be the Pages URL, never the GitHub repo URL; the repo link
 # lives in home.links below.
-url: https://openwashdata.github.io/packagename/
+url: https://ORGDOMAIN/packagename/
 template:
   bootstrap: 5
+  # The in_header block is the analytics header from the org profile;
+  # omit includes: entirely when the profile defines no analytics.
   includes:
     in_header: |
-      <script defer data-domain="openwashdata.github.io" src="https://plausible.io/js/script.js"></script>
+      <script defer data-domain="ORGDOMAIN" src="https://plausible.io/js/script.js"></script>
 
 home:
   links:
     - icon: github
       text: GitHub repository
-      href: https://github.com/openwashdata/packagename
+      href: https://github.com/ORGNAME/packagename
   sidebar:
     structure: [links, citation, authors, dev, custom]
     components:
       custom:
         title: Funding
+        # The text value comes from the org profile's funding sidebar
+        # field; both currently registered orgs use the line below.
         text: This project was funded by the [Open Research Data Program of the ETH Board](https://ethrat.ch/en/eth-domain/open-research-data/).
 
 authors:

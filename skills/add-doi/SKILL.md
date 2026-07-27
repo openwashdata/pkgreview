@@ -1,6 +1,6 @@
 ---
 name: add-doi
-description: Integrate a Zenodo DOI into an openwashdata package after release, covering citation files, README badge, and website. Standalone resume path when the DOI arrives after /create-release ended.
+description: Integrate a Zenodo DOI into a reviewed package after release, covering citation files, README badge, and website. Standalone resume path when the DOI arrives after /create-release ended.
 disable-model-invocation: true
 argument-hint: "[doi]"
 ---
@@ -32,6 +32,12 @@ uncommitted changes, R with `washr` installed.
 - Confirm the current branch is `main`, the working tree is clean, and a
   release tag exists (`git tag --list 'v*'`). Report anything that does
   not hold and stop.
+- Resolve the organization profile: derive the org from
+  `git remote get-url origin`, lowercase it, and read
+  `${CLAUDE_SKILL_DIR}/../pkgreview-core/references/orgs/[org].md`. It
+  provides the Zenodo community for Step 6. If no profile exists, stop:
+  the organization is not registered (registration path in
+  `orgs/README.md` there).
 
 ## Step 2: Update the citation files
 
@@ -81,9 +87,10 @@ are live.
 Prompt the user once to review the Zenodo record in the web UI (record
 edits stay manual; nothing here is scripted):
 
-> "Please check the Zenodo record: is it in the openwashdata community,
-> is the resource type Dataset (not Software), and do the related
-> identifiers link the GitHub repository and the pkgdown site?"
+> "Please check the Zenodo record: is it in the [Zenodo community from
+> the org profile] community, is the resource type Dataset (not
+> Software), and do the related identifiers link the GitHub repository
+> and the pkgdown site?"
 
 ## Step 7: Verify and stop
 

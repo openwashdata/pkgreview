@@ -1,12 +1,12 @@
 ---
 name: review-status
-description: Show openwashdata package review progress for the R data package in the current directory, derived from the pkgreview-* labeled GitHub issues, and surface state anomalies. Read-only.
+description: Show package review progress for the R data package in the current directory, derived from the pkgreview-* labeled GitHub issues, and surface state anomalies. Read-only.
 disable-model-invocation: true
 ---
 
 # review-status
 
-Report the state of an openwashdata package review. This skill is read-only:
+Report the state of a package review. This skill is read-only:
 it inspects GitHub issues, PRs, and git state, and reports. It never creates,
 edits, closes, commits, or pushes anything.
 

@@ -6,10 +6,12 @@ review; that role moved to the package-resident standards file (see below).
 
 ## What this repository is
 
-The review tooling for openwashdata R data packages. A review runs
-issue-per-area (metadata, data, docs, tests) on the package's `dev` branch,
-one PR per issue into `dev`, and one final PR from `dev` to `main`. The
-workflow ships as Claude Code skills.
+The review tooling for R data packages in registered GitHub organizations
+(openwashdata and Global-Health-Engineering; profiles under
+`skills/pkgreview-core/references/orgs/`). A review runs issue-per-area
+(metadata, data, docs, tests) on the package's `dev` branch, one PR per
+issue into `dev`, and one final PR from `dev` to `main`. The workflow
+ships as Claude Code skills.
 
 ## Architecture
 
@@ -24,9 +26,13 @@ workflow ships as Claude Code skills.
   - `references/checklists/` - the canonical checklists, the single source
     of truth for the review standard
   - `references/templates/` - issue body, PR body, standard `_pkgdown.yml`
+  - `references/orgs/` - registered organization profiles, one file per
+    org; the single source of org-specific values (pages domain,
+    analytics, citation tooling, keywords, Zenodo community). Reviewing a
+    package in an unregistered org is a hard stop.
   - `references/standards.md` - the package-resident standards file;
     `/review-package` writes it into each reviewed package as its CLAUDE.md,
-    with the version stamped in
+    with the version and organization profile stamped in
   - `references/recovery.md` - review-state failure modes and recovery paths
   - `VERSION` - the review standard version
 - `fixtures/` - `pkgreviewtest`, a deliberately defective package, plus
@@ -41,8 +47,9 @@ workflow ships as Claude Code skills.
 1. Checklist or template changes get a version bump: update
    `skills/pkgreview-core/VERSION` and tag the release commit
    (`v[version]`). In-flight reviews finish on the version stamped into
-   their first review issue; skills fetch stamped-version checklists from
-   raw.githubusercontent.com when they detect a mismatch.
+   their first review issue; skills fetch stamped-version checklists and
+   org profiles from raw.githubusercontent.com when they detect a
+   mismatch.
 2. After any significant change to checklists or skills, run the review
    workflow against `fixtures/pkgreviewtest/` and confirm every planted
    defect in `fixtures/SCORECARD.md` is caught. A missed defect means the

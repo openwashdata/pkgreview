@@ -1,15 +1,14 @@
 ---
 name: review-package
-description: Start an openwashdata R data package review. Runs the PII and sensitivity intake screen first, then analyzes the package in the current directory, writes the version-stamped standards file into it, and creates the first review issue (metadata). Stops for user approval before and after.
+description: Start an R data package review for a registered organization. Asks for the repository URL first and resolves the organization profile, runs the PII and sensitivity intake screen, then analyzes the package in the current directory, writes the stamped standards file into it, and creates the first review issue (metadata). Stops for user approval before and after.
 disable-model-invocation: true
 argument-hint: "[package-name]"
 ---
 
 # review-package
 
-Start the openwashdata review for the R data package in the current
-directory. Package name: use `$ARGUMENTS` if given, otherwise
-`basename "$PWD"`.
+Start the review for the R data package in the current directory.
+Package name: use `$ARGUMENTS` if given, otherwise `basename "$PWD"`.
 
 The review is a sequential, issue-per-area process on the `dev` branch:
 metadata, data, docs, tests. Each area gets one GitHub issue and one PR into
@@ -21,7 +20,27 @@ a PR against `main` during the review, and stop for explicit user approval
 at every check-in point. Do not proceed past a check-in without a user
 reply.**
 
-## Step 0: Preconditions
+## Step 0: Repository URL and organization profile
+
+1. Ask the user to paste the GitHub URL of the repository under review
+   (for example `https://github.com/openwashdata/waterpoints`). Derive
+   the organization and repository name from it; call them `[ORG]` and
+   `[REPO]` below.
+2. Confirm the URL matches this working copy: `git remote get-url origin`
+   must name the same organization and repository. On mismatch, stop and
+   report both values; either the directory or the pasted URL is wrong.
+3. Resolve the organization profile: lowercase `[ORG]` and read
+   `${CLAUDE_SKILL_DIR}/../pkgreview-core/references/orgs/[org].md`. The
+   profile is the source of every org-specific value used below: pages
+   domain, analytics header, funding sidebar text, citation tooling,
+   README template, keywords, Zenodo community.
+4. **If no profile file exists, the organization is not registered:
+   STOP.** Never fall back to another org's values. Tell the user how to
+   register: open a PR to openwashdata/pkgreview adding
+   `skills/pkgreview-core/references/orgs/[org].md` (field list and
+   constraints in `orgs/README.md` there), then rerun `/review-package`.
+
+## Step 1: Preconditions
 
 1. Confirm the current directory is an R package: `DESCRIPTION` exists. If
    not, stop and tell the user.
@@ -37,7 +56,7 @@ reply.**
    something looks wrong, the recovery paths in
    `${CLAUDE_SKILL_DIR}/../pkgreview-core/references/recovery.md`.
 
-## Step 1: Intake screen (PII and sensitivity first)
+## Step 2: Intake screen (PII and sensitivity first)
 
 The PII and data sensitivity check runs before any review issue exists
 and before anything else is written into the package. Every screen check
@@ -72,23 +91,25 @@ Outcome handling:
   (`docs/guidebook.md` in openwashdata/pkgreview) for how to get the
   package to the publication floor.
 - All clear: continue; the results are recorded in an "Intake screen"
-  section at the top of the first review issue body (Step 4).
+  section at the top of the first review issue body (Step 5).
 
-## Step 2: Write the package-resident standards file
+## Step 3: Write the package-resident standards file
 
-Read `${CLAUDE_SKILL_DIR}/../pkgreview-core/references/standards.md`, replace
-the `{{PKGREVIEW_VERSION}}` placeholder with `[VERSION]`, and write it into
-the package:
+Read `${CLAUDE_SKILL_DIR}/../pkgreview-core/references/standards.md` and
+fill its placeholders: `{{PKGREVIEW_VERSION}}` with `[VERSION]`,
+`{{ORG_NAME}}` with the profile's GitHub organization, and
+`{{ORG_DOMAIN}}` with its pages domain. Write the result into the
+package:
 
 - If the package has no `CLAUDE.md`: write the content as `CLAUDE.md`.
 - If `CLAUDE.md` exists: back it up to `CLAUDE.md.backup`, then append the
   standards content under a separator line
-  `# --- openwashdata standards (from openwashdata/pkgreview) ---`.
+  `# --- pkgreview standards (from openwashdata/pkgreview) ---`.
 
 This file is the package's record of the standard it was reviewed against.
 It stays in the package permanently; never delete it in later steps.
 
-## Step 3: Analyze the package
+## Step 4: Analyze the package
 
 - Run the deterministic check script and keep its full report:
 
@@ -96,20 +117,23 @@ It stays in the package permanently; never delete it in later steps.
   Rscript "${CLAUDE_SKILL_DIR}/../pkgreview-core/check/pkgreview-check.R" . > /tmp/pkgreview-check.md
   ```
 
+  Pass `--analytics=none` after the package directory when the org
+  profile defines no analytics header; the default expects Plausible.
   It verifies the mechanical subset of the checklists (file presence,
   license, citation consistency, sentinel values, encoding, naming,
   ranges, coordinates) and prints a Markdown report. Its PII line is a
-  FLAG signal only; the intake screen in Step 1 remains the decision
+  FLAG signal only; the intake screen in Step 2 remains the decision
   point. The analysis below starts from the report's verified facts
   instead of re-deriving them.
 - Check the structure against the standards file just written (required
-  directories and files, washr template compliance).
+  directories and files, compliance with the org profile's README
+  template).
 - Check git state: current branch, existing `dev` branch, open PRs
   (`git branch -a`, `gh pr list --state open`).
 - If no `dev` branch exists, create it from `main` and push it; all review
   work happens on branches off `dev`.
 
-## Step 4: Create the first review issue
+## Step 5: Create the first review issue
 
 Build the issue body from the canonical sources; insert checklist content
 verbatim, never retype or paraphrase it:
@@ -120,31 +144,33 @@ verbatim, never retype or paraphrase it:
 Create with title `Data Package Review: General Information & Metadata` and
 labels `pkgreview` and `pkgreview-metadata` (create the labels first if they
 do not exist: `gh label create pkgreview ...`). This is issue 1, so omit the
-Prerequisites section. Include the line
-`Review standard version: [VERSION]` in the body; later commands read this
-stamp to keep the whole review on one standard.
+Prerequisites section. Include the lines
+`Review standard version: [VERSION]` and `Organization profile: [ORG]` in
+the body; later commands read these stamps to keep the whole review on one
+standard and one org profile.
 
 At the top of the body, before the checklist, add an "Intake screen"
-section recording the Step 1 results: each screen check with its outcome
+section recording the Step 2 results: each screen check with its outcome
 (pass, NOT RUN with reason, or flagged with details), and, for
 household- or person-level data, the pending named human sign-off
 requirement.
 
 Capture the issue number GitHub assigns from the `gh issue create` output.
 
-Then post the Step 3 check report as the first comment on the issue, so
+Then post the Step 4 check report as the first comment on the issue, so
 the review starts from verified facts:
 
 ```bash
 gh issue comment [number] --body-file /tmp/pkgreview-check.md
 ```
 
-## Step 5: Present the plan and STOP
+## Step 6: Present the plan and STOP
 
 Report to the user:
 
-- Intake screen outcome from Step 1
-- Summary of structural findings from Step 3
+- The resolved organization profile from Step 0
+- Intake screen outcome from Step 2
+- Summary of structural findings from Step 4
 - The created issue number and URL
 - Explicit next steps:
   1. Review the issue on GitHub and adjust checklist items if needed
