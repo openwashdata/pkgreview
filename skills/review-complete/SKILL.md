@@ -71,7 +71,25 @@ git diff --stat dev origin/main
   `dev` first (with the user's approval), resolve conflicts, then re-run
   this skill.
 
-## Step 3: Create the final PR
+## Step 3: Check the site deployment state
+
+The docs area's required Website item means: the pkgdown workflow exists,
+`docs/` is not tracked, and the workflow builds green. Verify on `dev`:
+
+```bash
+test -f .github/workflows/pkgdown.yaml && echo "workflow present"
+git ls-files docs | head -1        # must print nothing
+gh run list --workflow=pkgdown.yaml --limit 1 --json status,conclusion,url,headBranch
+```
+
+The workflow runs on every pull request, so the latest run is normally
+the one from the last per-issue PR into `dev`; it deploys only on the
+push to `main` that merging the final PR produces. If the workflow is
+missing or `docs/` is tracked, the docs item is not met: stop, name the
+docs issue, and let the user decide whether to reopen it or fix it on
+`dev` first. If the latest run failed, stop and show its output.
+
+## Step 4: Create the final PR
 
 Title: `Complete package review for [package-name]`. Base: `main`, head:
 `dev`. Body:
@@ -96,16 +114,25 @@ Organization profile: [org stamp from the metadata issue body]
 ## Final Checks
 
 - [ ] Package passes devtools::check() with no errors or warnings
-- [ ] Documentation and website build successfully
+- [ ] pkgdown workflow builds green (latest run: [URL from Step 3])
+- [ ] `.github/workflows/pkgdown.yaml` present and `docs/` untracked
 - [ ] Ready for publication
+
+## Maintainer action
+
+GitHub Pages must deploy from the `gh-pages` branch (repository
+Settings, Pages, Source: Deploy from a branch, Branch: gh-pages, /root).
+`usethis::use_pkgdown_github_pages()` sets this during the docs issue;
+confirm it, because the workflow deploys the site on the merge of this
+PR. The site then lives at [Pages URL from the org profile pattern].
 
 ## Next Steps
 
 After merging: create a release with /create-release [version]
 ```
 
-## Step 4: Report and stop
+## Step 5: Report and stop
 
-Give the user the PR URL and the next steps (review, merge, then
-`/create-release [version]`). **Stop; do not merge the PR yourself and do
-not start a release.**
+Give the user the PR URL and the next steps (review, merge, confirm the
+Pages setting, then `/create-release [version]`). **Stop; do not merge
+the PR yourself and do not start a release.**

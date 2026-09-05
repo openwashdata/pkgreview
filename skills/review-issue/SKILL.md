@@ -100,6 +100,14 @@ For EACH change in the approved plan:
 2. Make it and show the result
 3. Commit immediately:
    `git add -A && git commit -m "[the planned commit message]"`
+   (while `docs/` is still tracked: `git add -A -- . ':!docs'`)
+
+Per-issue PRs never commit `docs/`. The site is deployed by the pkgdown
+workflow from `main` (docs checklist, required Website item), and a
+locally rebuilt site only adds toolchain churn to the diff
+(openwashdata/pkgreview#54). Until the docs-area issue untracks the
+directory, exclude it from every commit and leave any local rebuild
+uncommitted.
 
 Atomic commits, one logical change each; never batch the whole issue into
 one commit. Do not pause between changes: the plan was approved at
