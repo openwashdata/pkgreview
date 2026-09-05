@@ -17,8 +17,10 @@ milestone in the first line of its body so attachment is unambiguous.
 
 A five-specialist panel (tidyverse cleaning, data quality, tidy data, R
 data package development, FAIR sharing) reviewed the v1.0.0 standard and
-a premortem stress-tested the resulting revision plan (record:
-premortem-report-20260712-045625.html and the matching transcript).
+a premortem stress-tested the resulting revision plan (record: the
+premortem report and transcript of 2026-07-12, added in commit 4137332
+and removed from the working tree in the v1.5.0 housekeeping, issue #67;
+both stay readable in the git history).
 The maintainer then set the direction:
 
 - Data packages are increasingly written by contributors outside the

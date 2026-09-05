@@ -33,9 +33,8 @@ skill directories instead of copying also executes correctly, but skill
 discovery/validation has known bugs with symlinks in current Claude Code
 versions; copying is the reliable path.
 
-If you previously installed the slash commands, remove them
-(`rm ~/.claude/commands/review-*.md ~/.claude/commands/create-*.md`); the
-files in `commands/` are deprecation stubs now.
+If you previously installed the slash commands (the pre-skill workflow),
+remove them: `rm ~/.claude/commands/review-*.md ~/.claude/commands/create-*.md`.
 
 ## Review Workflow
 
@@ -103,7 +102,6 @@ pkgreview/
 │           └── recovery.md    # State failure modes and recovery paths
 ├── fixtures/                  # Defective test package, scorecard, history fixture
 ├── hooks/                     # Optional PreToolUse hook (docs/guardrails.md)
-├── commands/                  # Deprecated slash commands (stubs)
 ├── docs/
 │   ├── guidebook.md           # Contributor guidebook
 │   ├── checklist-reconciliation.md
