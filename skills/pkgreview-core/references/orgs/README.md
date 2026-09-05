@@ -37,9 +37,10 @@ Every profile carries this field table:
 | Package site URL pattern | The pkgdown `url:` value per package |
 | Analytics | Analytics header for `_pkgdown.yml`, or `none` |
 | Funding sidebar text | The `home.sidebar` custom component text |
-| Citation tooling | Tooling that keeps DESCRIPTION, CITATION.cff, and inst/CITATION in sync |
+| Citation tooling | Tooling that keeps DESCRIPTION, CITATION.cff, and inst/CITATION in sync, with its version floor |
 | README template | The template the docs checklist item points at |
-| CITATION.cff keywords (minimum) | The discovery keyword set for the metadata checklist item |
+| Discovery keywords (minimum) | The discovery keyword set for the metadata checklist item (`X-schema.org-keywords` in DESCRIPTION) |
+| Brand | The pkgdown brand for the org's package sites (`_brand.yml` and where it comes from), or `none`; `_pkgdown.yml` wires a brand through `template.bslib.brand` only when the profile defines one |
 | Zenodo community | The community checked in the add-doi record review |
 
 ## Registering a new organization
@@ -48,9 +49,9 @@ Open a PR to openwashdata/pkgreview adding `orgs/[org].md` with the field
 table filled in. Two constraints hold until the standard is extended:
 
 - Citation tooling: the checklists and the standards template currently
-  express only the washr flow. Registering an org with different tooling
-  requires reworking those files, which is a standard change with its own
-  version bump (repo rule 1).
+  express only the washr flow (1.1.0 or newer). Registering an org with
+  different tooling requires reworking those files, which is a standard
+  change with its own version bump (repo rule 1).
 - Analytics: the check script supports `--analytics=plausible` (default)
   and `--analytics=none`. Other analytics stacks need a check script
   extension first.

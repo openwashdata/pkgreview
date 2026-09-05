@@ -159,6 +159,12 @@ It stays in the package permanently; never delete it in later steps.
 - Check the structure against the standards file just written (required
   directories and files, compliance with the org profile's README
   template).
+- Site deployment state (docs area, required since v1.5.0):
+  `test -f .github/workflows/pkgdown.yaml` and `git ls-files docs | head -1`.
+  Record the outcome for the plan: when the workflow is missing or
+  `docs/` is tracked, the docs issue creates the workflow, untracks
+  `docs/`, and ignores it (docs checklist, "Files to review or create").
+  Do not make that change here; per-issue PRs never commit `docs/`.
 - Check git state: current branch, existing `dev` branch, open PRs
   (`git branch -a`, `gh pr list --state open`).
 - If no `dev` branch exists, create it from `main` and push it; all review
@@ -201,7 +207,8 @@ Report to the user:
 
 - The resolved organization profile from Step 0
 - Intake screen outcome from Step 2
-- Summary of structural findings from Step 4
+- Summary of structural findings from Step 4, including the site
+  deployment state
 - The created issue number and URL
 - Explicit next steps:
   1. Review the issue on GitHub and adjust checklist items if needed

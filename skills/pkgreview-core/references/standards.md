@@ -26,10 +26,10 @@ script, the PII and sensitivity check done up front, a description of the
 data, a dictionary with a description per variable, plus the publication
 mechanics (CC BY 4.0 license, valid citation files, `devtools::check()`
 passes, data loads, `.rda` in `data/` with CSV/XLSX exports in
-`inst/extdata/`). Advisory items are quality improvements (for example
-tidyverse style in the processing script or NA coding); fix them when
-practical, record the rest as optional follow-ups, and never let them
-block publication.
+`inst/extdata/`, the website deployed by the pkgdown workflow). Advisory
+items are quality improvements (for example tidyverse style in the
+processing script or NA coding); fix them when practical, record the rest
+as optional follow-ups, and never let them block publication.
 
 ## Rules a future session must not undo
 
@@ -47,12 +47,20 @@ block publication.
 - `data-raw/dictionary.csv` covers every variable in every dataset, each
   with a one-sentence plain-language description. The description is the
   most important field; it is written or confirmed by a human, never
-  invented by an agent.
+  invented by an agent. The file keeps the five washr columns
+  (`directory`, `file_name`, `variable_name`, `variable_type`,
+  `description`), UTF-8 without a byte order mark, one class name per
+  `variable_type` value; the organization catalog parses it that way.
 - Vignettes live in `vignettes/articles/`, never directly in `vignettes/`.
   This keeps pkgdown rendering correct and avoids CRAN issues.
 - `_pkgdown.yml` follows the standard configuration below,
   including the analytics header and the funding sidebar from the
-  organization profile. Do not remove or reorganize these blocks.
+  organization profile, and the brand wiring when the profile defines a
+  brand. Do not remove or reorganize these blocks.
+- The website is deployed by the pkgdown GitHub Actions workflow
+  (`.github/workflows/pkgdown.yaml`) to the `gh-pages` branch on every
+  push to `main`. `docs/` is ignored and never committed; a local
+  `pkgdown::build_site()` is a preview only.
 - Analysis, validation, and testing scripts live in `analysis/` at the
   package root. They are intentionally outside `R/` and are not built into
   the installed package. Do not move or delete them; they exist for
@@ -60,16 +68,17 @@ block publication.
 - The license is CC BY 4.0. Do not change it.
 - Missing values are coded as `NA`, never as empty strings, "NULL", "N/A",
   or sentinel numbers such as -99.
-- After editing DESCRIPTION, run `washr::update_description()`. Caveat
-  (washr 1.0.1): it strips `Config/Needs/website` entries; diff DESCRIPTION
-  after the call and restore anything it removed.
+- Keywords and coverage live in DESCRIPTION, in `X-schema.org-keywords`
+  (comma separated), `X-schema.org-spatialCoverage` (a place name), and
+  `X-schema.org-temporalCoverage` (`YYYY-MM-DD/YYYY-MM-DD`).
+  `washr::update_citation()` carries the keywords into CITATION.cff and
+  `washr::update_metadata()` reads all three into the site metadata; do
+  not type keywords into CITATION.cff by hand.
+- After editing DESCRIPTION, run `washr::update_description()`.
 - After version or author changes, run `washr::update_citation()` so
-  DESCRIPTION, CITATION.cff, and inst/CITATION stay in sync. Caveats
-  (washr 1.0.1): the `doi` argument is required, so call it with the
-  package DOI or `doi = NULL` before a DOI exists; with `doi = NULL` it can
-  inject a broken empty badge (`zenodo.org/badge/DOI/.svg`) into
-  README.Rmd, which must be removed; and it leaves `inst/CITATION.bk1`
-  backup files that must not be committed.
+  DESCRIPTION, CITATION.cff, and inst/CITATION stay in sync. It keeps a
+  DOI already on file and owns the DOI badge in README.Rmd; do not edit
+  the badge by hand. washr 1.1.0 or newer is the floor for these calls.
 - Raw data stays in `data-raw/`, processed `.rda` data in `data/`, and
   CSV/XLSX exports in `inst/extdata/`.
 
@@ -90,11 +99,17 @@ package-name/
 ├── man/
 ├── vignettes/articles/       # all vignettes go here
 ├── analysis/                 # analysis scripts, not built
+├── pkgdown/templates/in-header.html   # schema.org JSON-LD from washr::update_metadata(), Rbuildignored
+├── _brand.yml                # only when the org profile defines a brand (washr::use_brand())
+├── logos/                    # the brand's logo files, same condition
 ├── README.Rmd / README.md
 ├── NEWS.md
 ├── CITATION.cff
 ├── _pkgdown.yml
-└── .github/workflows/R-CMD-check.yaml
+├── .gitignore                # ignores docs/ (the site is built in CI)
+└── .github/workflows/
+    ├── R-CMD-check.yaml      # washr::setup_ci(); triggers include dev
+    └── pkgdown.yaml          # builds and deploys the site to gh-pages
 ```
 
 Multi-dataset packages: one `.rda` in `data/` and one roxygen `.R` file per
@@ -105,12 +120,17 @@ the package. The `_pkgdown.yml` reference index lists every dataset.
 
 Replace `packagename` with the actual package name. `url` is the site base
 URL (canonical links, sitemap.xml, redirects), so it must be the Pages URL,
-never the GitHub repo URL; the repo link lives in `home.links`.
+never the GitHub repo URL; the repo link lives in `home.links`. The two
+commented `bslib` lines are written by `washr::use_brand()` when the
+organization profile defines a brand (it rewrites the file through the
+yaml package, which drops the comments); leave them out otherwise.
 
 ```yaml
 url: https://{{ORG_DOMAIN}}/packagename/
 template:
   bootstrap: 5
+  # bslib:
+  #   brand: _brand.yml
   includes:
     in_header: |
       <script defer data-domain="{{ORG_DOMAIN}}" src="https://plausible.io/js/script.js"></script>
@@ -157,4 +177,8 @@ package.
 - Rebuild README: `R -e "devtools::build_readme()"`
 - Rebuild documentation: `R -e "devtools::document()"`
 - Full check: `R -e "devtools::check()"`
-- Build website: `R -e "pkgdown::build_site()"`
+- Refresh the site metadata after DESCRIPTION, dictionary, or citation
+  changes: `R -e "washr::update_metadata()"`
+- Preview the website locally: `R -e "pkgdown::build_site()"` (writes the
+  ignored `docs/`; the published site is built by the pkgdown workflow on
+  the next push to `main`)

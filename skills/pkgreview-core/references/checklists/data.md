@@ -23,6 +23,10 @@ block publication.
 - [ ] Data size is appropriate for an R package (not excessively large, which would require an external download)
 - [ ] No obsolete files; no blank spaces in file names
 
+### Dictionary
+
+- [ ] `data-raw/dictionary.csv` has exactly the five washr columns in order (`directory`, `file_name`, `variable_name`, `variable_type`, `description`), is UTF-8 without a byte order mark, and `variable_type` holds one class name per row (for example `Date`, not `c("POSIXct", "POSIXt")`); the organization catalog and `washr::update_metadata()` parse it with that schema
+
 ### Data quality
 
 - [ ] Missing values are coded as `NA`, not as empty strings, "NULL", "N/A", sentinel numbers (such as -99), or similar; report the count and percentage of missing values per variable

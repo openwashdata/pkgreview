@@ -44,7 +44,6 @@ ships as Claude Code skills.
   scan to catch.
 - `docs/checklist-reconciliation.md` - the record of how the previously
   diverging checklist copies were merged (issue #5)
-- `commands/` - deprecated slash-command stubs, kept only as pointers
 
 ## Rules for changing the review standard
 

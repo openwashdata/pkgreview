@@ -8,6 +8,12 @@
 url: https://ORGDOMAIN/packagename/
 template:
   bootstrap: 5
+  # Brand: only when the org profile defines one. washr::use_brand()
+  # installs _brand.yml and writes these two lines itself (through the
+  # yaml package, which drops the comments in this file). Leave them out
+  # for an org whose profile says none.
+  # bslib:
+  #   brand: _brand.yml
   # The in_header block is the analytics header from the org profile;
   # omit includes: entirely when the profile defines no analytics.
   includes:

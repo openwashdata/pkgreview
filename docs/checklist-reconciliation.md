@@ -396,3 +396,76 @@ only the history carries them); the gate scans that repository and must
 produce the D18 FLAG. The `.rda`-history and commit-message parts of the
 scan stay with the reviewer, so a full D18 gate is script plus workflow,
 as for D13 and D14.
+
+## washr 1.1.0 and owdata reconciliation (v1.5.0)
+
+Date: 2026-09-05. washr 1.1.0 reached CRAN on 2026-09-02: an idempotent
+core, `setup_ci()`, `use_brand()`, the experimental `update_metadata()`,
+keywords and coverage in the DESCRIPTION `X-schema.org` fields, and
+`docs/` left ignored when a pkgdown workflow deploys the site. The
+reconciliation review of the standard against it (issue #56) found every
+washr call the skills make still exists, but the caveat text, two
+release-skill calls, and two advisory checks were stale or wrong.
+openwashdata/owdata, the weekly catalog harvester, reads exactly the
+files the floor enforces plus the three `X-schema.org` fields and the
+five-column dictionary schema. The maintainer took every decision on
+2026-09-05 (issues #57 to #67, Option A throughout); the release is #68.
+
+| Ref | Decision | New wording (short form) | Rationale |
+|-----|----------|--------------------------|-----------|
+| M14 (keywords) | reworded | DESCRIPTION carries `X-schema.org-keywords` (org minimum unchanged); `washr::update_citation()` carries them into CITATION.cff, so they are never typed there by hand | DESCRIPTION is the canonical home since washr 1.1.0; keywords typed into CITATION.cff are migrated to DESCRIPTION on the next washr run, so "verify manually" was wrong. The check script reads DESCRIPTION and reports CITATION.cff agreement as a drift detail, never as a second finding (#60) |
+| M15 (new) | added, advisory | DESCRIPTION carries `X-schema.org-spatialCoverage` (place name) and `X-schema.org-temporalCoverage` (`YYYY-MM-DD/YYYY-MM-DD`) | `washr::update_metadata()` reads them into the JSON-LD and the owdata catalog reads them for its location column (#64) |
+| D38 (new, dictionary schema) | added, advisory | `data-raw/dictionary.csv` has exactly the five washr columns in order, is UTF-8 without a byte order mark, and `variable_type` holds one class name per row | The owdata parser found quoted headers, padded names, trailing and extra columns, a leading unnamed column, BOMs, and deparsed multi-class types across pre-standard packages; the check keeps newly reviewed packages out of that list at no cost to the required tier (#64) |
+| O21 (README Download) | reworded | README offers direct links to the CSV/XLSX exports in `inst/extdata/` for non-R users (the washr template's download table satisfies this) | The `## Download` heading the check script tested failed every README scaffolded by washr, which renders the download table under Installation; the check now matches links into `inst/extdata/` regardless of heading (#61) |
+| docs: Website (required) | reworded, floor changed | Website published on GitHub Pages, deployed by the pkgdown workflow (`.github/workflows/pkgdown.yaml`) from `gh-pages`; `docs/` ignored and not committed | A committed site went stale between per-issue PRs or churned with the reviewer's toolchain (#54); washr 1.1.0 and owdata are scaffolded for the workflow, and `update_citation()` rebuilds a committed site on every release run. The one change to the required floor in this release, which is why v1.5.0 is a minor bump (#65) |
+| docs: `_pkgdown.yml` item | unchanged wording; template and standards block gain optional `bslib.brand` lines | | The brand is an org profile field: openwashdata sets `_brand.yml` from openwashdata/brand via `washr::use_brand()`, Global-Health-Engineering has none. A reviewer can now tell a wanted brand from an unwanted one (#63) |
+| tests: trigger item | reworded | Triggers include `dev` for push and pull_request (`washr::setup_ci()` writes `branches: [main, master, dev]`) | `setup_ci()` writes three branches, so the literal `[main, dev]` no longer described the scaffold; the check script gains a dev-trigger line (NOT RUN when the workflow file is missing, which is the presence line's finding) (#63) |
+| M10, M13 and the two standards rules on `update_description()` and `update_citation()` | caveats deleted | Run the washr call; no caveat | washr 1.0.2 fixed the four root causes (washr #57, #58, #59, #60, #63) and 1.1.0 is the floor: both release skills stop on an older washr with an `install.packages("washr")` remediation instead of adapting. On a fixed washr the old surgery deleted correct badges and restored fields that were never stripped. #41's version-conditioning is superseded (#57) |
+
+Skill changes (not checklist items): create-release validates the
+version argument (`^[0-9]+\.[0-9]+\.[0-9]+$` and greater than the current
+version), sets it with `desc::desc_set_version()` because
+`usethis::use_version()` takes a bump type rather than a target, calls
+`washr::update_citation(build = FALSE)` so no site build happens in the
+version-bump commit, drops the dead `.bk1` cleanup, checks the GitHub
+default branch, and syncs `dev` after the release commit (#58, #46).
+add-doi runs `washr::update_metadata()` only when
+`pkgdown/templates/in-header.html` exists (SKIPPED otherwise), reduces
+the badge and website steps to verification (washr owns the badge; the
+pkgdown workflow deploys the site on the push to `main`, with a
+committed-`docs/` fallback for packages reviewed before v1.5.0), and
+ends with the `dev` sync (#59, #46, #65). review-package records the
+site deployment state for the plan, review-issue never commits `docs/`,
+and review-complete verifies the workflow, the untracked `docs/`, and
+names the Pages setting as the maintainer action in the final PR body
+(#65). The check script gains the keywords, coverage, dictionary schema,
+export-link, `docs/`-tracked, and dev-trigger lines and a scope note:
+its metadata, docs, and tests sections are frozen pending
+`washr::check_publication_readiness()` (#66). Org profiles: the keywords
+field is renamed "Discovery keywords (minimum)", the Citation tooling
+field reads `washr >= 1.1.0`, and a Brand field is added (#57, #60,
+#63). standards.md was re-read and edited once for #57, #63, #64, and
+#65. The guidebook is reduced to PII (with the git-history warning),
+floor, dictionary, review, and publication, and points at the washr
+Get started vignette and the data publishing guide for the scaffold; no
+washr function is named in it any more (#62).
+
+Fixture note: `fixtures/pkgreviewtest/DESCRIPTION` gains the three
+`X-schema.org` fields (keywords identical to the CITATION.cff list, so
+the drift detail reads "agrees"; coverage `Switzerland` and
+`2018-01-01/2022-02-05`, the range of the installation dates). The D1 to
+D17 mechanisms are untouched and no RNG changed. The mechanical gate
+reproduces the v1.4.0 mapping exactly: 19 FAIL + 1 FLAG lines mapping to
+D1 to D17 (D4, D5, D7, and D15 as two-line spans), the four new advisory
+lines PASS, and three not-applicable NOT RUN lines (history scan:
+subdirectory; `docs/` untracked: no pkgdown workflow; dev trigger: no
+R-CMD-check workflow, which is D5's finding). The history fixture still
+produces the one D18 FLAG. Synthetic checks run during implementation
+and not committed: a dictionary with a BOM, an extra column, and a
+`c("POSIXct", "POSIXt")` type FAILs naming all three; a README rendered
+from the washr 1.1.0 download table PASSes and one without export links
+FAILs; nested `branches:` lists with `dev` PASS and one without `dev`
+under pull_request FAILs; a tracked `docs/` next to the workflow FAILs.
+
+Not part of the standard: the housekeeping deletions (#67) and the
+check-script scope decision (#66) carry no checklist or template change.

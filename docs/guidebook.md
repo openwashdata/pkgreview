@@ -17,34 +17,11 @@ Look at every column and a sample of the values in every dataset, and ask:
 
 If you find any of the above, stop and resolve it before you continue. You can remove the columns, aggregate the data, or ask the openwashdata team for help. When a review starts, the reviewer runs this same check as an intake screen before any review issue is created.
 
-## 2. Quickstart: scaffold the package with washr
+The check also covers your git history. A column you added in an earlier commit and removed later is still in the repository: anyone who clones it can recover the removed data, and the review scans every revision, not only the current files. If identifying data ever reached a commit, the history has to be cleaned before the package can be published, so run the check before the first commit that contains data, not only before the first push.
 
-The [washr](https://github.com/openwashdata/washr) package sets up the whole structure for you. In an R session:
+## 2. Scaffold the package with washr
 
-```r
-install.packages(c("washr", "usethis", "devtools"))
-
-usethis::create_package("~/path/to/yourpackagename")
-# Then, inside the new package project:
-washr::setup_rawdata()
-```
-
-The `setup_rawdata()` call creates `data-raw/` with a `data_processing.R` script template. Put your raw data files into `data-raw/`, then edit `data_processing.R` so it reads the raw files, cleans them, and exports the tidy result. Run the script, then continue:
-
-```r
-washr::setup_dictionary()   # creates data-raw/dictionary.csv
-# Fill in the description column of dictionary.csv by hand, then:
-washr::fill_dictionary()
-washr::setup_roxygen()      # documentation templates in R/
-devtools::document()
-washr::update_description() # tidies the DESCRIPTION file
-washr::setup_readme()       # creates README.Rmd
-devtools::build_readme()
-washr::update_citation()    # creates CITATION.cff and inst/CITATION
-washr::setup_website()      # creates the pkgdown website setup
-```
-
-Each function tells you what it created and what to do next. Package names are lowercase, short, and descriptive of the data, e.g., `waterpointdata`.
+The [washr](https://github.com/openwashdata/washr) package sets up the whole structure, from the raw data folder to the website, and each function tells you what it created and what to do next. Follow the washr [Get started](https://openwashdata.github.io/washr/articles/washr.html) vignette for the steps in order; the narrative version with the reasoning behind each step is the [data publishing guide](https://global-health-engineering.github.io/ghedatapublishing/). Package names are lowercase, short, and descriptive of the data, e.g., `waterpointdata`.
 
 ## 3. The publication floor
 
@@ -56,7 +33,7 @@ Data:
 - `data_processing.R` is in `data-raw/`.
 - The primary data is in `data/` as `.rda`.
 - CSV and XLSX exports are in `inst/extdata/`.
-- No sensitive or personally identifiable information is in any data file. Household- or person-level data needs a named human sign-off during review.
+- No sensitive or personally identifiable information is in any data file, in the current files or in any earlier revision. Household- or person-level data needs a named human sign-off during review.
 - `data-raw/dictionary.csv` covers every variable in every dataset, each with a one-sentence description written or confirmed by a human.
 
 Metadata:
@@ -64,19 +41,21 @@ Metadata:
 - The Description field in DESCRIPTION says what the data contains.
 - Authors and maintainer are identified, with a contact email for the maintainer.
 - The license is CC BY 4.0.
-- CITATION.cff is present, valid, and matches the version in DESCRIPTION, generated with `washr::update_citation()`.
+- CITATION.cff is present, valid, and matches the version in DESCRIPTION. washr generates it from DESCRIPTION; do not edit it by hand.
 
 Documentation:
 
-- The README has a one-paragraph introduction, installation instructions, a data overview with dimensions, the rendered dictionary table, and license and citation sections, and it rebuilds with `devtools::build_readme()`.
+- The README has a one-paragraph introduction, installation instructions, a data overview with dimensions, the rendered dictionary table, and license and citation sections, and it rebuilds from README.Rmd.
 - Every dataset is documented with an `.Rd` file that describes each variable.
-- The package website builds and is published on GitHub Pages.
+- The package website builds and is published on GitHub Pages by the pkgdown workflow; the generated `docs/` folder is not committed.
 
 Tests:
 
-- The R-CMD-check GitHub Actions workflow is present and also triggers on the `dev` branch.
+- The R-CMD-check GitHub Actions workflow is present and also triggers on the `dev` branch (washr writes it that way).
 - `devtools::check()` passes with no errors or warnings, and any notes are explained.
 - The examples run, and the data loads.
+
+Folders and the processing script: `data-raw/` holds the raw data exactly as you received it (never edited by hand), the `data_processing.R` script, and `dictionary.csv`; `data/` holds the processed, analysis-ready data as `.rda` files, written by the script; `inst/extdata/` holds CSV and XLSX exports of the processed data for people who do not use R; `analysis/` holds any analysis or exploration scripts that are not part of the processing itself. The processing script reads the raw files, cleans them, and writes the outputs to `data/` and `inst/extdata/`. Anyone should be able to run it top to bottom on a fresh clone and get the same outputs, so comment the steps that need explanation and delete code that is commented out. Tidyverse style is welcome but not required; the reviewer will not block your package over code style, because style is advisory.
 
 ## 4. The dictionary
 
@@ -94,20 +73,7 @@ A bad description repeats the variable name or stays vague:
 
 Write or confirm every description yourself. A generated description that nobody checked does not meet the floor, because the review standard requires a human to confirm each one.
 
-## 5. Folder structure
-
-- `data-raw/` holds the raw data exactly as you received it, the `data_processing.R` script, and `dictionary.csv`. Raw data is never edited by hand.
-- `data/` holds the processed, analysis-ready data as `.rda` files. The processing script writes them.
-- `inst/extdata/` holds CSV and XLSX exports of the processed data for people who do not use R.
-- `analysis/` holds any analysis or exploration scripts that are not part of the processing itself.
-
-## 6. The processing script
-
-`data-raw/data_processing.R` reads the raw files, cleans them, and writes the outputs to `data/` and `inst/extdata/`. Keep it simple and reproducible. Anyone should be able to run the script top to bottom on a fresh clone and get the same outputs. Comment the steps that need explanation, and delete code that is commented out.
-
-Tidyverse style is welcome but not required. The reviewer will not block your package over code style, because style is advisory.
-
-## 7. What review looks like
+## 5. What review looks like
 
 When your package is ready, the openwashdata team starts the review. The review runs on the `dev` branch of your repository and opens four GitHub issues, one per area, in order:
 
@@ -120,12 +86,12 @@ Each issue lists the required items and the advisory items for its area. The rev
 
 You stay the maintainer of your package. The review is help, not a takeover.
 
-## 8. Publication
+## 6. Publication
 
 After the review, the package is published:
 
 - A GitHub release is created from `main`.
 - The release is archived on Zenodo, which assigns a DOI (a permanent identifier that makes the dataset citable).
-- The DOI goes into the citation files with `washr::update_citation(doi = "your-doi")`, so the citation in the README and on the website shows how to cite your dataset.
+- The DOI goes into the citation files, the README badge, and the website metadata, so the citation in the README and on the website shows how to cite your dataset.
 
 After publication, your dataset has a website, a DOI, and a citation, and anyone can install it as an R package or download the CSV files.

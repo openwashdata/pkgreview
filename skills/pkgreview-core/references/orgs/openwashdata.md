@@ -11,7 +11,8 @@ for reviews that predate org profiles (before v1.3.0).
 | Package site URL pattern | `https://openwashdata.github.io/<package>/` |
 | Analytics | Plausible: `<script defer data-domain="openwashdata.github.io" src="https://plausible.io/js/script.js"></script>` |
 | Funding sidebar text | This project was funded by the [Open Research Data Program of the ETH Board](https://ethrat.ch/en/eth-domain/open-research-data/). |
-| Citation tooling | washr: `washr::update_citation()`, `washr::update_description()`; washr 1.0.1 caveats apply (openwashdata/pkgreview#23) |
+| Citation tooling | washr >= 1.1.0: `washr::update_citation()`, `washr::update_description()`, `washr::update_metadata()` |
 | README template | washr README template |
-| CITATION.cff keywords (minimum) | open data, washdata, the topic, the country or region |
+| Discovery keywords (minimum) | open data, washdata, the topic, the country or region |
+| Brand | `_brand.yml` from [openwashdata/brand](https://github.com/openwashdata/brand), installed and wired into `_pkgdown.yml` with `washr::use_brand()` |
 | Zenodo community | `openwashdata` |

@@ -25,13 +25,13 @@ block publication.
 ### Website
 
 - [ ] Package website builds without errors (`pkgdown::build_site()`)
-- [ ] Website published on GitHub Pages
+- [ ] Website published on GitHub Pages, deployed by the pkgdown workflow (`.github/workflows/pkgdown.yaml`) from the `gh-pages` branch; `docs/` is ignored and not committed
 
 ## Advisory
 
 - [ ] README.Rmd follows the README template named in the org profile
 - [ ] README contains a provenance sentence: who collected the source data, the collection method, the collection period, the region, and any license or permission attached to the source data
-- [ ] README contains a Download section with direct links to the CSV/XLSX exports in `inst/extdata/` for non-R users
+- [ ] README offers direct links to the CSV/XLSX exports in `inst/extdata/` for non-R users (the download table of the washr README template satisfies this)
 - [ ] Each data visualisation has edited human-readable labels (axis labels, legend title), is described in the narrative, and is cross-referenced using its code-chunk label
 - [ ] Roxygen documentation for all exported functions
 - [ ] Data structures (number of rows and columns) and types clearly described
@@ -39,9 +39,10 @@ block publication.
 - [ ] Vignettes, if present, live in `vignettes/articles/`, not directly in `vignettes/`
 - [ ] `_pkgdown.yml` follows the standard configuration for the registered organization, including the analytics header when the org profile defines one (canonical template: `skills/pkgreview-core/references/templates/_pkgdown.yml` in openwashdata/pkgreview, with the org profile values substituted)
 
-## Files to review
+## Files to review or create
 
 - `README.Rmd`, `README.md`
 - `_pkgdown.yml`
 - `man/*.Rd`
 - `vignettes/articles/` (if vignettes exist)
+- `.github/workflows/pkgdown.yaml` (create if missing with `usethis::use_pkgdown_github_pages()`, which also creates the `gh-pages` branch, sets the Pages source, and adds `docs` to `.gitignore`; if its GitHub API step fails, `usethis::use_github_action("pkgdown")` plus `usethis::use_git_ignore("docs")` writes the file alone and the Pages source becomes a maintainer action). Then untrack the site if it is tracked: `git rm -r --cached docs`

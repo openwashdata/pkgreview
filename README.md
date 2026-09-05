@@ -4,11 +4,11 @@ A comprehensive system for reviewing R data packages in the openwashdata ecosyst
 
 ## Overview
 
-This repository provides a structured review workflow for openwashdata R packages, with automated GitHub integration and quality checks. The review process follows a systematic **PLAN → CREATE → TEST → DEPLOY** workflow.
+This repository provides a structured review workflow for R data packages in registered organizations (openwashdata and Global Health Engineering), with GitHub integration and a deterministic check script. A review runs issue-per-area on the package's `dev` branch and ends with one pull request from `dev` to `main`.
 
 The review standard has two tiers. Required items are the publication floor: a package is not published until every required item passes. Advisory items are quality improvements; the reviewer may fix them or record them as optional follow-ups, and they never block publication. The tier of every item is recorded in the checklists under `skills/pkgreview-core/references/checklists/`.
 
-Creating a data package for openwashdata? Start with the [contributor guidebook](docs/guidebook.md). It walks from "I have a dataset" to a package that meets the publication floor, including the PII and sensitivity check to run before pushing data anywhere public.
+Creating a data package for one of the registered organizations? Start with the [contributor guidebook](docs/guidebook.md). It covers the PII and sensitivity check to run before committing data anywhere, the publication floor, the dictionary, and what review and publication look like; for the scaffolding steps it points at the washr Get started vignette.
 
 ## Quick Start
 
@@ -33,18 +33,12 @@ skill directories instead of copying also executes correctly, but skill
 discovery/validation has known bugs with symlinks in current Claude Code
 versions; copying is the reliable path.
 
-If you previously installed the slash commands, remove them
-(`rm ~/.claude/commands/review-*.md ~/.claude/commands/create-*.md`); the
-files in `commands/` are deprecation stubs now.
+If you previously installed the slash commands (the pre-skill workflow),
+remove them: `rm ~/.claude/commands/review-*.md ~/.claude/commands/create-*.md`.
 
 ## Review Workflow
 
-The review follows a simple **PLAN → CREATE → TEST → DEPLOY** workflow:
-
-1. **PLAN**: Analyze package structure and create the first of 4 review issues
-2. **CREATE**: Fix issues systematically with GitHub CLI integration
-3. **TEST**: Run comprehensive R package checks
-4. **DEPLOY**: Build pkgdown website and prepare for publication
+`/review-package` asks for the repository URL, resolves the organization profile, runs the PII and sensitivity intake screen (current files and git history), writes the version-stamped standards file into the package, and opens the first of four review issues. Each area (metadata, data, documentation, tests) gets one issue and one pull request into `dev`, worked through `/review-issue` with a single plan approval; `/create-next-issue` closes the finished issue and opens the next. When all four are merged, `/review-complete` opens the single pull request from `dev` to `main`, and `/create-release` and `/add-doi` handle the release, the Zenodo DOI, and the dev sync afterwards.
 
 ## Available Commands
 
@@ -76,10 +70,11 @@ Each review addresses 4 key areas:
 ## Requirements
 
 - R and RStudio
-- R packages on the reviewer's machine: `washr` (keeps DESCRIPTION,
-  CITATION.cff, and inst/CITATION in sync; openwashdata packages are created
-  from its template), plus `devtools`, `pkgdown`, and `usethis` for checks,
-  website builds, and releases
+- R packages on the reviewer's machine: `washr` 1.1.0 or newer (keeps
+  DESCRIPTION, CITATION.cff, and inst/CITATION in sync and owns the site
+  metadata; packages in the registered orgs are scaffolded with it), plus
+  `desc`, `devtools`, `pkgdown`, and `usethis` for checks, site previews,
+  and releases
 - GitHub CLI (`gh`)
 - Git
 - Claude Code (the workflow ships as skills; see Quick Start)
@@ -98,15 +93,20 @@ pkgreview/
 │   ├── add-doi/
 │   └── pkgreview-core/        # Shared references (not a skill)
 │       ├── VERSION            # Review standard version
+│       ├── check/             # Deterministic check script
 │       └── references/
 │           ├── checklists/    # Canonical checklists, one per review area
 │           ├── templates/     # Issue body, PR body, _pkgdown.yml
+│           ├── orgs/          # Registered organization profiles
 │           ├── standards.md   # Package-resident standards file
 │           └── recovery.md    # State failure modes and recovery paths
-├── fixtures/                  # Defective test package + scorecard
-├── commands/                  # Deprecated slash commands (stubs)
+├── fixtures/                  # Defective test package, scorecard, history fixture
+├── hooks/                     # Optional PreToolUse hook (docs/guardrails.md)
 ├── docs/
-│   └── checklist-reconciliation.md
+│   ├── guidebook.md           # Contributor guidebook
+│   ├── checklist-reconciliation.md
+│   ├── guardrails.md
+│   └── roadmap-v1.1.md
 ├── CLAUDE.md                  # Guide for Claude sessions in THIS repo
 ├── README.md                  # This file
 └── pkgreview.Rproj            # RStudio project file
