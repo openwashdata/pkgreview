@@ -12,11 +12,18 @@ files shared by all pkgreview skills, which load them with relative paths
   `docs/checklist-reconciliation.md` in the repo root.
 - `references/templates/` - canonical issue body template, PR body template,
   and the standard `_pkgdown.yml`.
+- `references/orgs/` - registered organization profiles, one file per
+  org; the single source of org-specific values (pages domain, analytics,
+  citation tooling, keywords, brand, Zenodo community).
 - `references/standards.md` - the package-resident standards file that
   `/review-package` writes into each reviewed package (as its CLAUDE.md),
-  stamped with the standard version.
+  stamped with the standard version and the organization profile.
 - `references/recovery.md` - known review-state failure modes and their
   recovery paths.
+- `check/pkgreview-check.R` - the deterministic check script for the
+  mechanical subset of the checklists (run by `/review-package` and
+  `/review-issue`; the metadata, docs, and tests sections are frozen
+  pending washr's `check_publication_readiness()`, issue #66).
 
 ## Versioning rule
 

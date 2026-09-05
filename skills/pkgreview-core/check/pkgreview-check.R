@@ -22,6 +22,16 @@
 # Base R only. The per-package cross-field pairs live in
 # CROSS_FIELD_PAIRS below; extend the list for packages with known
 # part/whole or date-order relations.
+#
+# Scope (openwashdata/pkgreview#66, decided 2026-09-05): the metadata,
+# docs, and tests sections below are FROZEN. They receive no new lines
+# and are slated for replacement by one call to
+# washr::check_publication_readiness() once openwashdata/washr#82 ships;
+# the scorecard mapping for those lines moves with them. pkgreview keeps
+# what washr will never own: the data-quality checks (sentinels,
+# encoding, dates, categories, duplicates, ranges, coordinates,
+# cross-field pairs, dictionary schema), the PII signal scan, and the
+# git-history scan.
 
 args <- commandArgs(trailingOnly = TRUE)
 flags <- grep("^--", args, value = TRUE)
@@ -93,10 +103,49 @@ if (length(cff) == 0) {
       if (placeholder_auth) "FAIL" else "PASS",
       "Citation files carry real authors, not template placeholders",
       if (placeholder_auth) "\"Firstname Lastname\" found in citation files" else "")
-  add("metadata", "advisory",
-      if (any(grepl("^keywords:", cff))) "PASS" else "FAIL",
-      "CITATION.cff carries keywords for discovery", "")
 }
+
+# Keywords: DESCRIPTION X-schema.org-keywords is the canonical home
+# (washr >= 1.1.0 carries them into CITATION.cff); CITATION.cff agreement
+# is reported as a drift detail, never as a second finding.
+kw_field <- dfield("X-schema.org-keywords")
+kw <- if (!is.na(kw_field)) trimws(strsplit(kw_field, ",")[[1]]) else character()
+kw <- kw[nzchar(kw)]
+cff_kw <- character()
+kw_start <- grep("^keywords:", cff)
+if (length(kw_start)) {
+  i <- kw_start[1] + 1L
+  while (i <= length(cff) && grepl("^\\s*-\\s", cff[i])) {
+    cff_kw <- c(cff_kw, trimws(sub("^\\s*-\\s*", "", cff[i])))
+    i <- i + 1L
+  }
+}
+cff_kw <- gsub("^['\"]|['\"]$", "", cff_kw)
+kw_agree <- if (length(cff) == 0) {
+  "CITATION.cff missing"
+} else if (length(cff_kw) == 0) {
+  "CITATION.cff carries no keywords yet (washr::update_citation() writes them)"
+} else if (setequal(tolower(kw), tolower(cff_kw))) {
+  "CITATION.cff agrees"
+} else {
+  sprintf("CITATION.cff differs (drift, rerun washr::update_citation()): %s", paste(cff_kw, collapse = ", "))
+}
+add("metadata", "advisory",
+    if (length(kw)) "PASS" else "FAIL",
+    "DESCRIPTION carries X-schema.org-keywords",
+    if (length(kw)) sprintf("%d keyword(s): %s; %s", length(kw), paste(kw, collapse = ", "), kw_agree)
+    else paste("field missing or empty;", kw_agree))
+
+# Coverage fields (#64): read by washr::update_metadata() and the org catalog
+sp_cov <- dfield("X-schema.org-spatialCoverage")
+tm_cov <- dfield("X-schema.org-temporalCoverage")
+cov_missing <- c(if (is.na(sp_cov) || !nzchar(trimws(sp_cov))) "X-schema.org-spatialCoverage",
+                 if (is.na(tm_cov) || !nzchar(trimws(tm_cov))) "X-schema.org-temporalCoverage")
+add("metadata", "advisory",
+    if (length(cov_missing) == 0) "PASS" else "FAIL",
+    "DESCRIPTION carries X-schema.org spatial and temporal coverage",
+    if (length(cov_missing)) paste("missing:", paste(cov_missing, collapse = ", "))
+    else sprintf("spatial: %s; temporal: %s", sp_cov, tm_cov))
 
 title <- dfield("Title")
 add("metadata", "advisory",
@@ -142,6 +191,32 @@ if (!file.exists(dict_path)) {
       if (!any(bad)) "PASS" else "FAIL",
       "Dictionary descriptions present (no empty or placeholder)",
       if (any(bad)) paste("defective:", paste(dict$variable_name[bad], collapse = ", ")) else "")
+
+  # Dictionary schema (advisory): the five washr columns in order, UTF-8
+  # without a BOM, one class name per variable_type value. These are the
+  # pathologies the org catalog parser found across pre-standard packages.
+  DICT_COLS <- c("directory", "file_name", "variable_name", "variable_type", "description")
+  head_bytes <- readBin(dict_path, "raw", n = 3L)
+  has_bom <- length(head_bytes) == 3L && identical(as.integer(head_bytes), c(0xEFL, 0xBBL, 0xBFL))
+  dict_lines <- readLines(dict_path, warn = FALSE)
+  bad_utf8 <- !all(validUTF8(dict_lines))
+  header <- if (length(dict_lines)) sub("^\ufeff", "", dict_lines[1]) else ""
+  cols <- tryCatch(scan(text = header, what = "", sep = ",", quiet = TRUE, strip.white = FALSE),
+                   error = function(e) character())
+  types <- if ("variable_type" %in% names(dict)) as.character(dict$variable_type) else character()
+  type_bad <- !is.na(types) & nzchar(types) & !grepl("^[A-Za-z][A-Za-z0-9_.]*$", types)
+  schema_problems <- c(
+    if (has_bom) "UTF-8 byte order mark at the start of the file",
+    if (bad_utf8) "non-UTF-8 bytes in the file",
+    if (!identical(cols, DICT_COLS))
+      sprintf("columns are [%s], expected [%s]", paste(cols, collapse = ", "), paste(DICT_COLS, collapse = ", ")),
+    if (any(type_bad))
+      sprintf("variable_type is not a single class name for: %s",
+              paste(unique(dict$variable_name[type_bad]), collapse = ", ")))
+  add("data", "advisory",
+      if (length(schema_problems) == 0) "PASS" else "FAIL",
+      "Dictionary schema: five washr columns, UTF-8 without BOM, single-class variable_type",
+      paste(schema_problems, collapse = "; "))
 }
 
 # PII signal scan: FLAG only, never PASS (premortem P6: no agent or
@@ -403,9 +478,12 @@ add("docs", "advisory", if (has_source) "PASS" else "FAIL",
     "Roxygen @source present for the datasets", "")
 
 readme <- read_lines_if("README.md")
+dl_lines <- grep("inst/extdata/[^)\\s\"']+\\.(csv|xlsx)", readme, ignore.case = TRUE, perl = TRUE)
 add("docs", "advisory",
-    if (any(grepl("^## Download", readme))) "PASS" else "FAIL",
-    "README Download section with direct export links", "")
+    if (length(dl_lines)) "PASS" else "FAIL",
+    "README links the CSV/XLSX exports in inst/extdata/ for non-R users",
+    if (length(dl_lines)) sprintf("%d line(s) link into inst/extdata/", length(dl_lines))
+    else "no link to a .csv or .xlsx file under inst/extdata/ (the washr README template's download table provides them)")
 
 vig <- if (dir.exists(path("vignettes"))) list.files(path("vignettes"), "\\.(Rmd|qmd)$") else character()
 add("docs", "advisory", if (length(vig) == 0) "PASS" else "FAIL",
@@ -432,6 +510,31 @@ if (length(pd)) {
   add("docs", "advisory", "FAIL", "_pkgdown.yml present", "file missing")
 }
 
+# Site deployment: with the pkgdown workflow in place, docs/ is ignored
+# and never committed. The workflow's own presence is the required
+# Website item, checked by the reviewer, so this line is NOT RUN without
+# it rather than a second finding for the same gap.
+pkgdown_wf <- has(".github", "workflows", "pkgdown.yaml") || has(".github", "workflows", "pkgdown.yml")
+if (!pkgdown_wf) {
+  add("docs", "advisory", "NOT RUN",
+      "docs/ untracked while the pkgdown workflow deploys the site",
+      "no .github/workflows/pkgdown.yaml; the required Website item covers the missing workflow")
+} else if (!is_repo) {
+  add("docs", "advisory", "NOT RUN",
+      "docs/ untracked while the pkgdown workflow deploys the site",
+      "package directory is not a git repository")
+} else {
+  tracked_docs <- tryCatch(
+    system2("git", c("-C", shQuote(pkg), "ls-files", "docs"), stdout = TRUE, stderr = FALSE),
+    warning = function(w) character(), error = function(e) character())
+  tracked_docs <- tracked_docs[nzchar(tracked_docs)]
+  add("docs", "advisory",
+      if (length(tracked_docs) == 0) "PASS" else "FAIL",
+      "docs/ untracked while the pkgdown workflow deploys the site",
+      if (length(tracked_docs)) sprintf("%d tracked file(s) under docs/; untrack them (git rm -r --cached docs) and ignore the directory", length(tracked_docs))
+      else "")
+}
+
 # ---------------------------------------------------------------------------
 # Area 4: tests
 # ---------------------------------------------------------------------------
@@ -439,6 +542,41 @@ if (length(pd)) {
 add("tests", "required",
     if (has(".github", "workflows", "R-CMD-check.yaml")) "PASS" else "FAIL",
     "GitHub Actions R-CMD-check workflow present", "")
+
+# Trigger branches: every `branches:` list under `on:` must include dev
+# (inline `[main, master, dev]` or a nested `- dev` list). NOT RUN when the
+# workflow file is missing: that gap is the presence line's finding.
+branch_blocks <- function(lines) {
+  out <- character(); i <- 1L
+  while (i <= length(lines)) {
+    m <- regmatches(lines[i], regexec("^(\\s*)branches:\\s*(.*)$", lines[i]))[[1]]
+    if (length(m) == 3L) {
+      indent <- nchar(m[2]); val <- gsub("^\\[|\\]$", "", trimws(m[3]))
+      if (nzchar(val)) { out <- c(out, val); i <- i + 1L; next }
+      j <- i + 1L; items <- character()
+      while (j <= length(lines) && grepl("^\\s*-\\s", lines[j]) &&
+             nchar(sub("^(\\s*).*$", "\\1", lines[j])) > indent) {
+        items <- c(items, trimws(sub("^\\s*-\\s*", "", lines[j]))); j <- j + 1L
+      }
+      out <- c(out, paste(items, collapse = ", ")); i <- j; next
+    }
+    i <- i + 1L
+  }
+  out
+}
+wf_lines <- read_lines_if(".github", "workflows", "R-CMD-check.yaml")
+if (length(wf_lines) == 0) {
+  add("tests", "required", "NOT RUN",
+      "R-CMD-check workflow triggers include dev (push and pull_request)",
+      "workflow file missing; see the presence line above")
+} else {
+  blocks <- branch_blocks(wf_lines)
+  dev_ok <- length(blocks) >= 1L && all(grepl("\\bdev\\b", blocks, perl = TRUE))
+  add("tests", "required", if (dev_ok) "PASS" else "FAIL",
+      "R-CMD-check workflow triggers include dev (push and pull_request)",
+      if (length(blocks)) sprintf("branches: %s", paste(sprintf("[%s]", blocks), collapse = " "))
+      else "no branches: list found under on:")
+}
 add("tests", "advisory",
     if (any(grepl("R-CMD-check", read_lines_if("README.Rmd")))) "PASS" else "FAIL",
     "R-CMD-check badge in README.Rmd", "")
@@ -469,7 +607,8 @@ for (a in c("metadata", "data", "docs", "tests")) {
 cat("Not machine-checked (reviewer judgment, run in the session per the\n")
 cat("evidence rule): description and provenance prose quality, tidy-data\n")
 cat("structure, plausibility of values, devtools::check(), README rebuild,\n")
-cat("website build, ORCID and maintainer identification, dictionary\n")
+cat("website build, the pkgdown workflow's Pages setting, ORCID and\n")
+cat("maintainer identification, dictionary\n")
 cat("description accuracy (a present description can still be wrong), PII\n")
 cat("certification (the FLAG above is a signal, never a verdict), and the\n")
 cat("history parts the script does not cover: historical .rda column names\n")

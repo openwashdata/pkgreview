@@ -27,7 +27,8 @@ block publication.
 - [ ] Dependencies properly declared
 - [ ] Version follows semantic versioning
 - [ ] If updates are made to DESCRIPTION, run `washr::update_description()`
-- [ ] CITATION.cff carries `keywords` for discovery (at minimum: open data, the organization's discovery keyword from its org profile, the topic, and the country or region); verify manually after `washr::update_citation()`, which may not write them
+- [ ] DESCRIPTION carries `X-schema.org-keywords` (at minimum: open data, the organization's discovery keyword from its org profile, the topic, and the country or region); `washr::update_citation()` carries them into CITATION.cff, so keywords are never typed into CITATION.cff by hand
+- [ ] DESCRIPTION carries `X-schema.org-spatialCoverage` (a place name) and `X-schema.org-temporalCoverage` (start and end date separated by a slash, `YYYY-MM-DD/YYYY-MM-DD`); `washr::update_metadata()` reads them into the site metadata and the organization catalog reads them for its location column
 
 ## Files to review
 

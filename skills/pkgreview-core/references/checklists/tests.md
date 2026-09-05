@@ -9,7 +9,7 @@ block publication.
 ## Required
 
 - [ ] GitHub Actions workflow for R-CMD-check present (`.github/workflows/R-CMD-check.yaml`)
-- [ ] Workflow triggers include `dev` for both push and pull_request (`branches: [main, dev]`); the usethis default is `[main, master]`, which never checks review PRs into `dev`
+- [ ] Workflow triggers include `dev` for both push and pull_request (`washr::setup_ci()` writes `branches: [main, master, dev]`); the usethis default `[main, master]` never checks review PRs into `dev`
 - [ ] Package passes `devtools::check()` with no errors or warnings; any notes are explained in the PR
 - [ ] Examples run successfully
 - [ ] Data loads correctly
