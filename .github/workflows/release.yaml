@@ -1,0 +1,28 @@
+# Release verification on every tag push (openwashdata/pkgreview#73): the
+# files the skills fetch by stamped version must resolve at the tag, and the
+# GitHub release exists with the NEWS.md section as its notes.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pinned raw URLs resolve at the tag
+        run: bash scripts/verify_release.sh "${GITHUB_REF_NAME}"
+      - name: GitHub release from NEWS.md
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            echo "release exists"
+          else
+            gh release create "${GITHUB_REF_NAME}" --title "${GITHUB_REF_NAME}" --notes-file <(bash scripts/news_section.sh "$v")
+          fi

@@ -1,0 +1,5 @@
+{
+  "name": "pkgreview",
+  "version": "1.6.0",
+  "description": "Review workflow for R data packages in registered organizations (openwashdata, Global Health Engineering): issue-per-area review on dev, release and DOI skills, standard upgrades."
+}

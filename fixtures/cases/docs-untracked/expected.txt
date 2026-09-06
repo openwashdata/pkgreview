@@ -1,0 +1,1 @@
+- [PASS] (advisory) docs/ untracked while the pkgdown workflow deploys the site

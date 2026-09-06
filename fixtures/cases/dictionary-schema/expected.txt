@@ -1,0 +1,1 @@
+- [FAIL] (advisory) Dictionary schema: five washr columns, UTF-8 without BOM, single-class variable_type: UTF-8 byte order mark at the start of the file; columns are [directory, file_name, variable_name, variable_type, description, extra], expected [directory, file_name, variable_name, variable_type, description]; variable_type is not a single class name for: id

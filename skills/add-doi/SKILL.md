@@ -26,12 +26,13 @@ uncommitted changes, R with `washr` 1.1.0 or newer installed.
 
 ## Step 1: Validate
 
-- washr preflight:
-  `Rscript -e 'stopifnot(packageVersion("washr") >= "1.1.0")'`. If it
-  fails, stop and tell the user to run `install.packages("washr")`. The
-  steps below rely on 1.1.0 behavior (badge insertion and repair, README
-  rebuild, DOI kept on later runs) and must not be adapted to an older
-  washr.
+- washr preflight, against the floor recorded in
+  `${CLAUDE_SKILL_DIR}/../pkgreview-core/WASHR_FLOOR`:
+  `Rscript -e 'floor <- readLines("${CLAUDE_SKILL_DIR}/../pkgreview-core/WASHR_FLOOR"); stopifnot(packageVersion("washr") >= floor)'`.
+  If it fails, stop and tell the user to run `install.packages("washr")`.
+  The steps below rely on 1.1.0 behavior (badge insertion and repair,
+  README rebuild, DOI kept on later runs) and must not be adapted to an
+  older washr.
 - `$ARGUMENTS` matches `10.XXXX/zenodo.NNNNNNN` (regex
   `^10\.\d{4,9}/zenodo\.\d+$`). If not, stop and ask for the DOI in that
   format.

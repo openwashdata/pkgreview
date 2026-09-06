@@ -1,0 +1,1 @@
+- [PASS] (advisory) README links the CSV/XLSX exports in inst/extdata/ for non-R users: 1 line(s) link into inst/extdata/

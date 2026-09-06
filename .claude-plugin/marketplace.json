@@ -1,0 +1,29 @@
+{
+  "name": "pkgreview",
+  "owner": {
+    "name": "openwashdata"
+  },
+  "metadata": {
+    "description": "The openwashdata package review skills: review-package, review-issue, create-next-issue, review-status, review-complete, review-upgrade, create-release, add-doi.",
+    "version": "1.6.0"
+  },
+  "plugins": [
+    {
+      "name": "pkgreview",
+      "description": "Review workflow for R data packages in registered organizations: issue-per-area review on dev, release and DOI skills, standard upgrades. The skills read shared references from skills/pkgreview-core.",
+      "version": "1.6.0",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/review-package",
+        "./skills/review-issue",
+        "./skills/create-next-issue",
+        "./skills/review-status",
+        "./skills/review-complete",
+        "./skills/review-upgrade",
+        "./skills/create-release",
+        "./skills/add-doi"
+      ]
+    }
+  ]
+}

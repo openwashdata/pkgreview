@@ -1,0 +1,2 @@
+- [FAIL] (advisory) DESCRIPTION carries X-schema.org-keywords: field missing or empty
+- [FAIL] (advisory) DESCRIPTION carries X-schema.org spatial and temporal coverage: missing: X-schema.org-spatialCoverage, X-schema.org-temporalCoverage

@@ -1,0 +1,1 @@
+- [FAIL] (advisory) README links the CSV/XLSX exports in inst/extdata/ for non-R users: no link to a .csv or .xlsx file under inst/extdata/

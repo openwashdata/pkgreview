@@ -1,0 +1,2 @@
+﻿directory,file_name,variable_name,variable_type,description,extra
+data,pkgreviewtest.rda,id,"c(""POSIXct"", ""POSIXt"")",Water point identifier,x
