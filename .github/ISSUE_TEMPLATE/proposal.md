@@ -11,7 +11,15 @@ What is wrong or missing today, with the evidence (a release, a review, a file).
 
 ## Proposal
 
-The change, concretely: which files, which skills, which check lines. Add an Options section only when the choice is genuinely open; otherwise this section is the decision unless an objection arrives.
+The change, concretely: which skills, which check lines, which rules. Add an Options section only when the choice is genuinely open; otherwise this section is the decision unless an objection arrives.
+
+## Files affected
+
+One line per file or directory the change touches, so a reviewer sees the blast radius before any code exists.
+
+## Open questions
+
+What the proposal assumes or leaves undecided. Empty is a valid answer; a question here that turns into a deviation during implementation is answered in a comment on this issue.
 
 ## Tasks
 
