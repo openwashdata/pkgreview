@@ -8,7 +8,7 @@ files = subprocess.run(
     ["git", "ls-files", "*.md", "*.R", "*.sh", "*.py", "*.yml", "*.yaml", "*.json", "*.Rmd"],
     capture_output=True, text=True, check=True,
 ).stdout.split()
-pattern = re.compile("[—\U0001F300-\U0001FAFF☀-➿]")
+pattern = re.compile("[\\u2014\\U0001F300-\\U0001FAFF\\u2600-\\u27BF]")
 bad = 0
 for path in files:
     try:
