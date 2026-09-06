@@ -46,7 +46,15 @@ search are empty does "no review exists" hold.
 Also read the version stamp: view the first (metadata) issue body with
 `gh issue view [number]` and find the "Review standard version" line, if
 present. The installed tooling version is in
-`${CLAUDE_SKILL_DIR}/../pkgreview-core/VERSION`.
+`${CLAUDE_SKILL_DIR}/../pkgreview-core/VERSION`, and the newest released
+version comes from the tags:
+
+```bash
+git ls-remote --tags https://github.com/openwashdata/pkgreview.git | sed 's|.*refs/tags/v||; /\^{}$/d' | sort -V | tail -1
+```
+
+(offline: report "not checked"). Also list a standard upgrade issue, if
+any: `gh issue list --label "pkgreview-upgrade" --state all --json number,state,title`.
 
 ## Step 2: Report
 
@@ -57,6 +65,8 @@ Build the report only from the command output above; do not invent progress.
 
 **Issues Completed**: [N]/4
 **Review standard version**: [stamp from issue 1, or "not stamped"]
+**Installed tooling version**: [VERSION] (newest release: [latest], or "not checked")
+**Standard upgrade**: [none, or issue #[number] ([state]) from [stamp] to [version]]
 
 ### Issue Status
 
@@ -72,6 +82,7 @@ Build the report only from the command output above; do not invent progress.
 - An issue is open: suggest /review-issue [number]
 - Latest issue closed, later ones not created: suggest /create-next-issue
 - All four exist and are closed: suggest /review-complete
+- An upgrade issue is open: suggest /review-issue [number]; closed with a merged PR and no open review issue: suggest /review-complete
 ```
 
 ## Step 3: Anomaly checks
@@ -84,6 +95,8 @@ failure mode and the recovery path from
 - An issue closed without a merged PR referencing it
 - `dev` behind `main` (`git rev-list --count dev..main` greater than 0)
 - Version stamp in issue 1 differs from the installed tooling version
+- Installed tooling version older than the newest release (not a review-state failure; the install is stale, update before the next review)
+- A package CLAUDE.md whose last `Standard version:` line differs from the stamp in issue 1 without an `Upgraded from:` line (failure mode 11)
 - An open PR whose base branch is `main` while review issues are still open
 
 If no review is in progress (no `pkgreview-*` issues AND no

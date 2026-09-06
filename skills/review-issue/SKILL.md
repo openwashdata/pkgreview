@@ -24,9 +24,13 @@ gh issue view $ARGUMENTS --json title,labels,body,state
 ```
 
 - The issue must carry exactly one of: `pkgreview-metadata`,
-  `pkgreview-data`, `pkgreview-docs`, `pkgreview-tests`. If not, stop:
-  this is not a review issue; list review issues with
-  `gh issue list --label pkgreview --state all`.
+  `pkgreview-data`, `pkgreview-docs`, `pkgreview-tests`, or
+  `pkgreview-upgrade` (a standard upgrade issue created by
+  `/review-upgrade`; its body is the whole work list, its items name the
+  version that introduced them, and its "Intake re-screen" section must
+  be filled before any other item, with a hit stopping the flow as in
+  review-package Step 2). If not, stop: this is not a review issue; list
+  review issues with `gh issue list --label pkgreview --state all`.
 - If the issue is CLOSED, stop and suggest `/review-status`.
 - Version check: find the `Review standard version` line in the first
   (metadata) review issue and compare with
@@ -38,7 +42,8 @@ gh issue view $ARGUMENTS --json title,labels,body,state
 The checklist in the issue body is the work list for this invocation. Also
 read the canonical checklist for the area from
 `${CLAUDE_SKILL_DIR}/../pkgreview-core/references/checklists/[area].md` for
-the suggested tools and file lists. If body and canonical file disagree, the
+the suggested tools and file lists (for an upgrade issue: every area's
+file, since its items span areas). If body and canonical file disagree, the
 issue body wins (it records this review's pinned standard); mention the
 difference to the user.
 
@@ -48,8 +53,13 @@ Run the deterministic check script first and read its section for this
 issue's area:
 
 ```bash
-Rscript "${CLAUDE_SKILL_DIR}/../pkgreview-core/check/pkgreview-check.R" . > /tmp/pkgreview-check.md
+Rscript "${CLAUDE_SKILL_DIR}/../pkgreview-core/check/pkgreview-check.R" . --org=[org] > /tmp/pkgreview-check.md
 ```
+
+`[org]` is the lowercased `Organization profile` stamp from the metadata
+issue (`openwashdata` when the review predates the stamp). For a review
+pinned to an older version, pass `--org-file=[path]` with the fetched
+stamped profile instead.
 
 Its FAIL lines for the area are verified facts and seed the plan; do not
 re-derive what the script already measured. Its PII line is a FLAG
@@ -122,7 +132,7 @@ issue's area that the approved plan addressed are now PASS; post the
 fresh report on the issue so it records the after-state:
 
 ```bash
-Rscript "${CLAUDE_SKILL_DIR}/../pkgreview-core/check/pkgreview-check.R" . > /tmp/pkgreview-check.md
+Rscript "${CLAUDE_SKILL_DIR}/../pkgreview-core/check/pkgreview-check.R" . --org=[org] > /tmp/pkgreview-check.md
 gh issue comment $ARGUMENTS --body-file /tmp/pkgreview-check.md
 ```
 
@@ -189,6 +199,9 @@ Output exactly this and nothing more:
 > "PR created for issue #$ARGUMENTS: [PR URL]. Issue checklist updated.
 > Please review and merge to dev, then run /create-next-issue to continue
 > (it syncs dev, closes this issue, and creates the next one)."
+
+For an upgrade issue the last sentence reads: "then run /review-complete
+(it closes this issue and opens the dev-to-main PR)".
 
 - Do NOT continue with any other task
 - Do NOT suggest further next steps

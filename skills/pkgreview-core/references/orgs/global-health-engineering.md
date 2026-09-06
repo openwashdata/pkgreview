@@ -17,3 +17,23 @@ so the two profiles are near equal.
 | Discovery keywords (minimum) | open data, global health, the topic, the country or region |
 | Brand | none: the openwashdata brand must not appear in a Global-Health-Engineering package, so `washr::use_brand()` is not run and `_pkgdown.yml` carries no `bslib.brand` line |
 | Zenodo community | `global-health-engineering` (slug assumed; verify on first use, #48 decision 5) |
+
+## Machine-readable values
+
+The check script reads this block (`--org=global-health-engineering`); the table above is the human copy and must say the same (openwashdata/pkgreview#78).
+
+```yaml
+github_org: Global-Health-Engineering
+pages_domain: global-health-engineering.github.io
+site_url_pattern: https://global-health-engineering.github.io/<package>/
+analytics: plausible
+analytics_domain: global-health-engineering.github.io
+funding_text: This project was funded by the [Open Research Data Program of the ETH Board](https://ethrat.ch/en/eth-domain/open-research-data/).
+citation_tooling: washr
+readme_template: washr
+keywords_required:
+  - open data
+  - global health
+brand: none
+zenodo_community: global-health-engineering
+```

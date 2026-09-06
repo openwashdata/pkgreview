@@ -43,6 +43,19 @@ Every profile carries this field table:
 | Brand | The pkgdown brand for the org's package sites (`_brand.yml` and where it comes from), or `none`; `_pkgdown.yml` wires a brand through `template.bslib.brand` only when the profile defines one |
 | Zenodo community | The community checked in the add-doi record review |
 
+## Machine-readable block
+
+Below the table, every profile carries a fenced `yaml` block with the same
+values under stable keys, read by the check script (`--org=<name>`, or
+`--org-file=<path>` for a stamped copy): `github_org`, `pages_domain`,
+`site_url_pattern` (with `<package>` as the placeholder), `analytics`
+(`plausible` or `none`), `analytics_domain`, `funding_text` (matched
+verbatim in `_pkgdown.yml`), `citation_tooling`, `readme_template`,
+`keywords_required` (the literal keywords every package must carry; the
+topic and the country or region stay reviewer judgment), `brand` (a
+source such as `openwashdata/brand`, or `none`), `zenodo_community`. The
+table and the block must agree; the block is what the script reads.
+
 ## Registering a new organization
 
 Open a PR to openwashdata/pkgreview adding `orgs/[org].md` with the field
@@ -52,6 +65,6 @@ table filled in. Two constraints hold until the standard is extended:
   express only the washr flow (1.1.0 or newer). Registering an org with
   different tooling requires reworking those files, which is a standard
   change with its own version bump (repo rule 1).
-- Analytics: the check script supports `--analytics=plausible` (default)
-  and `--analytics=none`. Other analytics stacks need a check script
-  extension first.
+- Analytics: the check script understands `analytics: plausible` and
+  `analytics: none` in the profile block. Other analytics stacks need a
+  check script extension first.

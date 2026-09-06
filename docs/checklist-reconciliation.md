@@ -8,6 +8,12 @@ Date: 2026-07-08. Baseline: commit after the issue #4 fixes (the
 `washr::compile_citation()` typo and the missing CC BY 4.0 item were fixed
 before consolidation so that known bugs were not canonicalized).
 
+Sections added after the consolidation are keyed by the standard version
+in their heading (`(vX.Y.Z)`); `/review-upgrade` reads the sections
+between a package's stamped version and the installed one to build that
+package's upgrade issue, so a release that rewords, adds, or drops a
+checklist item must record it in a section that names the version.
+
 ## Sources
 
 | Key | File | Role before consolidation |

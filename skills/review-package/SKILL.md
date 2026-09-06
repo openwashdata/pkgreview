@@ -46,7 +46,16 @@ reply.**
    not, stop and tell the user.
 2. Read the installed standard version from
    `${CLAUDE_SKILL_DIR}/../pkgreview-core/VERSION`. Call it `[VERSION]`
-   below.
+   below. Then read the newest released version:
+   ```bash
+   git ls-remote --tags https://github.com/openwashdata/pkgreview.git | sed 's|.*refs/tags/v||; /\^{}$/d' | sort -V | tail -1
+   ```
+   If `[VERSION]` sorts below it (`printf '%s\n' "[VERSION]" "[latest]" | sort -V | tail -1` is not `[VERSION]`), STOP:
+   "installed [VERSION], latest [latest]; update the installed skills
+   before starting a new review (a review pins the standard it starts
+   on)". Continue on the installed version only when the user says so.
+   If the command fails (offline), report the check as NOT CHECKED and
+   continue.
 3. Dedupe guard: check for an existing review in ANY state:
    ```bash
    gh issue list --label "pkgreview-metadata" --state all --json number,state,title
@@ -145,11 +154,12 @@ It stays in the package permanently; never delete it in later steps.
 - Run the deterministic check script and keep its full report:
 
   ```bash
-  Rscript "${CLAUDE_SKILL_DIR}/../pkgreview-core/check/pkgreview-check.R" . > /tmp/pkgreview-check.md
+  Rscript "${CLAUDE_SKILL_DIR}/../pkgreview-core/check/pkgreview-check.R" . --org=[org] > /tmp/pkgreview-check.md
   ```
 
-  Pass `--analytics=none` after the package directory when the org
-  profile defines no analytics header; the default expects Plausible.
+  `[org]` is the lowercased organization from Step 0; the script reads
+  the profile's YAML block for the analytics header, the site URL
+  pattern, the funding text, the required keywords, and the brand rule.
   It verifies the mechanical subset of the checklists (file presence,
   license, citation consistency, sentinel values, encoding, naming,
   ranges, coordinates) and prints a Markdown report. Its PII line is a

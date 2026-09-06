@@ -4,10 +4,17 @@
 # review standard (pkgcheck pattern, openwashdata/pkgreview#13).
 #
 # Usage:
-#   Rscript pkgreview-check.R [package-dir] [--analytics=plausible|none]
+#   Rscript pkgreview-check.R [package-dir] [--org=<name> | --org-file=<path>]
 #     package-dir  default: current directory
-#     --analytics  default plausible; pass none when the org profile
-#                  (references/orgs/) defines no analytics header
+#     --org        registered organization (lowercased); the script reads
+#                  the YAML block of references/orgs/<name>.md next to it
+#                  and derives the analytics header, the site URL pattern,
+#                  the funding text, the required keywords, and the brand
+#                  rule from it (openwashdata/pkgreview#78)
+#     --org-file   a profile file to read instead (a stamped copy fetched
+#                  for a pinned review)
+#     --analytics  deprecated alias kept one release: plausible|none,
+#                  used only when no profile is given
 #
 # Output: a Markdown report on stdout, grouped by review area, one line
 # per check with PASS / FAIL / FLAG / NOT RUN and the observed counts.
@@ -42,6 +49,44 @@ if (!analytics %in% c("plausible", "none"))
   stop("Unknown --analytics value: ", analytics, " (expected plausible or none)")
 pkg <- if (length(pos) >= 1) pos[[1]] else "."
 if (!dir.exists(pkg)) stop("Package directory not found: ", pkg)
+
+# Organization profile (--org / --org-file): the fenced yaml block of the
+# profile file is the machine-readable source of the org values.
+org_arg <- sub("^--org=", "", grep("^--org=", flags, value = TRUE))
+org_file <- sub("^--org-file=", "", grep("^--org-file=", flags, value = TRUE))
+script_file <- sub("^--file=", "", grep("^--file=", commandArgs(), value = TRUE))
+script_dir <- if (length(script_file)) dirname(normalizePath(script_file[[1]])) else "."
+read_profile <- function(pf) {
+  ln <- readLines(pf, warn = FALSE)
+  s0 <- grep("^```ya?ml\\s*$", ln)
+  if (!length(s0)) stop("No yaml block in organization profile: ", pf)
+  e0 <- grep("^```\\s*$", ln); e0 <- e0[e0 > s0[1]][1]
+  out <- list(); key <- NULL
+  for (l in ln[(s0[1] + 1L):(e0 - 1L)]) {
+    if (grepl("^\\s*#", l) || !nzchar(trimws(l))) next
+    if (grepl("^[A-Za-z_]+:", l)) {
+      key <- sub(":.*$", "", l)
+      val <- trimws(sub("^[A-Za-z_]+:\\s*", "", l))
+      val <- sub("^['\"](.*)['\"]$", "\\1", val)
+      out[[key]] <- if (nzchar(val)) val else character()
+    } else if (grepl("^\\s+-\\s", l) && !is.null(key)) {
+      out[[key]] <- c(out[[key]], sub("^['\"](.*)['\"]$", "\\1", trimws(sub("^\\s+-\\s*", "", l))))
+    }
+  }
+  out
+}
+profile <- NULL; profile_source <- "none (deprecated --analytics path)"
+if (length(org_file) || length(org_arg)) {
+  pf <- if (length(org_file)) org_file[[1]] else
+    file.path(script_dir, "..", "references", "orgs", paste0(tolower(org_arg[[1]]), ".md"))
+  if (!file.exists(pf))
+    stop("Organization profile not found: ", pf,
+         " (the organization is not registered; see references/orgs/README.md)")
+  profile <- read_profile(pf)
+  profile_source <- if (length(org_file)) paste0("--org-file ", basename(pf)) else paste0("--org=", tolower(org_arg[[1]]), " (", basename(pf), ")")
+  analytics <- if (identical(tolower(profile$analytics), "plausible")) "plausible" else "none"
+}
+pval <- function(k) if (!is.null(profile) && !is.null(profile[[k]]) && length(profile[[k]])) profile[[k]] else NULL
 
 CROSS_FIELD_PAIRS <- list(
   c(part = "women_users", whole = "users_count")
@@ -130,11 +175,14 @@ kw_agree <- if (length(cff) == 0) {
 } else {
   sprintf("CITATION.cff differs (drift, rerun washr::update_citation()): %s", paste(cff_kw, collapse = ", "))
 }
+kw_req <- pval("keywords_required")
+kw_req_missing <- if (length(kw) && length(kw_req)) kw_req[!tolower(kw_req) %in% tolower(kw)] else character()
 add("metadata", "advisory",
-    if (length(kw)) "PASS" else "FAIL",
+    if (length(kw) && length(kw_req_missing) == 0) "PASS" else "FAIL",
     "DESCRIPTION carries X-schema.org-keywords",
-    if (length(kw)) sprintf("%d keyword(s): %s; %s", length(kw), paste(kw, collapse = ", "), kw_agree)
-    else paste("field missing or empty;", kw_agree))
+    if (!length(kw)) paste("field missing or empty;", kw_agree)
+    else sprintf("%d keyword(s): %s; %s%s", length(kw), paste(kw, collapse = ", "), kw_agree,
+                 if (length(kw_req_missing)) paste0("; required by the org profile but missing: ", paste(kw_req_missing, collapse = ", ")) else ""))
 
 # Coverage fields (#64): read by washr::update_metadata() and the org catalog
 sp_cov <- dfield("X-schema.org-spatialCoverage")
@@ -502,10 +550,42 @@ if (length(pd)) {
         "org profile defines no analytics header (--analytics=none)")
   }
   url_line <- grep("^url:", pd, value = TRUE)
-  add("docs", "advisory",
-      if (length(url_line) && grepl("github\\.io", url_line[1])) "PASS" else "FAIL",
-      "_pkgdown.yml url is the Pages URL, not the repo URL",
-      if (length(url_line)) url_line[1] else "no url: line")
+  url_val <- if (length(url_line)) trimws(sub("^url:\\s*", "", url_line[1])) else ""
+  site_pattern <- pval("site_url_pattern")
+  pkgname <- dfield("Package")
+  if (!is.null(site_pattern) && !is.na(pkgname)) {
+    expected_url <- sub("<package>", pkgname, site_pattern, fixed = TRUE)
+    norm <- function(u) sub("/+$", "", u)
+    add("docs", "advisory",
+        if (nzchar(url_val) && identical(norm(url_val), norm(expected_url))) "PASS" else "FAIL",
+        "_pkgdown.yml url is the Pages URL from the org profile",
+        if (nzchar(url_val)) sprintf("url: %s (expected %s)", url_val, expected_url) else sprintf("no url: line (expected %s)", expected_url))
+  } else {
+    add("docs", "advisory",
+        if (nzchar(url_val) && grepl("github\\.io", url_val)) "PASS" else "FAIL",
+        "_pkgdown.yml url is the Pages URL, not the repo URL",
+        if (length(url_line)) url_line[1] else "no url: line")
+  }
+  funding <- pval("funding_text")
+  if (!is.null(funding)) {
+    add("docs", "advisory",
+        if (any(grepl(funding, pd, fixed = TRUE))) "PASS" else "FAIL",
+        "_pkgdown.yml carries the funding sidebar text from the org profile",
+        if (any(grepl(funding, pd, fixed = TRUE))) "" else "the profile's funding text was not found verbatim")
+  }
+  brand <- pval("brand")
+  if (!is.null(brand)) {
+    brand_wired <- any(grepl("^\\s*brand:\\s*_brand\\.yml", pd))
+    if (identical(tolower(brand), "none")) {
+      add("docs", "advisory", if (brand_wired) "FAIL" else "PASS",
+          "_pkgdown.yml carries no brand (the org profile defines none)",
+          if (brand_wired) "bslib.brand is wired although the organization defines no brand; remove it" else "")
+    } else {
+      add("docs", "advisory", "PASS",
+          "_pkgdown.yml brand wiring matches the org profile",
+          if (brand_wired) sprintf("wired to _brand.yml (%s)", brand) else sprintf("not wired; optional (%s via washr::use_brand())", brand))
+    }
+  }
 } else {
   add("docs", "advisory", "FAIL", "_pkgdown.yml present", "file missing")
 }
@@ -588,6 +668,7 @@ add("tests", "advisory",
 cat("# pkgreview mechanical check report\n\n")
 cat(sprintf("Package: `%s`  \n", normalizePath(pkg)))
 cat(sprintf("Standard: mechanical subset of the pkgreview checklists  \n"))
+cat(sprintf("Organization profile: %s  \n", profile_source))
 n_fail_req <- sum(results$status == "FAIL" & results$tier == "required")
 cat(sprintf("Result: %d PASS, %d FAIL (%d required-tier), %d FLAG, %d NOT RUN\n\n",
             sum(results$status == "PASS"), sum(results$status == "FAIL"),

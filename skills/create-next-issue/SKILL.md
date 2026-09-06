@@ -53,6 +53,9 @@ Rules:
   `${CLAUDE_SKILL_DIR}/../pkgreview-core/references/recovery.md`.
 - If all four areas have issues, say so and suggest `/review-status` or
   `/review-complete`.
+- If the newest review issue carries `pkgreview-upgrade`, there is no next
+  area: an upgrade is one issue; point at `/review-complete` once its PR
+  is merged.
 
 ## Step 2: Version and organization stamp check
 
