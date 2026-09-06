@@ -2,7 +2,7 @@
 # Repository lint (openwashdata/pkgreview#72): skill path references resolve,
 # no em dashes or emojis, a blank line after every markdown heading, VERSION
 # is a semver and agrees with the plugin manifests; with LINT_CHECK_TAG=1 the
-# newest tag must equal VERSION (run on main only).
+# newest tag must not be newer than VERSION (run on main only).
 set -uo pipefail
 cd "$(dirname "$0")/.."
 fail=0
@@ -46,10 +46,18 @@ if bad: print("lint: marketplace.json names skills without SKILL.md:", bad); rai
 PY
 fi
 
-# 6. newest tag equals VERSION (main only)
+# 6. the newest tag is never newer than VERSION (main only). VERSION may be
+#    one release ahead of the tags between the release merge and
+#    scripts/release.sh; the exact match at a tag is verified by the release
+#    workflow (scripts/verify_release.sh).
 if [[ "${LINT_CHECK_TAG:-0}" == "1" ]]; then
   t=$(git tag --list 'v*' | sort -V | tail -1)
-  [[ "$t" == "v$v" ]] || { say "newest tag $t does not match VERSION $v"; fail=1; }
+  newest=$(printf '%s\n' "$t" "v$v" | sort -V | tail -1)
+  if [[ "$newest" != "v$v" ]]; then
+    say "newest tag $t is newer than VERSION $v"; fail=1
+  elif [[ "$t" != "v$v" ]]; then
+    say "VERSION $v is ahead of the newest tag $t; release pending (scripts/release.sh $v)"
+  fi
 fi
 
 [[ $fail -eq 0 ]] && say "clean"
