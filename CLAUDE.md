@@ -43,22 +43,39 @@ ships as Claude Code skills.
   builds a throwaway repo with a planted add-then-remove history for the
   scan to catch.
 - `docs/checklist-reconciliation.md` - the record of how the previously
-  diverging checklist copies were merged (issue #5)
+  diverging checklist copies were merged (issue #5) and, per release
+  section keyed by version, every checklist item reworded since;
+  `/review-upgrade` reads those sections to build a package's delta
+- `NEWS.md` - release notes for everything that is not a checklist item
+- `scripts/` - `release.sh` (release tail), `verify_release.sh`,
+  `news_section.sh`, `lint.sh`, `washr_drift.R`
+- `.github/workflows/` - `gate.yaml` (fixture gate, case suite, lint),
+  `washr-drift.yaml`, `release.yaml`
+- `.claude-plugin/` - plugin manifests; the version there mirrors
+  `skills/pkgreview-core/VERSION` (lint checks they agree)
 
 ## Rules for changing the review standard
 
 1. Checklist or template changes get a version bump: update
-   `skills/pkgreview-core/VERSION` and tag the release commit
-   (`v[version]`). In-flight reviews finish on the version stamped into
-   their first review issue; skills fetch stamped-version checklists and
-   org profiles from raw.githubusercontent.com when they detect a
-   mismatch.
-2. After any significant change to checklists or skills, run the review
-   workflow against `fixtures/pkgreviewtest/` and confirm every planted
-   defect in `fixtures/SCORECARD.md` is caught. A missed defect means the
-   change weakened the standard and must not merge.
+   `skills/pkgreview-core/VERSION` (and the matching version in
+   `.claude-plugin/`), then release with `scripts/release.sh [version]`
+   after the dev-to-main PR merges (it tags, verifies the pinned raw
+   URLs, creates the GitHub release from NEWS.md, and syncs `dev`).
+   In-flight reviews finish on the version stamped into their first
+   review issue; skills fetch stamped-version checklists and org
+   profiles from raw.githubusercontent.com when they detect a mismatch.
+2. The mechanical fixture gate runs in CI (`.github/workflows/gate.yaml`:
+   the check script against `fixtures/pkgreviewtest/` and the history
+   fixture diffed against `fixtures/expected/`, plus the case suite in
+   `fixtures/cases/`). A change that alters a FAIL, FLAG, or NOT RUN
+   line must update the expected report in the same PR, with the
+   scorecard mapping re-checked. A missed defect means the change
+   weakened the standard and must not merge. The interactive run
+   through the skills is issue #17 (#80 decides its future).
 3. If a checklist item is added, dropped, or reworded, record the decision
-   in `docs/checklist-reconciliation.md`.
+   in `docs/checklist-reconciliation.md`, one row per item. Everything
+   else (skills, scripts, templates, fixtures, process) is recorded in
+   `NEWS.md` under the release version.
 4. Never let checklist content be duplicated again: issue bodies quote the
    canonical files verbatim; commands, docs, and skills reference them by
    path.
@@ -71,4 +88,12 @@ ships as Claude Code skills.
 
 - Work happens on `dev` (create off `main` if missing); PRs go from `dev`
   into `main`
-- No emojis and no em dashes in anything committed to this repo
+- Changes are proposed with `.github/ISSUE_TEMPLATE/proposal.md`: an
+  objection window decides unless the choice is open; the release issue
+  carries one decision table
+- The release PR body lists `Closes #N` for every issue it lands (PRs
+  here target `main`, so the keyword fires); no per-issue status or
+  closing comments
+- After the merge: `scripts/release.sh [version]` from `main`
+- No emojis and no em dashes in anything committed to this repo;
+  `scripts/lint.sh` enforces this and the skill path references

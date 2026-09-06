@@ -16,3 +16,23 @@ for reviews that predate org profiles (before v1.3.0).
 | Discovery keywords (minimum) | open data, washdata, the topic, the country or region |
 | Brand | `_brand.yml` from [openwashdata/brand](https://github.com/openwashdata/brand), installed and wired into `_pkgdown.yml` with `washr::use_brand()` |
 | Zenodo community | `openwashdata` |
+
+## Machine-readable values
+
+The check script reads this block (`--org=openwashdata`); the table above is the human copy and must say the same (openwashdata/pkgreview#78).
+
+```yaml
+github_org: openwashdata
+pages_domain: openwashdata.github.io
+site_url_pattern: https://openwashdata.github.io/<package>/
+analytics: plausible
+analytics_domain: openwashdata.github.io
+funding_text: This project was funded by the [Open Research Data Program of the ETH Board](https://ethrat.ch/en/eth-domain/open-research-data/).
+citation_tooling: washr
+readme_template: washr
+keywords_required:
+  - open data
+  - washdata
+brand: openwashdata/brand
+zenodo_community: openwashdata
+```

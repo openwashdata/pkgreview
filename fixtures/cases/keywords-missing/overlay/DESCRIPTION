@@ -1,0 +1,28 @@
+Package: pkgreviewtest
+Title: Water Point Observations for Review Workflow Testing
+Version: 0.0.1
+Authors@R: c(
+    person("Ada", "Lovelace", , "ada.lovelace@example.org", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-8271-5555")))
+Description: Water point observations from four Swiss regions, including
+    water source type, functional status, installation date, and number of
+    users. This is a fixture package used to test the openwashdata package
+    review workflow.
+License: MIT + file LICENSE
+Depends:
+    R (>= 3.5.0)
+Suggests:
+    dplyr,
+    ggplot2,
+    knitr,
+    readr,
+    rmarkdown
+Config/Needs/website: rmarkdown
+Encoding: UTF-8
+Language: en-GB
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Date: 2026-07-08
+URL: https://github.com/openwashdata/pkgreviewtest
+BugReports: https://github.com/openwashdata/pkgreviewtest/issues

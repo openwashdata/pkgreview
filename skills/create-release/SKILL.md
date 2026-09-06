@@ -30,12 +30,13 @@ FALSE)` is new in 1.1.0, and the workarounds older versions needed are
 gone from this skill). Run:
 
 ```bash
-Rscript -e 'stopifnot(packageVersion("washr") >= "1.1.0")'
+Rscript -e 'floor <- readLines("${CLAUDE_SKILL_DIR}/../pkgreview-core/WASHR_FLOOR"); stopifnot(packageVersion("washr") >= floor)'
 ```
 
-If it fails, stop and tell the user to run `install.packages("washr")`
-(CRAN carries 1.1.0 since 2026-09-02), then rerun the skill. Do not adapt
-the steps below to an older washr.
+The floor is recorded once in `pkgreview-core/WASHR_FLOOR` (1.1.0 at
+this writing). If the check fails, stop and tell the user to run
+`install.packages("washr")`, then rerun the skill. Do not adapt the steps
+below to an older washr.
 
 ## Step 1: Pre-release checks (PAUSE)
 

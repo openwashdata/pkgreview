@@ -56,13 +56,13 @@ Note on the v1.5.0 lines (washr 1.1.0 and owdata reconciliation, issues #56 to #
 
 Run the full review workflow against `fixtures/pkgreviewtest` after every significant change to the checklists in `skills/pkgreview-core/references/checklists/` or to the review skills and commands.
 
-The mechanical layer of the gate is scripted: `Rscript skills/pkgreview-core/check/pkgreview-check.R fixtures/pkgreviewtest` runs the machine-checkable subset and must reproduce the defect mapping exactly (every FAIL/FLAG line maps to a defect ID, no unmapped lines; NOT RUN lines are not-applicable reports and map to nothing). Since v1.2.1 that is 19 FAIL + 1 FLAG lines for D1 to D17, with D4, D5, D7, and D15 as two-line spans. The judgment items, the intake conversation, and the guardrail behavior still require the workflow run.
+The mechanical layer of the gate is scripted and runs in CI (`bash fixtures/run_gate.sh`, which diffs against `fixtures/expected/`): `Rscript skills/pkgreview-core/check/pkgreview-check.R fixtures/pkgreviewtest --org=openwashdata` runs the machine-checkable subset and must reproduce the defect mapping exactly (every FAIL/FLAG line maps to a defect ID, no unmapped lines; NOT RUN lines are not-applicable reports and map to nothing). Since v1.2.1 that is 19 FAIL + 1 FLAG lines for D1 to D17, with D4, D5, D7, and D15 as two-line spans. The judgment items, the intake conversation, and the guardrail behavior still require the workflow run.
 
 The git-history defect D18 is exercised against its own repository, since `pkgreviewtest/` reports NOT RUN for history:
 
 ```
 HISTREPO=$(bash fixtures/make_history_fixture.sh)
-Rscript skills/pkgreview-core/check/pkgreview-check.R "$HISTREPO"   # expect the D18 history FLAG naming facilities.csv
+Rscript skills/pkgreview-core/check/pkgreview-check.R "$HISTREPO" --org=openwashdata   # expect the D18 history FLAG naming facilities.csv
 rm -rf "$HISTREPO"
 ```
 

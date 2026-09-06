@@ -17,7 +17,11 @@ Creating a data package for one of the registered organizations? Start with the 
 git clone https://github.com/openwashdata/pkgreview.git
 cd pkgreview
 
-# Install the skills (copy; re-run after every git pull to update)
+# Install the skills. Either as the plugin (one command to update later):
+claude plugin marketplace add openwashdata/pkgreview
+claude plugin install pkgreview@pkgreview
+# or as copies (re-run after every git pull to update); not both, the two
+# would provide the same skill names:
 mkdir -p ~/.claude/skills
 cp -R skills/* ~/.claude/skills/
 
@@ -52,6 +56,7 @@ they run only when you type them, never on the model's own initiative.
 | `/review-issue [n]` | Work on a review issue (actual issue number) | `/review-issue 42` |
 | `/create-next-issue` | Create next review issue | `/create-next-issue` |
 | `/review-complete` | Create final PR to main | `/review-complete` |
+| `/review-upgrade` | Bring a reviewed package to the installed standard with one issue of changed items | `/review-upgrade` |
 | `/create-release` | Create a new release | `/create-release [version]` |
 | `/add-doi` | Integrate a Zenodo DOI after release (resume or repair path) | `/add-doi 10.5281/zenodo.XXXXXXX` |
 
@@ -79,6 +84,14 @@ Each review addresses 4 key areas:
 - Git
 - Claude Code (the workflow ships as skills; see Quick Start)
 
+Compatibility (the floor is recorded in `skills/pkgreview-core/WASHR_FLOOR`
+and checked weekly by CI):
+
+| pkgreview | washr |
+|-----------|-------|
+| 1.0.0 to 1.4.0 | 1.0.1, with the caveats the skills carried |
+| 1.5.0 and later | >= 1.1.0 |
+
 ## Repository Structure
 
 ```
@@ -89,10 +102,12 @@ pkgreview/
 │   ├── create-next-issue/
 │   ├── review-status/
 │   ├── review-complete/
+│   ├── review-upgrade/
 │   ├── create-release/
 │   ├── add-doi/
 │   └── pkgreview-core/        # Shared references (not a skill)
 │       ├── VERSION            # Review standard version
+│       ├── WASHR_FLOOR        # Lowest washr version the skills support
 │       ├── check/             # Deterministic check script
 │       └── references/
 │           ├── checklists/    # Canonical checklists, one per review area
@@ -100,13 +115,18 @@ pkgreview/
 │           ├── orgs/          # Registered organization profiles
 │           ├── standards.md   # Package-resident standards file
 │           └── recovery.md    # State failure modes and recovery paths
-├── fixtures/                  # Defective test package, scorecard, history fixture
+├── fixtures/                  # Defective test package, scorecard, history fixture,
+│                              # expected reports, check-script cases, throwaway script
+├── scripts/                   # release.sh, verify_release.sh, lint.sh, washr_drift.R
 ├── hooks/                     # Optional PreToolUse hook (docs/guardrails.md)
 ├── docs/
 │   ├── guidebook.md           # Contributor guidebook
 │   ├── checklist-reconciliation.md
 │   ├── guardrails.md
 │   └── roadmap-v1.1.md
+├── .github/workflows/         # gate (fixture gate, cases, lint), washr-drift, release
+├── .claude-plugin/            # Plugin manifests (version mirrors VERSION)
+├── NEWS.md                    # Release notes for non-checklist changes
 ├── CLAUDE.md                  # Guide for Claude sessions in THIS repo
 ├── README.md                  # This file
 └── pkgreview.Rproj            # RStudio project file
@@ -153,10 +173,13 @@ previously diverging checklist copies were merged is in
 `docs/checklist-reconciliation.md`.
 
 Checklist and template changes get a version bump
-(`skills/pkgreview-core/VERSION` plus a git tag); in-flight reviews finish
-on the version stamped into their first review issue. After any significant
-change, run the review against `fixtures/pkgreviewtest/` and confirm every
-planted defect in `fixtures/SCORECARD.md` is caught.
+(`skills/pkgreview-core/VERSION` plus a git tag through
+`scripts/release.sh`); in-flight reviews finish on the version stamped into
+their first review issue, and `/review-upgrade` moves a published package
+to a newer standard with one issue of changed items. CI runs the check
+script against `fixtures/pkgreviewtest/` on every push and diffs the
+report against `fixtures/expected/`, so every planted defect in
+`fixtures/SCORECARD.md` stays caught.
 
 ## Contributing
 

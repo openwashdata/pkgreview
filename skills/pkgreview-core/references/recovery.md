@@ -67,6 +67,11 @@ and the organization profile pinned the same way:
 `.../[stamp]/skills/pkgreview-core/references/orgs/[org].md`.
 Warn the user, and never mix two standard versions within one review.
 
+Note: an installed tooling version older than the newest release is not a
+review-state failure. `/review-package` compares the two before a review
+exists and stops; `/review-status` reports it. Update the install and
+rerun.
+
 ## 6. No version stamp found (review predates stamping)
 
 Symptom: the first review issue body has no "Review standard version" line.
@@ -149,3 +154,20 @@ recommends the path and stops, it never rewrites history on its own.
 Only after the history scan comes back clean does the package clear the
 PII floor. Record the remediation and the clean re-scan on the review
 issue.
+
+## 11. Two standard stamps in one package (upgraded package)
+
+Symptom: the package CLAUDE.md carries a `Standard version:` line that
+differs from the stamp in the first review issue. Since v1.6.0,
+`/review-upgrade` brings a published package to a newer standard through
+one `pkgreview-upgrade` issue and rewrites the standards file with the
+new version; the first review issue keeps its original stamp as history.
+
+Recovery: this is the expected state when an `Upgraded from: [stamp] on
+[date]` line sits under the stamps in CLAUDE.md and a closed
+`pkgreview-upgrade` issue with a merged PR exists. The current standard
+of the package is the last `Standard version:` line in CLAUDE.md, and
+that is the version later skills pin to. Without the `Upgraded from:`
+line or without the upgrade issue, someone edited the stamp by hand:
+restore the stamp from the first review issue and run `/review-upgrade`
+properly.

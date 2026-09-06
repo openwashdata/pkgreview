@@ -42,6 +42,14 @@ Do not refuse opaquely; for each problem name the matching failure mode and
 recovery path from
 `${CLAUDE_SKILL_DIR}/../pkgreview-core/references/recovery.md`.
 
+Upgrade path: when a `pkgreview-upgrade` issue exists
+(`gh issue list --label "pkgreview-upgrade" --state all --json number,state,title`),
+the four area issues belong to the original review and are closed; the
+upgrade issue must be CLOSED with a merged PR, or OPEN with a merged PR
+(the same post-merge state as above: close it and continue). An open
+upgrade issue without a merged PR blocks completion; name it. The final
+PR then carries the new stamp and an `Upgraded from:` line.
+
 Also verify each closed issue has a merged PR referencing it
 (`gh pr list --state merged --search "[issue-number]"` or the issue's
 timeline). A closed issue without a merged PR is failure mode 2: check
@@ -100,9 +108,11 @@ Title: `Complete package review for [package-name]`. Base: `main`, head:
 This PR completes the review of the [package-name] R data package
 following the pkgreview standards with the [org] organization profile.
 
-Review standard version: [stamp from the metadata issue body]
+Review standard version: [stamp from the metadata issue body, or from the upgrade issue when this PR completes an upgrade]
 
 Organization profile: [org stamp from the metadata issue body]
+
+[Upgrade only:] Upgraded from: [previous stamp] (issue #[upgrade issue])
 
 ## Completed Review Issues
 

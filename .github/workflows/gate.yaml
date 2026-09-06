@@ -1,0 +1,36 @@
+# Mechanical fixture gate, check-script case suite, and repository lint
+# (openwashdata/pkgreview#72). The gate diffs the check script's report on the
+# fixtures against fixtures/expected/; a changed FAIL, FLAG, or NOT RUN line
+# fails here until the expected report is updated in the same change.
+name: gate
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  fixture-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+      - name: Fixture gate against the expected reports
+        run: bash fixtures/run_gate.sh
+      - name: Check-script case suite
+        run: bash fixtures/run_cases.sh
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Repository lint
+        run: bash scripts/lint.sh
+      - name: Newest tag matches VERSION (main only)
+        if: github.ref == 'refs/heads/main'
+        run: LINT_CHECK_TAG=1 bash scripts/lint.sh
