@@ -117,7 +117,7 @@ pkgreview/
 │       ├── check/             # Deterministic check script
 │       └── references/
 │           ├── checklists/    # Canonical checklists, one per review area
-│           ├── templates/     # Issue body, PR body, _pkgdown.yml
+│           ├── templates/     # Issue body, PR body, _pkgdown.yml, release post
 │           ├── orgs/          # Registered organization profiles
 │           ├── standards.md   # Package-resident standards file
 │           └── recovery.md    # State failure modes and recovery paths

@@ -193,6 +193,17 @@ locally rebuilt site only adds toolchain churn to the diff
 directory, exclude it from every commit and leave any local rebuild
 uncommitted.
 
+After the last planned change, add one NEWS.md bullet for this review
+area under the `# [packagename] (development version)` heading and
+commit it on its own (`docs: NEWS for the [area] review`). The bullet
+says what the area changed for someone who uses the data, with the issue
+number in parentheses. When NEWS.md is missing, write it with that
+heading (not with `usethis::use_news_md()`, whose CRAN bullet does not
+apply); when the heading is missing, add it above the newest release
+section. The bullet belongs to every plan and needs no row of its own in
+the table. `/create-release` renames the heading at release time
+(openwashdata/pkgreview#55).
+
 Atomic commits, one logical change each; never batch the whole issue into
 one commit. Do not pause between changes: the plan was approved at
 CHECK-IN #1 and the check-in currency is the plan, not the individual

@@ -28,7 +28,8 @@ ships as Claude Code skills.
   with `${CLAUDE_SKILL_DIR}` paths:
   - `references/checklists/` - the canonical checklists, the single source
     of truth for the review standard
-  - `references/templates/` - issue body, PR body, standard `_pkgdown.yml`
+  - `references/templates/` - issue body, PR body, standard `_pkgdown.yml`,
+    release post outline
   - `references/orgs/` - registered organization profiles, one file per
     org; the single source of org-specific values (pages domain,
     analytics, citation tooling, keywords, Zenodo community). Reviewing a
