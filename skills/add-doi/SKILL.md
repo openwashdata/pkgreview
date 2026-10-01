@@ -22,7 +22,7 @@ DOI; without it the reviewer has to work through the steps by hand. It is
 also the repair path for packages released before DOI integration existed.
 
 Prerequisites: the GitHub release exists, you are on `main`, no
-uncommitted changes, R with `washr` 1.1.0 or newer installed.
+uncommitted changes, R with `washr` 1.2.0 or newer installed.
 
 ## Step 1: Validate
 

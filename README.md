@@ -75,9 +75,10 @@ Each review addresses 4 key areas:
 ## Requirements
 
 - R and RStudio
-- R packages on the reviewer's machine: `washr` 1.1.0 or newer (keeps
-  DESCRIPTION, CITATION.cff, and inst/CITATION in sync and owns the site
-  metadata; packages in the registered orgs are scaffolded with it), plus
+- R packages on the reviewer's machine: `washr` 1.2.0 or newer (keeps
+  DESCRIPTION, CITATION.cff, and inst/CITATION in sync, owns the site
+  metadata, and decides the metadata, docs, and tests lines of the check
+  script; packages in the registered orgs are scaffolded with it), plus
   `desc`, `devtools`, `pkgdown`, and `usethis` for checks, site previews,
   and releases
 - GitHub CLI (`gh`)
@@ -90,7 +91,8 @@ and checked weekly by CI):
 | pkgreview | washr |
 |-----------|-------|
 | 1.0.0 to 1.4.0 | 1.0.1, with the caveats the skills carried |
-| 1.5.0 and later | >= 1.1.0 |
+| 1.5.0 to 1.6.1 | >= 1.1.0 |
+| 1.7.0 and later | >= 1.2.0 (the check script calls `washr::check_publication_readiness()`) |
 
 ## Repository Structure
 

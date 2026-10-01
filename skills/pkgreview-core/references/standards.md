@@ -78,7 +78,7 @@ as optional follow-ups, and never let them block publication.
 - After version or author changes, run `washr::update_citation()` so
   DESCRIPTION, CITATION.cff, and inst/CITATION stay in sync. It keeps a
   DOI already on file and owns the DOI badge in README.Rmd; do not edit
-  the badge by hand. washr 1.1.0 or newer is the floor for these calls.
+  the badge by hand. washr 1.2.0 or newer is the floor for these calls.
 - Raw data stays in `data-raw/`, processed `.rda` data in `data/`, and
   CSV/XLSX exports in `inst/extdata/`.
 
