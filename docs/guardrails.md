@@ -84,6 +84,44 @@ the current plan for public repositories. As of the same date, neither
 layer 2 nor layer 3 is deployed by maintainer decision (issue #8);
 enforcement stands on layer 1.
 
+## Unattended mode (since 1.7.0)
+
+`/review-issue [issue-number] --unattended` and
+`/create-next-issue --unattended` (issue #69, Option B) take two human
+actions out of each review issue: the plan approval at CHECK-IN #1 and
+the merge of the per-issue PR into `dev`. The maintainer still types one
+command per skill run. The layers hold as follows:
+
+- Layer 1: the unattended path is an explicit branch in the two SKILL.md
+  bodies, at the point of action (Steps 1b, 2, 7b, and 8 of
+  `review-issue`; Steps 2 and 4 of `create-next-issue`). No stop was
+  removed. Each run still handles one issue and ends there, and
+  `disable-model-invocation: true` still keeps Claude from chaining
+  skills.
+- Layer 2: the hook blocks `gh pr create` against `main` in both modes.
+  The unattended merge is a `gh pr merge` on a PR whose base the skill
+  has verified to be `dev`; the final dev-to-main PR is never merged by
+  a skill.
+- Layer 3: an unattended merge waits for the R-CMD-check run of the PR
+  and refuses when there is none, when a check failed, or when a
+  required item is unchecked. That is a prompt-level rule. Making
+  R-CMD-check a required status check on `dev` (classic branch
+  protection, one setting per repository, set by the maintainer) turns
+  it into a mechanical one.
+
+Five things stay with a human in both modes, and the unattended branch
+of `review-issue` lists them at Step 1b: a PII or history finding stops
+the run; the PII item is checked only against the recorded intake
+outcome and, for household- or person-level data, a named human sign-off
+comment; variable descriptions are written or confirmed by a human and
+never by the unattended run; a required item is checked only on the
+evidence of a command run in the session; repository settings, the
+Pages setting, and Zenodo stay with the maintainer.
+
+The rollout gate below covers unattended mode as well: one PR merged
+with an unchecked required item, or one description written by an
+unattended run, halts its use until enforcement is fixed.
+
 ## Rollout gate
 
 If Claude violates a STOP or a check-in even once during the first real

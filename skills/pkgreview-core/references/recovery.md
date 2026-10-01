@@ -171,3 +171,21 @@ that is the version later skills pin to. Without the `Upgraded from:`
 line or without the upgrade issue, someone edited the stamp by hand:
 restore the stamp from the first review issue and run `/review-upgrade`
 properly.
+
+## 12. Unattended run ended without a merge
+
+Symptom: `/review-issue [issue-number] --unattended` opened the PR
+against `dev` and stopped with the attended message plus one line per
+reason: a failed or missing R-CMD-check run, an unchecked required item
+(a pending named sign-off, a description that a human has to write, a
+check marked NOT RUN), or a refused merge command.
+
+This is not corruption. Unattended mode merges only when the checks are
+green and every required item is checked; anything else falls back to
+the attended handover for this one issue.
+
+Recovery: resolve what the handover names (post the sign-off comment,
+write the descriptions and push them to the PR branch, fix the failing
+check), review and merge the PR into `dev` by hand, then run
+`/create-next-issue` (with `--unattended` to keep the next issue in
+unattended mode).

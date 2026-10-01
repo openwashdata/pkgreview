@@ -53,8 +53,8 @@ they run only when you type them, never on the model's own initiative.
 |---------|---------|-------|
 | `/review-package` | Start package review | `/review-package [package-name]` |
 | `/review-status` | Check review progress, surface state anomalies | `/review-status` |
-| `/review-issue [n]` | Work on a review issue (actual issue number) | `/review-issue 42` |
-| `/create-next-issue` | Create next review issue | `/create-next-issue` |
+| `/review-issue [n]` | Work on a review issue (actual issue number) | `/review-issue 42` or `/review-issue 42 --unattended` |
+| `/create-next-issue` | Create next review issue | `/create-next-issue` or `/create-next-issue --unattended` |
 | `/review-complete` | Create final PR to main | `/review-complete` |
 | `/review-upgrade` | Bring a reviewed package to the installed standard with one issue of changed items | `/review-upgrade` |
 | `/create-release` | Create a new release | `/create-release [version]` |
@@ -62,6 +62,12 @@ they run only when you type them, never on the model's own initiative.
 
 PR creation for an issue happens inside `/review-issue` (step 7); there is
 no separate `/review-pr` anymore.
+
+With `--unattended`, `/review-issue` posts its plan on the issue instead
+of waiting for approval and merges the PR into `dev` itself, but only
+when the R-CMD-check run is green and every required item is checked.
+Personal data findings, the PII sign-off, and variable descriptions stay
+with a human in both modes (`docs/guardrails.md`).
 
 ## Review Issues
 
