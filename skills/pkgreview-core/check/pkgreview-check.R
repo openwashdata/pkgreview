@@ -105,7 +105,25 @@ add <- function(area, tier, status, check, detail = "") {
 
 path <- function(...) file.path(pkg, ...)
 has <- function(...) file.exists(path(...))
-read_lines_if <- function(...) if (has(...)) readLines(path(...), warn = FALSE) else character()
+
+# Invalid UTF-8 (openwashdata/pkgreview#86): a string whose bytes are not
+# valid UTF-8 and that is not declared latin1 stops the regex and case
+# functions below ("input string N is invalid"), so no report was written.
+# utf8_safe() replaces each invalid byte with "?" in the working copy the
+# scans read; the defect itself is counted from the original values and
+# reported in the data section. Strings declared latin1 (fixture defect
+# D3) translate cleanly and stay as they are.
+utf8_invalid <- function(x) !is.na(x) & Encoding(x) != "latin1" & !validUTF8(x)
+utf8_safe <- function(x) {
+  bad <- utf8_invalid(x)
+  if (any(bad)) {
+    fixed <- iconv(x[bad], "UTF-8", "UTF-8", sub = "?")
+    fixed[is.na(fixed)] <- "?"
+    x[bad] <- fixed
+  }
+  x
+}
+read_lines_if <- function(...) if (has(...)) utf8_safe(readLines(path(...), warn = FALSE)) else character()
 
 # ---------------------------------------------------------------------------
 # Load package data
@@ -120,6 +138,24 @@ for (f in rda_files) {
   e <- new.env()
   ok <- tryCatch({ load(path("data", f), envir = e); TRUE }, error = function(err) FALSE)
   if (ok) for (nm in ls(e)) datasets[[nm]] <- get(nm, envir = e)
+}
+
+# Count the invalid UTF-8 values per character column, then hand the scans
+# a copy with the invalid bytes replaced (#86).
+invalid_utf8 <- list()
+for (nm in names(datasets)) {
+  df <- datasets[[nm]]
+  n_bad <- integer()
+  if (is.data.frame(df)) {
+    for (col in names(df)) {
+      x <- df[[col]]
+      if (!is.character(x)) next
+      k <- sum(utf8_invalid(x))
+      if (k > 0) { n_bad[col] <- k; df[[col]] <- utf8_safe(x) }
+    }
+    datasets[[nm]] <- df
+  }
+  invalid_utf8[[nm]] <- n_bad
 }
 
 # ---------------------------------------------------------------------------
@@ -227,6 +263,9 @@ if (!file.exists(dict_path)) {
   add("data", "required", "FAIL", "data-raw/dictionary.csv present", "file missing")
 } else {
   dict <- read.csv(dict_path, stringsAsFactors = FALSE)
+  # Invalid bytes in the dictionary are reported by the schema line below
+  # from the raw file; the description and type checks read a safe copy (#86).
+  dict[] <- lapply(dict, function(x) if (is.character(x)) utf8_safe(x) else x)
   all_vars <- unique(unlist(lapply(datasets, names)))
   missing_vars <- setdiff(all_vars, dict$variable_name)
   add("data", "required",
@@ -248,7 +287,7 @@ if (!file.exists(dict_path)) {
   has_bom <- length(head_bytes) == 3L && identical(as.integer(head_bytes), c(0xEFL, 0xBBL, 0xBFL))
   dict_lines <- readLines(dict_path, warn = FALSE)
   bad_utf8 <- !all(validUTF8(dict_lines))
-  header <- if (length(dict_lines)) sub("^\ufeff", "", dict_lines[1]) else ""
+  header <- if (length(dict_lines)) sub("^\ufeff", "", utf8_safe(dict_lines[1])) else ""
   cols <- tryCatch(scan(text = header, what = "", sep = ",", quiet = TRUE, strip.white = FALSE),
                    error = function(e) character())
   types <- if ("variable_type" %in% names(dict)) as.character(dict$variable_type) else character()
@@ -356,10 +395,13 @@ if (!is_repo) {
         blob <- system2("git", c("-C", shQuote(pkg), "show",
                                  paste0(rev, ":", p)),
                         stdout = TRUE, stderr = FALSE)
+        # A header with invalid UTF-8 bytes would raise a warning here and
+        # end the scan of this file with no hit; read a safe copy (#86).
+        head1 <- if (length(blob)) utf8_safe(blob[1]) else ""
         if (length(blob) &&
-            (grepl(pii_name_re, blob[1], ignore.case = TRUE) ||
+            (grepl(pii_name_re, head1, ignore.case = TRUE) ||
              any(grepl("(^|,)(lat|latitude|lon|long|longitude|gps)($|,)",
-                       blob[1], ignore.case = TRUE))))
+                       head1, ignore.case = TRUE))))
           { hit <- TRUE; break }
       }
       hit
@@ -399,12 +441,25 @@ for (nm in names(datasets)) {
   enc_cols <- character()
   for (col in names(df)) {
     x <- df[[col]]
-    if (is.character(x) && (any(Encoding(x) == "latin1") || !all(validUTF8(x[!is.na(x)]))))
+    if (is.character(x) && (any(Encoding(x) == "latin1") || !all(validUTF8(x[!is.na(x)])) ||
+                            col %in% names(invalid_utf8[[nm]])))
       enc_cols <- c(enc_cols, col)
   }
   add("data", "advisory", if (length(enc_cols) == 0) "PASS" else "FAIL",
       lab("All text data encoded in UTF-8"),
       if (length(enc_cols)) paste("non-UTF-8:", paste(enc_cols, collapse = ", ")) else "")
+
+  # Invalid UTF-8 (#86): values whose bytes are not valid UTF-8 and that
+  # carry no latin1 declaration, counted from the data as loaded. This is
+  # the case that used to stop the script; the other lines of this report
+  # read a copy with the invalid bytes replaced by "?".
+  inv <- invalid_utf8[[nm]]
+  add("data", "advisory", if (length(inv) == 0) "PASS" else "FAIL",
+      lab("No invalid UTF-8 strings in text data"),
+      if (length(inv))
+        sprintf("%s; the other lines of this report read a copy with the invalid bytes replaced by \"?\"",
+                paste(sprintf("%s (%d row(s))", names(inv), inv), collapse = ", "))
+      else "")
 
   # Date columns stored as Date class
   date_cols <- names(df)[grepl("date", names(df), ignore.case = TRUE)]
