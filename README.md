@@ -59,6 +59,7 @@ they run only when you type them, never on the model's own initiative.
 | `/review-upgrade` | Bring a reviewed package to the installed standard with one issue of changed items | `/review-upgrade` |
 | `/create-release` | Create a new release | `/create-release [version]` |
 | `/add-doi` | Integrate a Zenodo DOI after release (resume or repair path) | `/add-doi 10.5281/zenodo.XXXXXXX` |
+| `/washr` | Build or continue a data package with washr, before review: runs the washr steps in order and drafts the prose for you to confirm | `/washr` or `/washr [step]` |
 
 PR creation for an issue happens inside `/review-issue` (step 7); there is
 no separate `/review-pr` anymore.
@@ -105,6 +106,8 @@ pkgreview/
 │   ├── review-upgrade/
 │   ├── create-release/
 │   ├── add-doi/
+│   ├── washr/                 # Author-side skill: build a package with washr
+│   │   └── references/        # Writing conventions for descriptions, README, site
 │   └── pkgreview-core/        # Shared references (not a skill)
 │       ├── VERSION            # Review standard version
 │       ├── WASHR_FLOOR        # Lowest washr version the skills support

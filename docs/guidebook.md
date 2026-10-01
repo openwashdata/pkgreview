@@ -21,7 +21,7 @@ The check also covers your git history. A column you added in an earlier commit 
 
 ## 2. Scaffold the package with washr
 
-The [washr](https://github.com/openwashdata/washr) package sets up the whole structure, from the raw data folder to the website, and each function tells you what it created and what to do next. Follow the washr [Get started](https://openwashdata.github.io/washr/articles/washr.html) vignette for the steps in order; the narrative version with the reasoning behind each step is the [data publishing guide](https://global-health-engineering.github.io/ghedatapublishing/). Package names are lowercase, short, and descriptive of the data, e.g., `waterpointdata`.
+The [washr](https://github.com/openwashdata/washr) package sets up the whole structure, from the raw data folder to the website, and each function tells you what it created and what to do next. Follow the washr [Get started](https://openwashdata.github.io/washr/articles/washr.html) vignette for the steps in order; the narrative version with the reasoning behind each step is the [data publishing guide](https://global-health-engineering.github.io/ghedatapublishing/). Package names are lowercase, short, and descriptive of the data, e.g., `waterpointdata`. If you work with Claude Code and have the pkgreview skills installed, `/washr` runs the same steps with you: it calls the washr functions in order and drafts the descriptions and the README text for you to confirm. It needs washr 1.2.0 or newer, and it never replaces your own check of every description.
 
 ## 3. The publication floor
 

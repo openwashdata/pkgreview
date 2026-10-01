@@ -21,6 +21,15 @@ ships as Claude Code skills.
   behavioral guardrails (STOP after each PR, check-ins before commits, PRs
   only against `dev`) live in the SKILL.md bodies at the point of action;
   never move them into reference files.
+- `skills/washr/` - the author-side skill (openwashdata/washr#115): it
+  drives the washr R package through the publication workflow and drafts
+  the prose for the person to confirm. Its rules sit in the SKILL.md body
+  for the same reason. It ships no scripts: a step that needs code is a
+  function missing in washr. `references/` holds the writing conventions
+  (variable descriptions, keywords and coverage, README sections, the
+  pkgdown site); the review standard itself stays in
+  `pkgreview-core/references/checklists/` and is referenced by path.
+  SKILL.md states the minimum washr version it drives.
 - `skills/pkgreview-core/` - shared reference files, loaded by the skills
   with `${CLAUDE_SKILL_DIR}` paths:
   - `references/checklists/` - the canonical checklists, the single source
