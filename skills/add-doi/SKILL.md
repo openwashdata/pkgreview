@@ -1,6 +1,6 @@
 ---
 name: add-doi
-description: Integrate a Zenodo DOI into a reviewed package after release, covering citation files, site metadata, README badge verification, website deployment, and the dev sync. Standalone resume path when the DOI arrives after /create-release ended.
+description: Integrate a Zenodo DOI into a reviewed package after release, covering citation files, site metadata, README badge verification, website deployment, the dev sync, and the development version on dev. Standalone resume path when the DOI arrives after /create-release ended.
 disable-model-invocation: true
 argument-hint: "[doi]"
 ---
@@ -140,7 +140,7 @@ edits stay manual; nothing here is scripted):
 
 Report every result faithfully.
 
-## Step 9: Sync dev and stop
+## Step 9: Sync dev, set the development version, and stop
 
 `dev` is the standing integration branch and, in some packages, still the
 GitHub default branch; both must show the released citation
@@ -153,5 +153,33 @@ git push origin main:dev
 Right after a release this is a fast-forward. If it is rejected because
 `dev` moved ahead, merge instead:
 `git checkout dev && git pull && git merge main && git push origin dev && git checkout main`.
+
+Then start the next development cycle on `dev`
+(openwashdata/pkgreview#55). The order matters: sync first, then bump.
+
+```bash
+git checkout dev && git pull
+Rscript -e 'usethis::use_dev_version()'
+Rscript -e 'washr::update_citation(build = FALSE)'
+git add DESCRIPTION CITATION.cff inst/CITATION
+git add NEWS.md 2>/dev/null
+git commit -m "Increment version number to [x.y.z].9000"
+git push origin dev
+git checkout main
+```
+
+`use_dev_version()` sets `x.y.z.9000` in DESCRIPTION and puts a
+`# [packagename] (development version)` heading at the top of NEWS.md,
+where the next review or maintenance PRs add their bullets. The
+`update_citation()` call makes CITATION.cff and inst/CITATION follow, so
+the version line of the check script stays green on `dev`; it keeps the
+DOI on file. `main` keeps the released version and the tag, and `dev` is
+one commit ahead, which is its normal state. When the version on `dev`
+already has a fourth component, `use_dev_version()` changes nothing:
+skip the commit and the push.
+
+A release post is optional and stays with the maintainer; the outline
+for one is in
+`${CLAUDE_SKILL_DIR}/../pkgreview-core/references/templates/release-post.md`.
 
 Then stop.

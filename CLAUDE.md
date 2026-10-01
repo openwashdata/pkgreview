@@ -20,12 +20,16 @@ ships as Claude Code skills.
   `create-release`, `add-doi`), all with `disable-model-invocation: true`. The
   behavioral guardrails (STOP after each PR, check-ins before commits, PRs
   only against `dev`) live in the SKILL.md bodies at the point of action;
-  never move them into reference files.
+  never move them into reference files. `review-issue` and
+  `create-next-issue` take `--unattended` (#69): an explicit branch in
+  the same bodies that posts the plan and merges into `dev` on green
+  checks, never a removal of a stop (`docs/guardrails.md`).
 - `skills/pkgreview-core/` - shared reference files, loaded by the skills
   with `${CLAUDE_SKILL_DIR}` paths:
   - `references/checklists/` - the canonical checklists, the single source
     of truth for the review standard
-  - `references/templates/` - issue body, PR body, standard `_pkgdown.yml`
+  - `references/templates/` - issue body, PR body, standard `_pkgdown.yml`,
+    release post outline
   - `references/orgs/` - registered organization profiles, one file per
     org; the single source of org-specific values (pages domain,
     analytics, citation tooling, keywords, Zenodo community). Reviewing a
