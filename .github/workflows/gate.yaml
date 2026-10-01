@@ -21,8 +21,13 @@ jobs:
       # The check script takes its metadata, docs, and tests lines from
       # washr::check_publication_readiness() (openwashdata/pkgreview#87),
       # so washr at or above skills/pkgreview-core/WASHR_FLOOR is needed.
-      - name: Install washr from CRAN
-        run: Rscript -e 'install.packages("washr")'
+      # CRAN serves a washr below the floor until 1.2.0 is released there,
+      # so washr comes from the dev branch on GitHub. Back to
+      # install.packages("washr") once CRAN serves the floor.
+      - name: Install washr from GitHub
+        env:
+          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+        run: Rscript -e 'install.packages("pak"); pak::pak("openwashdata/washr@dev")'
       - name: Fixture gate against the expected reports
         run: bash fixtures/run_gate.sh
       - name: Check-script case suite

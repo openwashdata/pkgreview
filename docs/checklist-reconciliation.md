@@ -549,4 +549,5 @@ profile, and the deprecated `--analytics` path, so the D1 to D17 mapping
 (19 FAIL + 1 FLAG lines) and the D18 FLAG are unchanged.
 `fixtures/make_history_fixture.sh` writes an empty `NAMESPACE` next to
 DESCRIPTION, which changes no line. The gate workflow installs washr
-from CRAN before it runs the script.
+before it runs the script, from the `dev` branch on GitHub until CRAN
+serves 1.2.0.
