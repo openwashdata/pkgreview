@@ -52,6 +52,8 @@ Note on D18 and the fixture layout (issue #52): `fixtures/pkgreviewtest/` cannot
 
 Note on the v1.5.0 lines (washr 1.1.0 and owdata reconciliation, issues #56 to #68): the fixture DESCRIPTION carries `X-schema.org-keywords` (the same four keywords as CITATION.cff), `X-schema.org-spatialCoverage`, and `X-schema.org-temporalCoverage`, so the keywords, coverage, and dictionary-schema advisory lines PASS and the README export-link line PASSes on the existing `## Download` links. Three lines report NOT RUN against `pkgreviewtest/`, and each is a not-applicable report, not a finding: the git-history scan (subdirectory, see D18), the `docs/`-tracked line (no pkgdown workflow; the missing workflow is the reviewer's required Website item, not a script finding), and the R-CMD-check dev-trigger line (no workflow file; that gap is D5's presence finding). The 17-finding count and the D1 to D17 mapping are unchanged.
 
+Note on the v1.6.1 line (issue #86): the check script reports invalid UTF-8 strings (bytes that are not valid UTF-8 and carry no latin1 declaration) on a line of their own, next to the existing UTF-8 line. Against `pkgreviewtest/` that line PASSes, because the `region` strings of D3 are declared latin1 and translate cleanly, so D3 stays a one-line finding and the count of 19 FAIL + 1 FLAG lines is unchanged. The FAIL is exercised by the case `fixtures/cases/invalid-utf8/`, which plants undeclared Latin-1 bytes in a copy of the fixture (dataset, dictionary, processing script) and expects a complete report.
+
 ## How to use this scorecard
 
 Run the full review workflow against `fixtures/pkgreviewtest` after every significant change to the checklists in `skills/pkgreview-core/references/checklists/` or to the review skills and commands.

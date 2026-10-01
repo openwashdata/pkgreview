@@ -2,6 +2,15 @@
 
 One section per release. Skill, script, template, fixture, and process changes are recorded here; checklist wording changes are recorded in `docs/checklist-reconciliation.md` (repo rule 3), one row per item. Releases before 1.5.0 are described by their reconciliation sections and tag messages.
 
+# pkgreview 1.6.1
+
+Patch release for the check script (issue #86, found in the openwashdata sweep of 2026-09-23 and 2026-09-24). No checklist item changed.
+
+- Check script: a dataset, dictionary, or text file with invalid UTF-8 bytes no longer stops the script before the report is written. Strings whose bytes are not valid UTF-8 and that carry no latin1 declaration (Latin-1 text read without its encoding, as in gdho, wsabrazil, and washinvestments) are counted from the data as loaded, then replaced byte by byte with `?` in the copy the scans read (#86).
+- Check script: new advisory line per dataset, "No invalid UTF-8 strings in text data", with the affected columns and the number of rows in each. It maps to the existing data item "All text data is encoded in UTF-8; no encoding errors" and sits next to the existing UTF-8 line, which keeps naming every non-UTF-8 column, declared latin1 or not (#86).
+- Check script: text files (`README.md`, `CITATION.cff`, `_pkgdown.yml`, the workflow file, `data_processing.R`) are read through the same replacement, so a line with an invalid byte is matched like any other instead of being skipped with a warning; the header of a historical data file is read the same way in the git-history scan (#86).
+- Fixtures: case `fixtures/cases/invalid-utf8/` plants undeclared Latin-1 bytes in a copy of `pkgreviewtest` through `plant.R`, so no file with invalid bytes is tracked. The expected report for `pkgreviewtest` gains the one PASS line; the 19 FAIL + 1 FLAG mapping to D1 to D17 is unchanged (#86).
+
 # pkgreview 1.6.0
 
 Development workflow release (issues #72 to #80, filed 2026-09-06). No checklist item changed.
