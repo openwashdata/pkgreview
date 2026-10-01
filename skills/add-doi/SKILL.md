@@ -30,9 +30,10 @@ uncommitted changes, R with `washr` 1.2.0 or newer installed.
   `${CLAUDE_SKILL_DIR}/../pkgreview-core/WASHR_FLOOR`:
   `Rscript -e 'floor <- readLines("${CLAUDE_SKILL_DIR}/../pkgreview-core/WASHR_FLOOR"); stopifnot(packageVersion("washr") >= floor)'`.
   If it fails, stop and tell the user to run `install.packages("washr")`.
-  The steps below rely on 1.1.0 behavior (badge insertion and repair,
-  README rebuild, DOI kept on later runs) and must not be adapted to an
-  older washr.
+  The steps below rely on behavior older versions lack (badge insertion
+  and repair, README rebuild, DOI kept on later runs, `.zenodo.json`
+  written with the citation files) and must not be adapted to an older
+  washr.
 - `$ARGUMENTS` matches `10.XXXX/zenodo.NNNNNNN` (regex
   `^10\.\d{4,9}/zenodo\.\d+$`). If not, stop and ask for the DOI in that
   format.
@@ -60,7 +61,8 @@ site there. That local site is a preview only; the published site is
 deployed in Step 6.
 
 Verify DESCRIPTION, CITATION.cff, and inst/CITATION now agree on version,
-date, and DOI.
+date, and DOI. The same call rewrites `.zenodo.json`; it changes only
+when DESCRIPTION changed since the release commit.
 
 ## Step 3: Site metadata (conditional)
 
@@ -90,13 +92,13 @@ on openwashdata/washr, not something to patch around in this session.
 
 ```bash
 git add DESCRIPTION CITATION.cff inst/CITATION README.Rmd README.md
-git add .Rbuildignore pkgdown/templates/in-header.html 2>/dev/null
+git add .zenodo.json .Rbuildignore pkgdown/templates/in-header.html 2>/dev/null
 git commit -m "Add Zenodo DOI to package"
 git push origin main
 ```
 
-Add only the files listed (the second line covers the two that exist only
-in some packages); never `git add -A` here. `docs/` is not committed:
+Add only the files listed (the second line covers the ones that exist or
+change only in some packages); never `git add -A` here. `docs/` is not committed:
 reviewed packages deploy the site through the pkgdown workflow and keep
 the directory ignored.
 
@@ -161,7 +163,7 @@ Then start the next development cycle on `dev`
 git checkout dev && git pull
 Rscript -e 'usethis::use_dev_version()'
 Rscript -e 'washr::update_citation(build = FALSE)'
-git add DESCRIPTION CITATION.cff inst/CITATION
+git add DESCRIPTION CITATION.cff inst/CITATION .zenodo.json
 git add NEWS.md 2>/dev/null
 git commit -m "Increment version number to [x.y.z].9000"
 git push origin dev
@@ -171,7 +173,8 @@ git checkout main
 `use_dev_version()` sets `x.y.z.9000` in DESCRIPTION and puts a
 `# [packagename] (development version)` heading at the top of NEWS.md,
 where the next review or maintenance PRs add their bullets. The
-`update_citation()` call makes CITATION.cff and inst/CITATION follow, so
+`update_citation()` call makes CITATION.cff, inst/CITATION, and
+`.zenodo.json` follow, so
 the version line of the check script stays green on `dev`; it keeps the
 DOI on file. `main` keeps the released version and the tag, and `dev` is
 one commit ahead, which is its normal state. When the version on `dev`

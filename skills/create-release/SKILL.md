@@ -33,13 +33,14 @@ stop; nothing is written on a partial preflight.
   Rscript -e 'need <- c("desc", "usethis", "washr"); miss <- need[!vapply(need, requireNamespace, logical(1), quietly = TRUE)]; if (length(miss)) stop("not installed: ", paste(miss, collapse = ", "))'
   ```
   Otherwise: `install.packages()` for the packages named.
-- washr floor. The calls below depend on washr 1.1.0 or newer
-  (`update_citation(build = FALSE)` is new in 1.1.0, and the workarounds
-  older versions needed are gone from this skill):
+- washr floor. The calls below depend on washr 1.2.0 or newer
+  (`update_citation(build = FALSE)` writes `.zenodo.json` next to the
+  citation files since 1.2.0, and the workarounds older versions needed
+  are gone from this skill):
   ```bash
   Rscript -e 'floor <- readLines("${CLAUDE_SKILL_DIR}/../pkgreview-core/WASHR_FLOOR"); stopifnot(packageVersion("washr") >= floor)'
   ```
-  The floor is recorded once in `pkgreview-core/WASHR_FLOOR` (1.1.0 at
+  The floor is recorded once in `pkgreview-core/WASHR_FLOOR` (1.2.0 at
   this writing). Otherwise: `install.packages("washr")`, then rerun the
   skill. Do not adapt the steps below to an older washr.
 - Organization profile. Derive the org from `git remote get-url origin`,
@@ -93,7 +94,10 @@ main` now.
    washr::update_citation(build = FALSE)
    ```
    DESCRIPTION, CITATION.cff, and inst/CITATION now agree on version and
-   date. No `doi` argument: a run without one keeps any DOI already on
+   date, and `.zenodo.json` carries the same version. Zenodo reads that
+   file from the release tag and takes the resource type (Dataset), the
+   community, the creators, and the license from it, so it has to be in
+   the release commit. No `doi` argument: a run without one keeps any DOI already on
    file, and before the first release there is none. `build = FALSE`
    skips the README and site rebuilds, which have no place in the
    version-bump commit.
@@ -124,8 +128,9 @@ already exists:
 ## Step 4: Commit, release, and sync dev
 
 - Commit what Steps 2 and 3 changed; `git status` lists them:
-  DESCRIPTION, CITATION.cff, inst/CITATION, NEWS.md, and `.Rbuildignore`
-  when `update_citation()` added `CITATION.cff` to it. Message:
+  DESCRIPTION, CITATION.cff, inst/CITATION, `.zenodo.json`, NEWS.md, and
+  `.Rbuildignore` when `update_citation()` added `CITATION.cff` or
+  `.zenodo.json` to it. Message:
   `Release version $ARGUMENTS`. Push to `main`.
 - `gh release create v$ARGUMENTS --title "v$ARGUMENTS" --notes "[NEWS.md
   section for this version]"`
