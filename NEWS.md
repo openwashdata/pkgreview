@@ -2,6 +2,19 @@
 
 One section per release. Skill, script, template, fixture, and process changes are recorded here; checklist wording changes are recorded in `docs/checklist-reconciliation.md` (repo rule 3), one row per item. Releases before 1.5.0 are described by their reconciliation sections and tag messages.
 
+# pkgreview 1.7.0
+
+The release that pairs with washr 1.2.0. The check script takes its metadata, docs, and tests lines from washr, the plugin gains the washr skill, and the review skills gain the unattended mode and the release practice items. No checklist item changed.
+
+- Check script: the metadata, docs, and tests lines come from `washr::check_publication_readiness()`; line texts, tiers, and both expected reports are unchanged. pkgreview keeps the data-quality checks, the dictionary schema check, the PII signal scan, and the git-history scan (#66, #87).
+- The check script needs washr 1.2.0 or newer and stops with a message otherwise; the floor is 1.2.0 throughout (`WASHR_FLOOR`, both org profiles, the skill preflights, the README table); the gate workflow installs washr (#87).
+- The script stops on a directory without DESCRIPTION and NAMESPACE; the history fixture gains an empty NAMESPACE (#87).
+- New skill `/washr`: builds or continues a data package with washr 1.2.0 or newer, in vignette order. It runs each washr function, reads its output, drafts descriptions, titles, and README text for the person to confirm, and fixes until `check_publication_readiness()` has no failing item. Rules in the skill body; writing conventions under `skills/washr/references/`; no scripts (#88, openwashdata/washr#115).
+- `/review-issue` and `/create-next-issue` take `--unattended`: the plan is posted on the issue and the PR is merged into `dev` on a green R-CMD-check run with every required item checked; no stop removed (#69).
+- `/create-release` runs a preflight with a remedy per check; NEWS.md is maintained per review PR and renamed at release; `dev` gets the development version after the DOI sync, in `/add-doi` Step 9; release post outline under `references/templates/` (#55).
+- `/create-release` and `/add-doi` commit `.zenodo.json`, which washr 1.2.0 writes with the citation files. Zenodo reads it from the release tag for the resource type, the community, the creators, and the license (openwashdata/washr#56).
+- Dictionary round trip (#37, Part 2): passes with `washr::update_dictionary()`; descriptions and extra columns such as `unit` and `allowed_values` survive a data change. Recorded in `docs/roadmap-v1.1.md`; #38 and #39 are unblocked.
+
 # pkgreview 1.6.1
 
 Patch release for the check script (issue #86, found in the openwashdata sweep of 2026-09-23 and 2026-09-24). No checklist item changed.
