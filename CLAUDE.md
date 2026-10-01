@@ -94,6 +94,11 @@ ships as Claude Code skills.
 - The release PR body lists `Closes #N` for every issue it lands (PRs
   here target `main`, so the keyword fires); no per-issue status or
   closing comments
+- When the implementation deviates from what the issue says (a
+  different mechanism, a value the issue did not name, a task left
+  out), record the deviation and its reason in one comment on that
+  issue before the PR opens; the issue stays the record of what was
+  decided, the comment of what was done differently
 - After the merge: `scripts/release.sh [version]` from `main`
 - No emojis and no em dashes in anything committed to this repo;
   `scripts/lint.sh` enforces this and the skill path references

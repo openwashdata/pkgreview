@@ -1,0 +1,6 @@
+- [FAIL] (advisory) No invalid UTF-8 strings in text data [pkgreviewtest]: region (3 row(s)), waterSource (2 row(s)); the other lines of this report read a copy with the invalid bytes replaced by "?"
+- [FAIL] (advisory) All text data encoded in UTF-8 [pkgreviewtest]: non-UTF-8: region, waterSource
+- [FAIL] (advisory) Dictionary schema: five washr columns, UTF-8 without BOM, single-class variable_type: non-UTF-8 bytes in the file
+- [FAIL] (required) Dictionary descriptions present (no empty or placeholder): defective: status, users_count
+- [FLAG] (required) PII signal scan (never auto-certified; human sign-off required): suspicious columns: owner_phone
+- [FAIL] (advisory) No commented-out code in data_processing.R: 6 line(s): 27, 28, 29, 35, 36, 54

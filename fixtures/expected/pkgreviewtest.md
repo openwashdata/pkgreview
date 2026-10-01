@@ -3,7 +3,7 @@
 Package: `(normalized)`  
 Standard: mechanical subset of the pkgreview checklists  
 Organization profile: --org=openwashdata (openwashdata.md)  
-Result: 17 PASS, 19 FAIL (4 required-tier), 1 FLAG, 3 NOT RUN
+Result: 18 PASS, 19 FAIL (4 required-tier), 1 FLAG, 3 NOT RUN
 
 ## metadata
 
@@ -28,6 +28,7 @@ Result: 17 PASS, 19 FAIL (4 required-tier), 1 FLAG, 3 NOT RUN
 - [NOT RUN] (required) Git-history PII signal scan (text data files): package is a subdirectory of a larger git repository; the visible history is the enclosing repo's, not the package's. Run the scan against the package's own repository
 - [FAIL] (advisory) Missing values coded as NA, no sentinels [pkgreviewtest]: sentinel values in: users_count (4)
 - [FAIL] (advisory) All text data encoded in UTF-8 [pkgreviewtest]: non-UTF-8: region
+- [PASS] (advisory) No invalid UTF-8 strings in text data [pkgreviewtest]
 - [FAIL] (advisory) Date variables stored as Date class [pkgreviewtest]: not Date class: installation_date
 - [FAIL] (advisory) Categorical values consistent (no case-only variants) [pkgreviewtest]: status (5 variants, 2 after case-folding)
 - [FAIL] (advisory) Unique identifier `id` is unique [pkgreviewtest]: 1 duplicated value(s): WP-005
