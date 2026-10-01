@@ -368,6 +368,15 @@ Labels: `spike`. Milestone: v1.3.0.
       that dictionary schema extensions are off the table and record the
       decision. No v1.3 schema work proceeds without this passing.
 
+Result (recorded on #37). Part 1, 2026-07-23, washr 1.0.1: fail.
+`fill_dictionary()` rebuilt the five columns and wiped the extra columns
+and the descriptions. Part 2, 2026-10-01, washr 1.2.0 (development
+build 1.1.1.9000): pass. `update_dictionary()` keeps `unit`,
+`allowed_values`, and every description through an unchanged rerun and
+through a data change (one variable added, one removed, one retyped),
+and `fill_dictionary()` is no longer exported. The spike no longer
+blocks 3.2 and 3.3.
+
 ### Issue 3.2: Light contract-style data test template (conditional)
 
 Labels: `enhancement`, `templates`. Milestone: v1.3.0. Depends on 3.1.
