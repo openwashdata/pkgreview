@@ -1,6 +1,6 @@
 ---
 name: add-doi
-description: Integrate a Zenodo DOI into a reviewed package after release, covering citation files, site metadata, README badge verification, website deployment, and the dev sync. Standalone resume path when the DOI arrives after /create-release ended.
+description: Integrate a Zenodo DOI into a reviewed package after release, covering citation files, site metadata, README badge verification, website deployment, the dev sync, and the development version on dev. Standalone resume path when the DOI arrives after /create-release ended.
 disable-model-invocation: true
 argument-hint: "[doi]"
 ---
@@ -22,7 +22,7 @@ DOI; without it the reviewer has to work through the steps by hand. It is
 also the repair path for packages released before DOI integration existed.
 
 Prerequisites: the GitHub release exists, you are on `main`, no
-uncommitted changes, R with `washr` 1.1.0 or newer installed.
+uncommitted changes, R with `washr` 1.2.0 or newer installed.
 
 ## Step 1: Validate
 
@@ -30,9 +30,10 @@ uncommitted changes, R with `washr` 1.1.0 or newer installed.
   `${CLAUDE_SKILL_DIR}/../pkgreview-core/WASHR_FLOOR`:
   `Rscript -e 'floor <- readLines("${CLAUDE_SKILL_DIR}/../pkgreview-core/WASHR_FLOOR"); stopifnot(packageVersion("washr") >= floor)'`.
   If it fails, stop and tell the user to run `install.packages("washr")`.
-  The steps below rely on 1.1.0 behavior (badge insertion and repair,
-  README rebuild, DOI kept on later runs) and must not be adapted to an
-  older washr.
+  The steps below rely on behavior older versions lack (badge insertion
+  and repair, README rebuild, DOI kept on later runs, `.zenodo.json`
+  written with the citation files) and must not be adapted to an older
+  washr.
 - `$ARGUMENTS` matches `10.XXXX/zenodo.NNNNNNN` (regex
   `^10\.\d{4,9}/zenodo\.\d+$`). If not, stop and ask for the DOI in that
   format.
@@ -60,7 +61,8 @@ site there. That local site is a preview only; the published site is
 deployed in Step 6.
 
 Verify DESCRIPTION, CITATION.cff, and inst/CITATION now agree on version,
-date, and DOI.
+date, and DOI. The same call rewrites `.zenodo.json`; it changes only
+when DESCRIPTION changed since the release commit.
 
 ## Step 3: Site metadata (conditional)
 
@@ -90,13 +92,13 @@ on openwashdata/washr, not something to patch around in this session.
 
 ```bash
 git add DESCRIPTION CITATION.cff inst/CITATION README.Rmd README.md
-git add .Rbuildignore pkgdown/templates/in-header.html 2>/dev/null
+git add .zenodo.json .Rbuildignore pkgdown/templates/in-header.html 2>/dev/null
 git commit -m "Add Zenodo DOI to package"
 git push origin main
 ```
 
-Add only the files listed (the second line covers the two that exist only
-in some packages); never `git add -A` here. `docs/` is not committed:
+Add only the files listed (the second line covers the ones that exist or
+change only in some packages); never `git add -A` here. `docs/` is not committed:
 reviewed packages deploy the site through the pkgdown workflow and keep
 the directory ignored.
 
@@ -140,7 +142,7 @@ edits stay manual; nothing here is scripted):
 
 Report every result faithfully.
 
-## Step 9: Sync dev and stop
+## Step 9: Sync dev, set the development version, and stop
 
 `dev` is the standing integration branch and, in some packages, still the
 GitHub default branch; both must show the released citation
@@ -153,5 +155,34 @@ git push origin main:dev
 Right after a release this is a fast-forward. If it is rejected because
 `dev` moved ahead, merge instead:
 `git checkout dev && git pull && git merge main && git push origin dev && git checkout main`.
+
+Then start the next development cycle on `dev`
+(openwashdata/pkgreview#55). The order matters: sync first, then bump.
+
+```bash
+git checkout dev && git pull
+Rscript -e 'usethis::use_dev_version()'
+Rscript -e 'washr::update_citation(build = FALSE)'
+git add DESCRIPTION CITATION.cff inst/CITATION .zenodo.json
+git add NEWS.md 2>/dev/null
+git commit -m "Increment version number to [x.y.z].9000"
+git push origin dev
+git checkout main
+```
+
+`use_dev_version()` sets `x.y.z.9000` in DESCRIPTION and puts a
+`# [packagename] (development version)` heading at the top of NEWS.md,
+where the next review or maintenance PRs add their bullets. The
+`update_citation()` call makes CITATION.cff, inst/CITATION, and
+`.zenodo.json` follow, so
+the version line of the check script stays green on `dev`; it keeps the
+DOI on file. `main` keeps the released version and the tag, and `dev` is
+one commit ahead, which is its normal state. When the version on `dev`
+already has a fourth component, `use_dev_version()` changes nothing:
+skip the commit and the push.
+
+A release post is optional and stays with the maintainer; the outline
+for one is in
+`${CLAUDE_SKILL_DIR}/../pkgreview-core/references/templates/release-post.md`.
 
 Then stop.

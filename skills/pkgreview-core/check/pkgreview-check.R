@@ -26,19 +26,26 @@
 # item is reported as FLAG only: the standard forbids any agent or
 # script from certifying it (premortem constraint P6).
 #
-# Base R only. The per-package cross-field pairs live in
+# Base R plus washr. The per-package cross-field pairs live in
 # CROSS_FIELD_PAIRS below; extend the list for packages with known
 # part/whole or date-order relations.
 #
-# Scope (openwashdata/pkgreview#66, decided 2026-09-05): the metadata,
-# docs, and tests sections below are FROZEN. They receive no new lines
-# and are slated for replacement by one call to
-# washr::check_publication_readiness() once openwashdata/washr#82 ships;
-# the scorecard mapping for those lines moves with them. pkgreview keeps
-# what washr will never own: the data-quality checks (sentinels,
-# encoding, dates, categories, duplicates, ranges, coordinates,
-# cross-field pairs, dictionary schema), the PII signal scan, and the
-# git-history scan.
+# Scope (openwashdata/pkgreview#66, decided 2026-09-05; swapped in #87):
+# the metadata, docs, and tests lines are decided by one call to
+# washr::check_publication_readiness() (openwashdata/washr#82), which
+# returns one row per item with a stable id, a status (pass, fail, na) and
+# a detail string. pkgreview keeps what is its own knowledge: which rows
+# become report lines, in which area and at which tier, under which line
+# text, and whether an undecidable row prints NOT RUN or nothing (the
+# WASHR_LINES table below). pkgreview also keeps what washr will never
+# own: the data-quality checks (sentinels, encoding, dates, categories,
+# duplicates, ranges, coordinates, cross-field pairs, dictionary schema),
+# the PII signal scan, and the git-history scan.
+#
+# washr is therefore a dependency of this script. The lowest supported
+# version is recorded once, in the WASHR_FLOOR file one level above this
+# script; a copy of the script that was fetched on its own falls back to
+# the WASHR_FLOOR_FALLBACK value below.
 
 args <- commandArgs(trailingOnly = TRUE)
 flags <- grep("^--", args, value = TRUE)
@@ -87,6 +94,27 @@ if (length(org_file) || length(org_arg)) {
   analytics <- if (identical(tolower(profile$analytics), "plausible")) "plausible" else "none"
 }
 pval <- function(k) if (!is.null(profile) && !is.null(profile[[k]]) && length(profile[[k]])) profile[[k]] else NULL
+
+# washr requirement: installed, exporting check_publication_readiness(),
+# and at or above the recorded floor. A development build of washr (a
+# four-part version such as 1.1.1.9000) that already exports the function
+# is accepted, so this script can be run against washr's dev branch ahead
+# of the release that carries the floor.
+WASHR_FLOOR_FALLBACK <- "1.2.0"
+floor_file <- file.path(script_dir, "..", "WASHR_FLOOR")
+washr_floor <- if (file.exists(floor_file)) trimws(readLines(floor_file, warn = FALSE)[1]) else WASHR_FLOOR_FALLBACK
+if (!requireNamespace("washr", quietly = TRUE))
+  stop("washr is not installed. This script needs washr >= ", washr_floor,
+       " for the metadata, docs, and tests lines: install.packages(\"washr\")")
+washr_version <- utils::packageVersion("washr")
+washr_dev_build <- length(unlist(washr_version)) > 3L
+if (!"check_publication_readiness" %in% getNamespaceExports("washr"))
+  stop("washr ", as.character(washr_version), " has no check_publication_readiness(), which decides the",
+       " metadata, docs, and tests lines. This script needs washr >= ", washr_floor,
+       ": install.packages(\"washr\")")
+if (washr_version < washr_floor && !washr_dev_build)
+  stop("washr ", as.character(washr_version), " is older than the floor ", washr_floor,
+       ": install.packages(\"washr\")")
 
 CROSS_FIELD_PAIRS <- list(
   c(part = "women_users", whole = "users_count")
@@ -159,83 +187,135 @@ for (nm in names(datasets)) {
 }
 
 # ---------------------------------------------------------------------------
-# Area 1: metadata
+# washr readiness rows (openwashdata/pkgreview#87)
 # ---------------------------------------------------------------------------
 
-lic <- dfield("License")
-add("metadata", "required",
-    if (!is.na(lic) && grepl("CC BY 4.0", lic, fixed = TRUE)) "PASS" else "FAIL",
-    "License: CC BY 4.0", paste("License field:", ifelse(is.na(lic), "missing", lic)))
+# washr::check_publication_readiness() reads the package root itself and
+# stops on a directory that is not one, so the two files it needs are
+# checked here with a message that names them.
+if (!has("DESCRIPTION") || !has("NAMESPACE"))
+  stop("Not the root of an R package (DESCRIPTION and NAMESPACE are both required): ", pkg)
 
-cff <- read_lines_if("CITATION.cff")
-if (length(cff) == 0) {
-  add("metadata", "required", "FAIL", "CITATION.cff present and valid", "file missing")
-} else {
-  add("metadata", "required", "PASS", "CITATION.cff present", "")
-  v_desc <- dfield("Version")
-  v_cff <- sub("^version:\\s*['\"]?([^'\"]*)['\"]?\\s*$", "\\1", grep("^version:", cff, value = TRUE)[1])
-  add("metadata", "required",
-      if (!is.na(v_desc) && length(v_cff) == 1 && identical(v_desc, v_cff)) "PASS" else "FAIL",
-      "CITATION.cff version matches DESCRIPTION",
-      sprintf("DESCRIPTION %s vs CITATION.cff %s", v_desc, v_cff))
-  placeholder_auth <- any(grepl("Firstname|Lastname", cff)) ||
-    any(grepl("Firstname|Lastname", read_lines_if("inst", "CITATION")))
-  add("metadata", "required",
-      if (placeholder_auth) "FAIL" else "PASS",
-      "Citation files carry real authors, not template placeholders",
-      if (placeholder_auth) "\"Firstname Lastname\" found in citation files" else "")
+# The org profile goes to washr in its own keys. A profile is always
+# passed: without one, washr holds the package to the Config/washr fields
+# of its own DESCRIPTION, and a review holds it to the organization.
+readiness_profile <- list(analytics = analytics)
+for (k in c("site_url_pattern", "funding_text", "keywords_required", "brand"))
+  if (!is.null(pval(k))) readiness_profile[[k]] <- pval(k)
+readiness <- local({
+  old <- options(washr.quiet = TRUE)
+  on.exit(options(old))
+  suppressWarnings(suppressMessages(
+    washr::check_publication_readiness(pkg, profile = readiness_profile)))
+})
+rstatus <- function(id) {
+  st <- readiness$status[readiness$id == id]
+  if (length(st) != 1L)
+    stop("washr::check_publication_readiness() returned no row with id '", id,
+         "' (washr ", as.character(washr_version), "); the WASHR_LINES table and washr have drifted")
+  st
 }
+rdetail <- function(id) readiness$detail[readiness$id == id]
 
-# Keywords: DESCRIPTION X-schema.org-keywords is the canonical home
-# (washr >= 1.1.0 carries them into CITATION.cff); CITATION.cff agreement
-# is reported as a drift detail, never as a second finding.
-kw_field <- dfield("X-schema.org-keywords")
-kw <- if (!is.na(kw_field)) trimws(strsplit(kw_field, ",")[[1]]) else character()
-kw <- kw[nzchar(kw)]
-cff_kw <- character()
-kw_start <- grep("^keywords:", cff)
-if (length(kw_start)) {
-  i <- kw_start[1] + 1L
-  while (i <= length(cff) && grepl("^\\s*-\\s", cff[i])) {
-    cff_kw <- c(cff_kw, trimws(sub("^\\s*-\\s*", "", cff[i])))
-    i <- i + 1L
+# WASHR_LINES: the washr rows this report prints, in report order. Each
+# entry names the washr id, the report area, the tier, and the line text.
+# `na` says what a row washr could not decide becomes: "NOT RUN" prints
+# the line with washr's reason, "omit" prints nothing because the gap is
+# already another line's finding. `pass` = "omit" prints nothing on a
+# pass. The line texts are pkgreview's own and are what the expected
+# reports under fixtures/expected/ pin; the status and the detail string
+# come from washr.
+#
+# washr ids not consumed here, candidates for a later proposal:
+#   description_complete, zenodo_json, roxygen_docs: no line in this
+#     report yet (new items would need a checklist decision)
+#   data_present, dictionary_present, dictionary_coverage,
+#     dictionary_descriptions, dictionary_schema: this script keeps its
+#     own lines for them in the data area, which was never frozen
+#   pkgdown_config on a pass: the report has only ever printed the
+#     failing case
+wline <- function(id, area, tier, check, na = "omit", pass = "print")
+  list(id = id, area = area, tier = tier, check = check, na = na, pass = pass)
+cff_present <- rstatus("citation_cff") == "pass"
+pkgdown_present <- rstatus("pkgdown_config") == "pass"
+url_from_profile <- !is.null(pval("site_url_pattern")) && !is.na(dfield("Package"))
+brand_none <- !is.null(pval("brand")) && identical(tolower(pval("brand")), "none")
+WASHR_LINES <- list(
+  wline("license", "metadata", "required", "License: CC BY 4.0"),
+  wline("citation_cff", "metadata", "required",
+        if (cff_present) "CITATION.cff present" else "CITATION.cff present and valid"),
+  wline("citation_version", "metadata", "required", "CITATION.cff version matches DESCRIPTION"),
+  wline("citation_authors", "metadata", "required",
+        "Citation files carry real authors, not template placeholders"),
+  wline("keywords", "metadata", "advisory", "DESCRIPTION carries X-schema.org-keywords"),
+  wline("coverage", "metadata", "advisory",
+        "DESCRIPTION carries X-schema.org spatial and temporal coverage"),
+  wline("title_length", "metadata", "advisory", "Title is under 65 characters"),
+
+  wline("readme", "docs", "required", "README.Rmd and rendered README.md present"),
+  wline("rd_source", "docs", "advisory", "Roxygen @source present for the datasets"),
+  wline("readme_extdata_links", "docs", "advisory",
+        "README links the CSV/XLSX exports in inst/extdata/ for non-R users"),
+  wline("vignettes_location", "docs", "advisory",
+        "No vignettes directly in vignettes/ (they belong in vignettes/articles/)"),
+  wline("pkgdown_config", "docs", "advisory", "_pkgdown.yml present", pass = "omit"),
+  # Without _pkgdown.yml the four items below are undecidable and print
+  # nothing: the presence line above is the finding. With the file, the
+  # analytics item is NOT RUN for an organization without an analytics
+  # header.
+  wline("pkgdown_analytics", "docs", "advisory",
+        "_pkgdown.yml carries the Plausible analytics header",
+        na = if (pkgdown_present) "NOT RUN" else "omit"),
+  wline("pkgdown_url", "docs", "advisory",
+        if (url_from_profile) "_pkgdown.yml url is the Pages URL from the org profile"
+        else "_pkgdown.yml url is the Pages URL, not the repo URL"),
+  wline("pkgdown_funding", "docs", "advisory",
+        "_pkgdown.yml carries the funding sidebar text from the org profile"),
+  wline("pkgdown_brand", "docs", "advisory",
+        if (brand_none) "_pkgdown.yml carries no brand (the org profile defines none)"
+        else "_pkgdown.yml brand wiring matches the org profile"),
+  # Site deployment: with the pkgdown workflow in place, docs/ is ignored
+  # and never committed. The workflow's own presence is the required
+  # Website item, checked by the reviewer, so this line is NOT RUN without
+  # it rather than a second finding for the same gap.
+  wline("docs_untracked", "docs", "advisory",
+        "docs/ untracked while the pkgdown workflow deploys the site", na = "NOT RUN"),
+
+  wline("check_workflow", "tests", "required", "GitHub Actions R-CMD-check workflow present"),
+  # NOT RUN when the workflow file is missing: that gap is the presence
+  # line's finding.
+  wline("check_workflow_dev", "tests", "required",
+        "R-CMD-check workflow triggers include dev (push and pull_request)", na = "NOT RUN"),
+  wline("check_badge", "tests", "advisory", "R-CMD-check badge in README.Rmd")
+)
+# The one NOT RUN line whose text differs from the line it replaces.
+NA_LINES <- list(
+  pkgdown_analytics = c(check = "_pkgdown.yml analytics header",
+                        detail = "org profile defines no analytics header (--analytics=none)")
+)
+add_washr_lines <- function(area) {
+  for (w in WASHR_LINES) {
+    if (w$area != area) next
+    st <- rstatus(w$id)
+    if (st == "na") {
+      if (w$na != "NOT RUN") next
+      alt <- NA_LINES[[w$id]]
+      add(area, w$tier, "NOT RUN",
+          if (is.null(alt)) w$check else alt[["check"]],
+          if (is.null(alt)) rdetail(w$id) else alt[["detail"]])
+    } else if (st == "pass") {
+      if (w$pass == "print") add(area, w$tier, "PASS", w$check, rdetail(w$id))
+    } else {
+      add(area, w$tier, "FAIL", w$check, rdetail(w$id))
+    }
   }
 }
-cff_kw <- gsub("^['\"]|['\"]$", "", cff_kw)
-kw_agree <- if (length(cff) == 0) {
-  "CITATION.cff missing"
-} else if (length(cff_kw) == 0) {
-  "CITATION.cff carries no keywords yet (washr::update_citation() writes them)"
-} else if (setequal(tolower(kw), tolower(cff_kw))) {
-  "CITATION.cff agrees"
-} else {
-  sprintf("CITATION.cff differs (drift, rerun washr::update_citation()): %s", paste(cff_kw, collapse = ", "))
-}
-kw_req <- pval("keywords_required")
-kw_req_missing <- if (length(kw) && length(kw_req)) kw_req[!tolower(kw_req) %in% tolower(kw)] else character()
-add("metadata", "advisory",
-    if (length(kw) && length(kw_req_missing) == 0) "PASS" else "FAIL",
-    "DESCRIPTION carries X-schema.org-keywords",
-    if (!length(kw)) paste("field missing or empty;", kw_agree)
-    else sprintf("%d keyword(s): %s; %s%s", length(kw), paste(kw, collapse = ", "), kw_agree,
-                 if (length(kw_req_missing)) paste0("; required by the org profile but missing: ", paste(kw_req_missing, collapse = ", ")) else ""))
 
-# Coverage fields (#64): read by washr::update_metadata() and the org catalog
-sp_cov <- dfield("X-schema.org-spatialCoverage")
-tm_cov <- dfield("X-schema.org-temporalCoverage")
-cov_missing <- c(if (is.na(sp_cov) || !nzchar(trimws(sp_cov))) "X-schema.org-spatialCoverage",
-                 if (is.na(tm_cov) || !nzchar(trimws(tm_cov))) "X-schema.org-temporalCoverage")
-add("metadata", "advisory",
-    if (length(cov_missing) == 0) "PASS" else "FAIL",
-    "DESCRIPTION carries X-schema.org spatial and temporal coverage",
-    if (length(cov_missing)) paste("missing:", paste(cov_missing, collapse = ", "))
-    else sprintf("spatial: %s; temporal: %s", sp_cov, tm_cov))
+# ---------------------------------------------------------------------------
+# Area 1: metadata (washr rows)
+# ---------------------------------------------------------------------------
 
-title <- dfield("Title")
-add("metadata", "advisory",
-    if (!is.na(title) && nchar(title) <= 65) "PASS" else "FAIL",
-    "Title is under 65 characters",
-    sprintf("%d characters", ifelse(is.na(title), 0L, nchar(title))))
+add_washr_lines("metadata")
 
 # ---------------------------------------------------------------------------
 # Area 2: data
@@ -568,153 +648,16 @@ if (length(proc)) {
 }
 
 # ---------------------------------------------------------------------------
-# Area 3: docs
+# Area 3: docs (washr rows)
 # ---------------------------------------------------------------------------
 
-add("docs", "required",
-    if (has("README.Rmd") && has("README.md")) "PASS" else "FAIL",
-    "README.Rmd and rendered README.md present", "")
-
-rd_files <- if (dir.exists(path("man"))) list.files(path("man"), "\\.Rd$") else character()
-has_source <- any(vapply(rd_files, function(f) any(grepl("\\\\source\\{", readLines(path("man", f), warn = FALSE))), logical(1)))
-add("docs", "advisory", if (has_source) "PASS" else "FAIL",
-    "Roxygen @source present for the datasets", "")
-
-readme <- read_lines_if("README.md")
-dl_lines <- grep("inst/extdata/[^)\\s\"']+\\.(csv|xlsx)", readme, ignore.case = TRUE, perl = TRUE)
-add("docs", "advisory",
-    if (length(dl_lines)) "PASS" else "FAIL",
-    "README links the CSV/XLSX exports in inst/extdata/ for non-R users",
-    if (length(dl_lines)) sprintf("%d line(s) link into inst/extdata/", length(dl_lines))
-    else "no link to a .csv or .xlsx file under inst/extdata/ (the washr README template's download table provides them)")
-
-vig <- if (dir.exists(path("vignettes"))) list.files(path("vignettes"), "\\.(Rmd|qmd)$") else character()
-add("docs", "advisory", if (length(vig) == 0) "PASS" else "FAIL",
-    "No vignettes directly in vignettes/ (they belong in vignettes/articles/)",
-    paste(vig, collapse = ", "))
-
-pd <- read_lines_if("_pkgdown.yml")
-if (length(pd)) {
-  if (analytics == "plausible") {
-    add("docs", "advisory",
-        if (any(grepl("plausible\\.io", pd))) "PASS" else "FAIL",
-        "_pkgdown.yml carries the Plausible analytics header", "")
-  } else {
-    add("docs", "advisory", "NOT RUN",
-        "_pkgdown.yml analytics header",
-        "org profile defines no analytics header (--analytics=none)")
-  }
-  url_line <- grep("^url:", pd, value = TRUE)
-  url_val <- if (length(url_line)) trimws(sub("^url:\\s*", "", url_line[1])) else ""
-  site_pattern <- pval("site_url_pattern")
-  pkgname <- dfield("Package")
-  if (!is.null(site_pattern) && !is.na(pkgname)) {
-    expected_url <- sub("<package>", pkgname, site_pattern, fixed = TRUE)
-    norm <- function(u) sub("/+$", "", u)
-    add("docs", "advisory",
-        if (nzchar(url_val) && identical(norm(url_val), norm(expected_url))) "PASS" else "FAIL",
-        "_pkgdown.yml url is the Pages URL from the org profile",
-        if (nzchar(url_val)) sprintf("url: %s (expected %s)", url_val, expected_url) else sprintf("no url: line (expected %s)", expected_url))
-  } else {
-    add("docs", "advisory",
-        if (nzchar(url_val) && grepl("github\\.io", url_val)) "PASS" else "FAIL",
-        "_pkgdown.yml url is the Pages URL, not the repo URL",
-        if (length(url_line)) url_line[1] else "no url: line")
-  }
-  funding <- pval("funding_text")
-  if (!is.null(funding)) {
-    add("docs", "advisory",
-        if (any(grepl(funding, pd, fixed = TRUE))) "PASS" else "FAIL",
-        "_pkgdown.yml carries the funding sidebar text from the org profile",
-        if (any(grepl(funding, pd, fixed = TRUE))) "" else "the profile's funding text was not found verbatim")
-  }
-  brand <- pval("brand")
-  if (!is.null(brand)) {
-    brand_wired <- any(grepl("^\\s*brand:\\s*_brand\\.yml", pd))
-    if (identical(tolower(brand), "none")) {
-      add("docs", "advisory", if (brand_wired) "FAIL" else "PASS",
-          "_pkgdown.yml carries no brand (the org profile defines none)",
-          if (brand_wired) "bslib.brand is wired although the organization defines no brand; remove it" else "")
-    } else {
-      add("docs", "advisory", "PASS",
-          "_pkgdown.yml brand wiring matches the org profile",
-          if (brand_wired) sprintf("wired to _brand.yml (%s)", brand) else sprintf("not wired; optional (%s via washr::use_brand())", brand))
-    }
-  }
-} else {
-  add("docs", "advisory", "FAIL", "_pkgdown.yml present", "file missing")
-}
-
-# Site deployment: with the pkgdown workflow in place, docs/ is ignored
-# and never committed. The workflow's own presence is the required
-# Website item, checked by the reviewer, so this line is NOT RUN without
-# it rather than a second finding for the same gap.
-pkgdown_wf <- has(".github", "workflows", "pkgdown.yaml") || has(".github", "workflows", "pkgdown.yml")
-if (!pkgdown_wf) {
-  add("docs", "advisory", "NOT RUN",
-      "docs/ untracked while the pkgdown workflow deploys the site",
-      "no .github/workflows/pkgdown.yaml; the required Website item covers the missing workflow")
-} else if (!is_repo) {
-  add("docs", "advisory", "NOT RUN",
-      "docs/ untracked while the pkgdown workflow deploys the site",
-      "package directory is not a git repository")
-} else {
-  tracked_docs <- tryCatch(
-    system2("git", c("-C", shQuote(pkg), "ls-files", "docs"), stdout = TRUE, stderr = FALSE),
-    warning = function(w) character(), error = function(e) character())
-  tracked_docs <- tracked_docs[nzchar(tracked_docs)]
-  add("docs", "advisory",
-      if (length(tracked_docs) == 0) "PASS" else "FAIL",
-      "docs/ untracked while the pkgdown workflow deploys the site",
-      if (length(tracked_docs)) sprintf("%d tracked file(s) under docs/; untrack them (git rm -r --cached docs) and ignore the directory", length(tracked_docs))
-      else "")
-}
+add_washr_lines("docs")
 
 # ---------------------------------------------------------------------------
-# Area 4: tests
+# Area 4: tests (washr rows)
 # ---------------------------------------------------------------------------
 
-add("tests", "required",
-    if (has(".github", "workflows", "R-CMD-check.yaml")) "PASS" else "FAIL",
-    "GitHub Actions R-CMD-check workflow present", "")
-
-# Trigger branches: every `branches:` list under `on:` must include dev
-# (inline `[main, master, dev]` or a nested `- dev` list). NOT RUN when the
-# workflow file is missing: that gap is the presence line's finding.
-branch_blocks <- function(lines) {
-  out <- character(); i <- 1L
-  while (i <= length(lines)) {
-    m <- regmatches(lines[i], regexec("^(\\s*)branches:\\s*(.*)$", lines[i]))[[1]]
-    if (length(m) == 3L) {
-      indent <- nchar(m[2]); val <- gsub("^\\[|\\]$", "", trimws(m[3]))
-      if (nzchar(val)) { out <- c(out, val); i <- i + 1L; next }
-      j <- i + 1L; items <- character()
-      while (j <= length(lines) && grepl("^\\s*-\\s", lines[j]) &&
-             nchar(sub("^(\\s*).*$", "\\1", lines[j])) > indent) {
-        items <- c(items, trimws(sub("^\\s*-\\s*", "", lines[j]))); j <- j + 1L
-      }
-      out <- c(out, paste(items, collapse = ", ")); i <- j; next
-    }
-    i <- i + 1L
-  }
-  out
-}
-wf_lines <- read_lines_if(".github", "workflows", "R-CMD-check.yaml")
-if (length(wf_lines) == 0) {
-  add("tests", "required", "NOT RUN",
-      "R-CMD-check workflow triggers include dev (push and pull_request)",
-      "workflow file missing; see the presence line above")
-} else {
-  blocks <- branch_blocks(wf_lines)
-  dev_ok <- length(blocks) >= 1L && all(grepl("\\bdev\\b", blocks, perl = TRUE))
-  add("tests", "required", if (dev_ok) "PASS" else "FAIL",
-      "R-CMD-check workflow triggers include dev (push and pull_request)",
-      if (length(blocks)) sprintf("branches: %s", paste(sprintf("[%s]", blocks), collapse = " "))
-      else "no branches: list found under on:")
-}
-add("tests", "advisory",
-    if (any(grepl("R-CMD-check", read_lines_if("README.Rmd")))) "PASS" else "FAIL",
-    "R-CMD-check badge in README.Rmd", "")
+add_washr_lines("tests")
 
 # ---------------------------------------------------------------------------
 # Report

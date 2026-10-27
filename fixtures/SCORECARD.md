@@ -54,6 +54,8 @@ Note on the v1.5.0 lines (washr 1.1.0 and owdata reconciliation, issues #56 to #
 
 Note on the v1.6.1 line (issue #86): the check script reports invalid UTF-8 strings (bytes that are not valid UTF-8 and carry no latin1 declaration) on a line of their own, next to the existing UTF-8 line. Against `pkgreviewtest/` that line PASSes, because the `region` strings of D3 are declared latin1 and translate cleanly, so D3 stays a one-line finding and the count of 19 FAIL + 1 FLAG lines is unchanged. The FAIL is exercised by the case `fixtures/cases/invalid-utf8/`, which plants undeclared Latin-1 bytes in a copy of the fixture (dataset, dictionary, processing script) and expects a complete report.
 
+Note on the v1.7.0 swap (issues #66 and #87): the metadata, docs, and tests lines of the check script are no longer computed in the script. They are the rows of `washr::check_publication_readiness()` (washr 1.2.0), printed under the same line texts and tiers through the `WASHR_LINES` table of the script. The defects those lines catch (D1 and D2 in metadata, D6 and D7 in docs, D5 in tests) keep their mapping, and the count is unchanged: both expected reports under `fixtures/expected/` and the nine cases under `fixtures/cases/` are byte identical before and after the swap. The data lines, the PII FLAG, and the history FLAG (D18) are still the script's own. The history fixture gained an empty `NAMESPACE`, because washr reads a package root.
+
 ## How to use this scorecard
 
 Run the full review workflow against `fixtures/pkgreviewtest` after every significant change to the checklists in `skills/pkgreview-core/references/checklists/` or to the review skills and commands.

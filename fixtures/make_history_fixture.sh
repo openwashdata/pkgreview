@@ -40,11 +40,14 @@ git -C "$target" init -q
 git -C "$target" symbolic-ref HEAD refs/heads/main
 
 # Minimal package skeleton so the scan has a real data path to walk.
+# DESCRIPTION and NAMESPACE make it a package root, which
+# washr::check_publication_readiness() requires (openwashdata/pkgreview#87).
 cat > "$target/DESCRIPTION" <<'EOF'
 Package: historyfixture
 Title: History Scan Fixture
 Version: 0.0.1
 EOF
+: > "$target/NAMESPACE"
 
 # Commit 1: identifiers present in a text data file.
 cat > "$target/inst/extdata/facilities.csv" <<'EOF'

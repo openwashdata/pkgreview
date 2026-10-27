@@ -1,7 +1,8 @@
 ---
 name: create-next-issue
-description: Create the next review issue in sequence (data, docs, or tests) after the previous review issue's PR has been merged to dev. Includes a duplicate guard plus version and organization stamp checks.
+description: Create the next review issue in sequence (data, docs, or tests) after the previous review issue's PR has been merged to dev. Includes a duplicate guard plus version and organization stamp checks. With --unattended the handover names the unattended review command.
 disable-model-invocation: true
+argument-hint: "[--unattended]"
 ---
 
 # create-next-issue
@@ -9,6 +10,13 @@ disable-model-invocation: true
 Create the next review issue in the sequence metadata, data, docs, tests for
 the package in the current directory. This skill creates exactly one issue
 and stops; it never starts working on the issue it creates.
+
+Arguments: `$ARGUMENTS`. `--unattended` is optional and marks a review
+that runs through `/review-issue [issue-number] --unattended`. It changes
+two things here and nothing else: the one question this skill can ask
+becomes a stop (Step 2), and the handover names the unattended command
+(Step 4). Every abort below holds in both modes; an abort is reported,
+never worked around.
 
 ## Step 1: Sync dev and gather state (dedupe guard)
 
@@ -70,7 +78,9 @@ and the org profile pinned the same way from
 `.../v[stamp]/skills/pkgreview-core/references/orgs/[org].md`
 (failure mode 5 in recovery.md: in-flight reviews finish on the version they
 started with). If the stamped version cannot be fetched, ask the user before
-falling back to the installed checklists.
+falling back to the installed checklists. With `--unattended`: do not
+fall back and do not create the issue; stop and report the version that
+could not be fetched.
 
 If there is no `Organization profile` line, the review predates org
 profiles: it is an openwashdata review by definition (failure mode 9 in
@@ -104,6 +114,7 @@ Tell the user:
 2. Whether the previous area's issue was closed by this skill (name the
    issue and the merged PR)
 3. Run `/review-issue [new-number]` to start working on it (`dev` is
-   already synced from Step 1)
+   already synced from Step 1). With `--unattended`, name
+   `/review-issue [new-number] --unattended` instead.
 
 **Stop here. Do not start working on the issue.**

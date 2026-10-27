@@ -62,7 +62,7 @@ Open a PR to openwashdata/pkgreview adding `orgs/[org].md` with the field
 table filled in. Two constraints hold until the standard is extended:
 
 - Citation tooling: the checklists and the standards template currently
-  express only the washr flow (1.1.0 or newer). Registering an org with
+  express only the washr flow (1.2.0 or newer). Registering an org with
   different tooling requires reworking those files, which is a standard
   change with its own version bump (repo rule 1).
 - Analytics: the check script understands `analytics: plausible` and

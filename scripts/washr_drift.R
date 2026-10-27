@@ -32,6 +32,6 @@ if (utils::compareVersion(installed, floor) < 0) {
   status <- 1L
   cat(sprintf("FLOOR: installed washr %s is below the recorded floor %s\n", installed, floor))
 } else if (utils::compareVersion(installed, floor) > 0) {
-  cat(sprintf("NOTE: CRAN washr %s is newer than the floor %s; review NEWS.md of washr for changes to reconcile\n", installed, floor))
+  cat(sprintf("NOTE: installed washr %s is newer than the floor %s; review NEWS.md of washr for changes to reconcile\n", installed, floor))
 }
 quit(status = status)

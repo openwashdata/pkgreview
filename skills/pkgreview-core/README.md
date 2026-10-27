@@ -22,8 +22,10 @@ files shared by all pkgreview skills, which load them with relative paths
   recovery paths.
 - `check/pkgreview-check.R` - the deterministic check script for the
   mechanical subset of the checklists (run by `/review-package` and
-  `/review-issue`; the metadata, docs, and tests sections are frozen
-  pending washr's `check_publication_readiness()`, issue #66).
+  `/review-issue`). Its metadata, docs, and tests lines come from
+  `washr::check_publication_readiness()` (issues #66 and #87), so it needs
+  washr at or above `WASHR_FLOOR`; the data-quality lines, the PII signal
+  scan, and the git-history scan are its own.
 
 ## Versioning rule
 
