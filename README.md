@@ -8,7 +8,7 @@ This repository provides a structured review workflow for R data packages in reg
 
 The review standard has two tiers. Required items are the publication floor: a package is not published until every required item passes. Advisory items are quality improvements; the reviewer may fix them or record them as optional follow-ups, and they never block publication. The tier of every item is recorded in the checklists under `skills/pkgreview-core/references/checklists/`.
 
-Creating a data package for one of the registered organizations? Start with the [contributor guidebook](docs/guidebook.md). It covers the PII and sensitivity check to run before committing data anywhere, the publication floor, the dictionary, and what review and publication look like; for the scaffolding steps it points at the washr Get started vignette.
+Creating a data package for one of the registered organizations? Start with the [contributor guidebook](docs/guidebook.md). It covers the PII and sensitivity check to run before committing data anywhere, the publication floor, and what a review looks like. The build steps themselves are in the [FAIR Data Publishing](https://openwashdata.github.io/fair-publishing/) guide and the washr vignette.
 
 ## Quick Start
 

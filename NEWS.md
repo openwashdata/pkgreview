@@ -14,6 +14,7 @@ The release that pairs with washr 1.2.0. The check script takes its metadata, do
 - `/create-release` runs a preflight with a remedy per check; NEWS.md is maintained per review PR and renamed at release; `dev` gets the development version after the DOI sync, in `/add-doi` Step 9; release post outline under `references/templates/` (#55).
 - `/create-release` and `/add-doi` commit `.zenodo.json`, which washr 1.2.0 writes with the citation files. Zenodo reads it from the release tag for the resource type, the community, the creators, and the license (openwashdata/washr#56).
 - Dictionary round trip (#37, Part 2): passes with `washr::update_dictionary()`; descriptions and extra columns such as `unit` and `allowed_values` survive a data change. Recorded in `docs/roadmap-v1.1.md`; #38 and #39 are unblocked.
+- Guidebook reduced to the chapters only pkgreview owns (PII and sensitivity, the publication floor, what review looks like). The scaffold, dictionary and publication chapters point to the FAIR Data Publishing guide (openwashdata/fair-publishing), which owns the build instructions (openwashdata/washr#85).
 
 # pkgreview 1.6.1
 
