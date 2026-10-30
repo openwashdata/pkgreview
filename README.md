@@ -8,7 +8,7 @@ This repository provides a structured review workflow for R data packages in reg
 
 The review standard has two tiers. Required items are the publication floor: a package is not published until every required item passes. Advisory items are quality improvements; the reviewer may fix them or record them as optional follow-ups, and they never block publication. The tier of every item is recorded in the checklists under `skills/pkgreview-core/references/checklists/`.
 
-Creating a data package for one of the registered organizations? Start with the [contributor guidebook](docs/guidebook.md). It covers the PII and sensitivity check to run before committing data anywhere, the publication floor, the dictionary, and what review and publication look like; for the scaffolding steps it points at the washr Get started vignette.
+Creating a data package for one of the registered organizations? Start with the [contributor guidebook](docs/guidebook.md). It covers the PII and sensitivity check to run before committing data anywhere, the publication floor, and what a review looks like. The build steps themselves are in the [FAIR Data Publishing](https://openwashdata.github.io/fair-publishing/) guide and the washr vignette.
 
 ## Quick Start
 
@@ -53,15 +53,22 @@ they run only when you type them, never on the model's own initiative.
 |---------|---------|-------|
 | `/review-package` | Start package review | `/review-package [package-name]` |
 | `/review-status` | Check review progress, surface state anomalies | `/review-status` |
-| `/review-issue [n]` | Work on a review issue (actual issue number) | `/review-issue 42` |
-| `/create-next-issue` | Create next review issue | `/create-next-issue` |
+| `/review-issue [n]` | Work on a review issue (actual issue number) | `/review-issue 42` or `/review-issue 42 --unattended` |
+| `/create-next-issue` | Create next review issue | `/create-next-issue` or `/create-next-issue --unattended` |
 | `/review-complete` | Create final PR to main | `/review-complete` |
 | `/review-upgrade` | Bring a reviewed package to the installed standard with one issue of changed items | `/review-upgrade` |
 | `/create-release` | Create a new release | `/create-release [version]` |
 | `/add-doi` | Integrate a Zenodo DOI after release (resume or repair path) | `/add-doi 10.5281/zenodo.XXXXXXX` |
+| `/washr` | Build or continue a data package with washr, before review: runs the washr steps in order and drafts the prose for you to confirm | `/washr` or `/washr [step]` |
 
 PR creation for an issue happens inside `/review-issue` (step 7); there is
 no separate `/review-pr` anymore.
+
+With `--unattended`, `/review-issue` posts its plan on the issue instead
+of waiting for approval and merges the PR into `dev` itself, but only
+when the R-CMD-check run is green and every required item is checked.
+Personal data findings, the PII sign-off, and variable descriptions stay
+with a human in both modes (`docs/guardrails.md`).
 
 ## Review Issues
 
@@ -75,9 +82,10 @@ Each review addresses 4 key areas:
 ## Requirements
 
 - R and RStudio
-- R packages on the reviewer's machine: `washr` 1.1.0 or newer (keeps
-  DESCRIPTION, CITATION.cff, and inst/CITATION in sync and owns the site
-  metadata; packages in the registered orgs are scaffolded with it), plus
+- R packages on the reviewer's machine: `washr` 1.2.0 or newer (keeps
+  DESCRIPTION, CITATION.cff, and inst/CITATION in sync, owns the site
+  metadata, and decides the metadata, docs, and tests lines of the check
+  script; packages in the registered orgs are scaffolded with it), plus
   `desc`, `devtools`, `pkgdown`, and `usethis` for checks, site previews,
   and releases
 - GitHub CLI (`gh`)
@@ -90,7 +98,8 @@ and checked weekly by CI):
 | pkgreview | washr |
 |-----------|-------|
 | 1.0.0 to 1.4.0 | 1.0.1, with the caveats the skills carried |
-| 1.5.0 and later | >= 1.1.0 |
+| 1.5.0 to 1.6.1 | >= 1.1.0 |
+| 1.7.0 and later | >= 1.2.0 (the check script calls `washr::check_publication_readiness()`) |
 
 ## Repository Structure
 
@@ -105,13 +114,15 @@ pkgreview/
 │   ├── review-upgrade/
 │   ├── create-release/
 │   ├── add-doi/
+│   ├── washr/                 # Author-side skill: build a package with washr
+│   │   └── references/        # Writing conventions for descriptions, README, site
 │   └── pkgreview-core/        # Shared references (not a skill)
 │       ├── VERSION            # Review standard version
 │       ├── WASHR_FLOOR        # Lowest washr version the skills support
 │       ├── check/             # Deterministic check script
 │       └── references/
 │           ├── checklists/    # Canonical checklists, one per review area
-│           ├── templates/     # Issue body, PR body, _pkgdown.yml
+│           ├── templates/     # Issue body, PR body, _pkgdown.yml, release post
 │           ├── orgs/          # Registered organization profiles
 │           ├── standards.md   # Package-resident standards file
 │           └── recovery.md    # State failure modes and recovery paths

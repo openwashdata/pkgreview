@@ -21,7 +21,7 @@ The check also covers your git history. A column you added in an earlier commit 
 
 ## 2. Scaffold the package with washr
 
-The [washr](https://github.com/openwashdata/washr) package sets up the whole structure, from the raw data folder to the website, and each function tells you what it created and what to do next. Follow the washr [Get started](https://openwashdata.github.io/washr/articles/washr.html) vignette for the steps in order; the narrative version with the reasoning behind each step is the [data publishing guide](https://global-health-engineering.github.io/ghedatapublishing/). Package names are lowercase, short, and descriptive of the data, e.g., `waterpointdata`.
+The [washr](https://github.com/openwashdata/washr) package sets up the whole structure, from the raw data folder to the website, and each function tells you what it created and what to do next. The build steps are not repeated here. Follow the guide [FAIR Data Publishing](https://openwashdata.github.io/fair-publishing/) for the full walkthrough with the reasoning behind each step, or the washr [Get started](https://openwashdata.github.io/washr/articles/washr.html) vignette for the condensed version. Both follow the same order as the review areas below.
 
 ## 3. The publication floor
 
@@ -59,19 +59,7 @@ Folders and the processing script: `data-raw/` holds the raw data exactly as you
 
 ## 4. The dictionary
 
-The dictionary is the file `data-raw/dictionary.csv`. It has one row per variable, and the one-sentence description per variable is the most important part of the whole package. A reader who has never seen your project should understand what a variable means from its description alone.
-
-A good description says what was measured, in plain language, with the unit if there is one:
-
-- Good: "Distance in meters from the household to the nearest water point."
-- Good: "Whether the water point was working on the day of the visit (yes or no)."
-
-A bad description repeats the variable name or stays vague:
-
-- Bad: "The distance variable."
-- Bad: "Status."
-
-Write or confirm every description yourself. A generated description that nobody checked does not meet the floor, because the review standard requires a human to confirm each one.
+The dictionary is the file `data-raw/dictionary.csv`, with one row per variable and a one sentence description per variable that a person wrote or confirmed. It is the most important part of the whole package, and a generated description that nobody checked does not meet the floor. How to write the descriptions, with examples of ones that work and ones that do not, is in the guide chapter [Preparing the data](https://openwashdata.github.io/fair-publishing/data_preparation.html#write-the-data-dictionary).
 
 ## 5. What review looks like
 
@@ -88,10 +76,4 @@ You stay the maintainer of your package. The review is help, not a takeover.
 
 ## 6. Publication
 
-After the review, the package is published:
-
-- A GitHub release is created from `main`.
-- The release is archived on Zenodo, which assigns a DOI (a permanent identifier that makes the dataset citable).
-- The DOI goes into the citation files, the README badge, and the website metadata, so the citation in the README and on the website shows how to cite your dataset.
-
-After publication, your dataset has a website, a DOI, and a citation, and anyone can install it as an R package or download the CSV files.
+After the review, the package is released from `main`, the release is archived on Zenodo, which assigns a DOI, and the DOI goes into the citation files, the README badge and the website metadata. The steps are in the guide chapter [Creating a release and a DOI](https://openwashdata.github.io/fair-publishing/creating_doi.html). In a review, the reviewer runs them with the `/create-release` and `/add-doi` skills. After publication, your dataset has a website, a DOI and a citation, and anyone can install it as an R package or download the CSV files.

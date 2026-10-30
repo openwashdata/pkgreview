@@ -475,3 +475,78 @@ under pull_request FAILs; a tracked `docs/` next to the workflow FAILs.
 
 Not part of the standard: the housekeeping deletions (#67) and the
 check-script scope decision (#66) carry no checklist or template change.
+
+## Check script reads washr's readiness report (issues #66 and #87, v1.7.0)
+
+Date: 2026-10-01. washr 1.2.0 ships `check_publication_readiness()`
+(openwashdata/washr#82), built against the item list pkgreview posted
+there on 2026-09-05. It returns one row per item with a stable id, a
+status (pass, fail, or not applicable), and a detail string. The
+metadata, docs, and tests sections of the check script, frozen since
+v1.5.0 (#66), are replaced by one call to it. No checklist item is
+added, dropped, or reworded: the report lines keep their text, tier,
+and order, and the status and detail of each line now come from washr.
+
+| Report line | Tier | Decision | washr id | When washr cannot decide |
+|-------------|------|----------|----------|--------------------------|
+| License: CC BY 4.0 | required | unchanged | `license` | |
+| CITATION.cff present (and valid) | required | unchanged | `citation_cff` | |
+| CITATION.cff version matches DESCRIPTION | required | unchanged | `citation_version` | no line; the presence line is the finding |
+| Citation files carry real authors, not template placeholders | required | unchanged | `citation_authors` | no line; the presence line is the finding |
+| DESCRIPTION carries X-schema.org-keywords | advisory | unchanged | `keywords` | |
+| DESCRIPTION carries X-schema.org spatial and temporal coverage | advisory | unchanged | `coverage` | |
+| Title is under 65 characters | advisory | unchanged | `title_length` | |
+| README.Rmd and rendered README.md present | required | unchanged | `readme` | |
+| Roxygen @source present for the datasets | advisory | unchanged | `rd_source` | |
+| README links the CSV/XLSX exports in inst/extdata/ | advisory | unchanged | `readme_extdata_links` | |
+| No vignettes directly in vignettes/ | advisory | unchanged | `vignettes_location` | |
+| _pkgdown.yml present (printed on a failure only) | advisory | unchanged | `pkgdown_config` | |
+| _pkgdown.yml carries the Plausible analytics header | advisory | unchanged | `pkgdown_analytics` | NOT RUN for an organization without analytics; no line without the file |
+| _pkgdown.yml url is the Pages URL | advisory | unchanged | `pkgdown_url` | no line without the file |
+| _pkgdown.yml carries the funding sidebar text | advisory | unchanged | `pkgdown_funding` | no line without the file or without a funding text in the profile |
+| _pkgdown.yml brand wiring or absence | advisory | unchanged | `pkgdown_brand` | no line without the file or without a brand entry in the profile |
+| docs/ untracked while the pkgdown workflow deploys the site | advisory | unchanged | `docs_untracked` | NOT RUN, with washr's reason |
+| GitHub Actions R-CMD-check workflow present | required | unchanged | `check_workflow` | |
+| R-CMD-check workflow triggers include dev | required | unchanged | `check_workflow_dev` | NOT RUN, with washr's reason |
+| R-CMD-check badge in README.Rmd | advisory | unchanged | `check_badge` | |
+
+What stays in pkgreview: the tier and the text of every line, the
+decision whether a not-applicable row prints NOT RUN or nothing (the
+`WASHR_LINES` table of the script), the organization profile (passed to
+washr in its own keys; without a profile washr would hold a package to
+the `Config/washr` fields of its own DESCRIPTION), and every line washr
+will never own: the data-quality checks, the dictionary lines of the
+data area, the PII signal scan, and the git-history scan.
+
+washr ids the report does not print, each a candidate for a later
+proposal: `description_complete`, `zenodo_json`, and `roxygen_docs`
+have no line yet; `data_present`, `dictionary_present`,
+`dictionary_coverage`, `dictionary_descriptions`, and
+`dictionary_schema` duplicate lines of the data area, which was never
+frozen and keeps its own copies.
+
+Standards and skill changes (not checklist items): the washr floor is
+1.2.0 (`skills/pkgreview-core/WASHR_FLOOR`, the Citation tooling field
+of both organization profiles, the standards.md rule on
+`update_citation()`, the `/add-doi` prerequisites, and the README
+compatibility table). The check script stops with a message when washr
+is missing, has no `check_publication_readiness()`, or is a release
+below the floor; a development build of washr that already exports the
+function is accepted. The script also stops on a directory without
+DESCRIPTION and NAMESPACE, where it used to print a report of failures,
+because washr reads a package root. The text-file hardening of v1.6.1
+(#86) no longer covers `README.md`, `README.Rmd`, `CITATION.cff`,
+`_pkgdown.yml`, and the workflow file: washr reads those files itself,
+and a line that carries an invalid UTF-8 byte is not matched there, as
+before v1.6.1. The report is still written in full. The hardening still
+covers the datasets, the dictionary, `data_processing.R`, and the
+history scan, which the script reads itself.
+
+Fixture note: both expected reports under `fixtures/expected/` and the
+nine cases under `fixtures/cases/` are byte identical before and after
+the swap, on the openwashdata profile, the global-health-engineering
+profile, and the deprecated `--analytics` path, so the D1 to D17 mapping
+(19 FAIL + 1 FLAG lines) and the D18 FLAG are unchanged.
+`fixtures/make_history_fixture.sh` writes an empty `NAMESPACE` next to
+DESCRIPTION, which changes no line. The gate workflow installs washr
+from CRAN before it runs the script.
