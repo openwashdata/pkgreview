@@ -1,9 +1,6 @@
-# washr API drift check (openwashdata/pkgreview#77): installs washr and
+# washr API drift check (openwashdata/pkgreview#77): installs CRAN washr and
 # verifies every washr:: call the skills execute or instruct still exports, and
-# reports the installed version against skills/pkgreview-core/WASHR_FLOOR.
-# CRAN serves a washr below the floor until 1.2.0 is released there, so washr
-# comes from the dev branch on GitHub. Back to install.packages("washr") once
-# CRAN serves the floor.
+# reports the CRAN version against skills/pkgreview-core/WASHR_FLOOR.
 name: washr-drift
 
 on:
@@ -21,9 +18,7 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
-      - name: Install washr from GitHub
-        env:
-          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-        run: Rscript -e 'install.packages("pak"); pak::pak("openwashdata/washr@dev")'
+      - name: Install washr from CRAN
+        run: Rscript -e 'install.packages("washr")'
       - name: Drift check
         run: Rscript scripts/washr_drift.R
