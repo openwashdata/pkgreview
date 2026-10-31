@@ -3,7 +3,7 @@
 Package: `(normalized)`  
 Standard: mechanical subset of the pkgreview checklists  
 Organization profile: --org=openwashdata (openwashdata.md)  
-Result: 18 PASS, 19 FAIL (4 required-tier), 1 FLAG, 3 NOT RUN
+Result: 20 PASS, 19 FAIL (4 required-tier), 1 FLAG, 3 NOT RUN
 
 ## metadata
 
@@ -49,6 +49,8 @@ Result: 18 PASS, 19 FAIL (4 required-tier), 1 FLAG, 3 NOT RUN
 - [FAIL] (advisory) _pkgdown.yml carries the Plausible analytics header
 - [FAIL] (advisory) _pkgdown.yml url is the Pages URL from the org profile: url: https://github.com/openwashdata/pkgreviewtest (expected https://openwashdata.github.io/pkgreviewtest/)
 - [PASS] (advisory) _pkgdown.yml carries the funding sidebar text from the org profile
+- [PASS] (advisory) _pkgdown.yml footer carries the publisher sentence from the org profile
+- [PASS] (advisory) _pkgdown.yml footer names the washr version recorded in DESCRIPTION: footer names washr 1.2.1, DESCRIPTION records 1.2.1
 - [PASS] (advisory) _pkgdown.yml brand wiring matches the org profile: not wired; optional (openwashdata/brand via washr::use_brand())
 - [NOT RUN] (advisory) docs/ untracked while the pkgdown workflow deploys the site: no .github/workflows/pkgdown.yaml; the required Website item covers the missing workflow
 

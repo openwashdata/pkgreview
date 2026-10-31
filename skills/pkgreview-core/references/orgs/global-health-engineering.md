@@ -12,7 +12,11 @@ so the two profiles are near equal.
 | Package site URL pattern | `https://global-health-engineering.github.io/<package>/` |
 | Analytics | Plausible: `<script defer data-domain="global-health-engineering.github.io" src="https://plausible.io/js/script.js"></script>` |
 | Funding sidebar text | This project was funded by the [Open Research Data Program of the ETH Board](https://ethrat.ch/en/eth-domain/open-research-data/). Verify during the first GHE review (openwashdata/pkgreview#50). |
-| Citation tooling | washr >= 1.2.0: `washr::update_citation()`, `washr::update_description()`, `washr::update_metadata()`. Verify the output carries no openwashdata-specific branding (#48 decision 2) |
+| Website | `https://ghe.ethz.ch/`: the navbar link, the line under the README badges and the publisher url in the site metadata. Verify during the first GHE review (openwashdata/pkgreview#50). |
+| Data catalogue | none: Global Health Engineering has no data catalogue, so the site metadata carries no `includedInDataCatalog` |
+| Community sidebar text | none: no community block in the sidebar |
+| Publisher footer text | Published by [Global Health Engineering](https://ghe.ethz.ch/) at ETH Zurich. Verify during the first GHE review (openwashdata/pkgreview#50). |
+| Citation tooling | washr >= 1.2.1: `washr::update_citation()`, `washr::update_description()`, `washr::update_metadata()`. Verify the output carries no openwashdata-specific branding (#48 decision 2) |
 | README template | washr README template |
 | Discovery keywords (minimum) | open data, global health, the topic, the country or region |
 | Brand | none: the openwashdata brand must not appear in a Global-Health-Engineering package, so `washr::use_brand()` is not run and `_pkgdown.yml` carries no `bslib.brand` line |
@@ -29,6 +33,10 @@ site_url_pattern: https://global-health-engineering.github.io/<package>/
 analytics: plausible
 analytics_domain: global-health-engineering.github.io
 funding_text: This project was funded by the [Open Research Data Program of the ETH Board](https://ethrat.ch/en/eth-domain/open-research-data/).
+home_url: https://ghe.ethz.ch/
+catalog_url: none
+community_text: none
+publisher_text: Published by [Global Health Engineering](https://ghe.ethz.ch/) at ETH Zurich.
 citation_tooling: washr
 readme_template: washr
 keywords_required:

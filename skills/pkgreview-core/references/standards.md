@@ -53,10 +53,13 @@ as optional follow-ups, and never let them block publication.
   `variable_type` value; the organization catalog parses it that way.
 - Vignettes live in `vignettes/articles/`, never directly in `vignettes/`.
   This keeps pkgdown rendering correct and avoids CRAN issues.
-- `_pkgdown.yml` follows the standard configuration below,
-  including the analytics header and the funding sidebar from the
-  organization profile, and the brand wiring when the profile defines a
-  brand. Do not remove or reorganize these blocks.
+- `_pkgdown.yml` follows the standard configuration below, including
+  the analytics header, the navbar link to the organization's website,
+  the funding and community blocks of the sidebar and the footer that
+  names the washr version and the publisher, all from the organization
+  profile, and the brand wiring when the profile defines a brand. Do not
+  remove or reorganize these blocks. `washr::update_website()` brings a
+  file written by an older washr up to date and keeps the rest.
 - The website is deployed by the pkgdown GitHub Actions workflow
   (`.github/workflows/pkgdown.yaml`) to the `gh-pages` branch on every
   push to `main`. `docs/` is ignored and never committed; a local
@@ -78,7 +81,7 @@ as optional follow-ups, and never let them block publication.
 - After version or author changes, run `washr::update_citation()` so
   DESCRIPTION, CITATION.cff, and inst/CITATION stay in sync. It keeps a
   DOI already on file and owns the DOI badge in README.Rmd; do not edit
-  the badge by hand. washr 1.2.0 or newer is the floor for these calls.
+  the badge by hand. washr 1.2.1 or newer is the floor for these calls.
 - Raw data stays in `data-raw/`, processed `.rda` data in `data/`, and
   CSV/XLSX exports in `inst/extdata/`.
 
@@ -120,10 +123,14 @@ the package. The `_pkgdown.yml` reference index lists every dataset.
 
 Replace `packagename` with the actual package name. `url` is the site base
 URL (canonical links, sitemap.xml, redirects), so it must be the Pages URL,
-never the GitHub repo URL; the repo link lives in `home.links`. The two
-commented `bslib` lines are written by `washr::use_brand()` when the
-organization profile defines a brand (it rewrites the file through the
-yaml package, which drops the comments); leave them out otherwise.
+never the GitHub repo URL; the repo link lives in `home.links`. The
+commented `bslib` and `opengraph` lines are written by `washr::use_brand()`
+when the organization profile defines a brand; leave them out otherwise.
+The navbar link, the community block and the publisher sentence carry the
+openwashdata values; a package of another organization takes its
+profile's `home_url`, `community_text` and `publisher_text`, and leaves a
+block out when the profile says `none`. The washr line names the version
+recorded in `Config/washr/version` of DESCRIPTION.
 
 ```yaml
 url: https://{{ORG_DOMAIN}}/packagename/
@@ -131,9 +138,22 @@ template:
   bootstrap: 5
   # bslib:
   #   brand: _brand.yml
+  # opengraph:
+  #   image:
+  #     src: https://raw.githubusercontent.com/{{ORG_NAME}}/brand/vX.Y.Z/assets/social-preview.png
+  #     alt: {{ORG_NAME}}, social preview image
   includes:
     in_header: |
       <script defer data-domain="{{ORG_DOMAIN}}" src="https://plausible.io/js/script.js"></script>
+
+navbar:
+  structure:
+    right: [search, home, github, lightswitch]
+  components:
+    home:
+      text: openwashdata.org
+      href: https://openwashdata.org
+      aria-label: openwashdata website
 
 home:
   links:
@@ -141,11 +161,14 @@ home:
       text: GitHub repository
       href: https://github.com/{{ORG_NAME}}/packagename
   sidebar:
-    structure: [links, citation, authors, dev, custom]
+    structure: [links, citation, authors, dev, custom, community]
     components:
       custom:
         title: Funding
         text: This project was funded by the [Open Research Data Program of the ETH Board](https://ethrat.ch/en/eth-domain/open-research-data/).
+      community:
+        title: openwashdata
+        text: This package is part of [openwashdata](https://openwashdata.org). Browse the [data catalogue](https://openwashdata.org/pages/gallery/data/) or get the [newsletter](https://openwashdata.org/pages/newsletter/).
 
 authors:
   footer:
@@ -155,6 +178,14 @@ authors:
     roles: [cre, aut, ctb]
     before: "So *who* does the work?"
     after: "Thanks all!"
+
+footer:
+  structure:
+    left: [developed_by, publisher]
+    right: [washr, built_with]
+  components:
+    publisher: Published by [openwashdata](https://openwashdata.org), a project of [Global Health Engineering](https://ghe.ethz.ch/) at ETH Zurich.
+    washr: Package built with [washr](https://openwashdata.github.io/washr/) 1.2.1.
 
 reference:
 - title: "Data"
@@ -179,6 +210,8 @@ package.
 - Full check: `R -e "devtools::check()"`
 - Refresh the site metadata after DESCRIPTION, dictionary, or citation
   changes: `R -e "washr::update_metadata()"`
+- Bring `_pkgdown.yml` up to date after a washr release:
+  `R -e "washr::update_website()"`
 - Preview the website locally: `R -e "pkgdown::build_site()"` (writes the
   ignored `docs/`; the published site is built by the pkgdown workflow on
   the next push to `main`)

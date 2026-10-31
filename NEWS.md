@@ -2,6 +2,17 @@
 
 One section per release. Skill, script, template, fixture, and process changes are recorded here; checklist wording changes are recorded in `docs/checklist-reconciliation.md` (repo rule 3), one row per item. Releases before 1.5.0 are described by their reconciliation sections and tag messages.
 
+# pkgreview 1.8.0
+
+The release that pairs with washr 1.2.1 (openwashdata/washr#145): every package site names washr and the organization it belongs to. No checklist item changed.
+
+- Template and standards file: the standard `_pkgdown.yml` gains the navbar link to the organization's website, the community block in the sidebar, the footer with the publisher sentence and the washr version, and the Open Graph image that `washr::use_brand()` writes; the standards file explains the blocks and names `washr::update_website()` for a file written by an older washr (#95).
+- Organization profiles: four new keys, `home_url`, `catalog_url`, `community_text` and `publisher_text`, with the openwashdata values; the Global-Health-Engineering values wait for the first GHE review, as the funding text does (#50, #95).
+- Check script: two advisory lines in the docs area from washr, the publisher sentence in the footer (verbatim, as the funding text) and the washr version the footer names against `Config/washr/version` in DESCRIPTION; NOT RUN for a profile without a publisher and for a package whose DESCRIPTION records no washr version (#95).
+- The floor is 1.2.1 throughout (`WASHR_FLOOR`, both org profiles, the skill preflights, the README table); the gate and drift workflows keep installing washr from CRAN and need 1.2.1 there (#95).
+- Fixtures: `pkgreviewtest` carries the three new blocks and records the washr version, so the expected report gains two PASS lines and the 19 FAIL + 1 FLAG mapping to D1 to D17 is unchanged; the cases `footer-missing` and `footer-stale` cover the failing lines (#95).
+- `/washr`: the pkgdown site reference describes the new blocks, the four fields and `update_website()` (#95).
+
 # pkgreview 1.7.0
 
 The release that pairs with washr 1.2.0. The check script takes its metadata, docs, and tests lines from washr, the plugin gains the washr skill, and the review skills gain the unattended mode and the release practice items. No checklist item changed.

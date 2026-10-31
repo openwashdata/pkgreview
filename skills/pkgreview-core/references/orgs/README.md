@@ -37,6 +37,10 @@ Every profile carries this field table:
 | Package site URL pattern | The pkgdown `url:` value per package |
 | Analytics | Analytics header for `_pkgdown.yml`, or `none` |
 | Funding sidebar text | The `home.sidebar` custom component text |
+| Website | The organization's website: the navbar link, the line under the README badges and the publisher url in the site metadata; or `none` |
+| Data catalogue | The catalogue named as `includedInDataCatalog` in the site metadata, or `none` |
+| Community sidebar text | The `home.sidebar` community component text, or `none` |
+| Publisher footer text | The `footer.components.publisher` sentence, matched verbatim, or `none` |
 | Citation tooling | Tooling that keeps DESCRIPTION, CITATION.cff, and inst/CITATION in sync, with its version floor |
 | README template | The template the docs checklist item points at |
 | Discovery keywords (minimum) | The discovery keyword set for the metadata checklist item (`X-schema.org-keywords` in DESCRIPTION) |
@@ -50,7 +54,9 @@ values under stable keys, read by the check script (`--org=<name>`, or
 `--org-file=<path>` for a stamped copy): `github_org`, `pages_domain`,
 `site_url_pattern` (with `<package>` as the placeholder), `analytics`
 (`plausible` or `none`), `analytics_domain`, `funding_text` (matched
-verbatim in `_pkgdown.yml`), `citation_tooling`, `readme_template`,
+verbatim in `_pkgdown.yml`), `home_url`, `catalog_url`, `community_text`,
+`publisher_text` (matched verbatim in the footer of `_pkgdown.yml`; each
+`none` when the organization has no such value), `citation_tooling`, `readme_template`,
 `keywords_required` (the literal keywords every package must carry; the
 topic and the country or region stay reviewer judgment), `brand` (a
 source such as `openwashdata/brand`, or `none`), `zenodo_community`. The
@@ -62,7 +68,7 @@ Open a PR to openwashdata/pkgreview adding `orgs/[org].md` with the field
 table filled in. Two constraints hold until the standard is extended:
 
 - Citation tooling: the checklists and the standards template currently
-  express only the washr flow (1.2.0 or newer). Registering an org with
+  express only the washr flow (1.2.1 or newer). Registering an org with
   different tooling requires reworking those files, which is a standard
   change with its own version bump (repo rule 1).
 - Analytics: the check script understands `analytics: plausible` and

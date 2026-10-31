@@ -1,0 +1,1 @@
+- [FAIL] (advisory) _pkgdown.yml footer names the washr version recorded in DESCRIPTION: footer names washr 1.0.0, DESCRIPTION records 1.2.1
