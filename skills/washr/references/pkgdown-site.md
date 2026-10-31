@@ -3,9 +3,10 @@
 `washr::setup_website()` writes `_pkgdown.yml` from the washr template
 and builds the site. Every value in the file comes from DESCRIPTION, so
 a wrong value is fixed in DESCRIPTION before the file is written. Once
-`_pkgdown.yml` exists, washr keeps it as it is on every later run. The
-standard configuration a review compares against is
-`skills/pkgreview-core/references/templates/_pkgdown.yml`.
+`_pkgdown.yml` exists, `setup_website()` keeps it as it is on every later
+run; `washr::update_website()` brings a file written by an older washr
+up to date (see below). The standard configuration a review compares
+against is `skills/pkgreview-core/references/templates/_pkgdown.yml`.
 
 ## The blocks of `_pkgdown.yml`
 
@@ -14,9 +15,12 @@ standard configuration a review compares against is
 | `url` | the Pages URL of the site, never the repository URL | the organisation of the repository in `URL`, or `Config/washr/pages-domain` |
 | `template: includes: in_header` | the Plausible analytics header | `Config/washr/analytics-domain`; left out when `none` |
 | `template: bslib: brand` | the brand wiring, added by `washr::use_brand()` | `Config/washr/brand-source` |
+| `template: opengraph: image` | the social preview of the brand, added by `washr::use_brand()` | `Config/washr/brand-source` and `Config/washr/brand` |
+| `navbar` | the link to the website of the organisation, before the GitHub icon | `Config/washr/home`; left out when `none` |
 | `home: links` | the link to the GitHub repository | the repository in `URL` |
-| `home: sidebar` | the funding sentence | `Config/washr/funding`; left out when `none` |
+| `home: sidebar` | the funding sentence and the community block | `Config/washr/funding` and `Config/washr/community`; each left out when `none` |
 | `authors` | the footer and sidebar roles | fixed in the template |
+| `footer` | the publisher sentence and the washr version that last ran `update_description()` | `Config/washr/publisher` (left out when `none`) and `Config/washr/version` |
 | `reference` | one entry per data object in `data/` | the files in `data/` at the time of writing |
 
 Do not remove or reorganise these blocks. A data object added after the
@@ -28,7 +32,8 @@ stops.
 `washr::update_description()` writes them once, with the openwashdata
 values for a package under openwashdata, and never overwrites a field
 that is set. For a package under another GitHub organisation it writes
-the funding, analytics, community and brand fields as `none`.
+the funding, analytics, Zenodo community, brand, publisher, website,
+catalogue and community fields as `none`.
 
 | Field | What it sets | Value |
 |---|---|---|
@@ -37,13 +42,29 @@ the funding, analytics, community and brand fields as `none`.
 | `Config/washr/doi-provider` | the DOI badge of the README | `zenodo`, or another provider for a generic DOI badge |
 | `Config/washr/zenodo-community` | the community in `.zenodo.json` | a Zenodo community, or `none` |
 | `Config/washr/brand-source` | the repository `use_brand()` copies from | a GitHub repository such as `openwashdata/brand`, or `none` |
+| `Config/washr/publisher` | the publisher sentence in the footer | a sentence, Markdown allowed, or `none` |
+| `Config/washr/home` | the website of the organisation: the navbar link, the line under the README badges, the publisher url in the metadata | a URL, or `none` |
+| `Config/washr/catalog` | the data catalogue named in the metadata (`includedInDataCatalog`) | a URL, or `none` |
+| `Config/washr/community` | the text of the community block in the sidebar | a text, Markdown allowed, or `none` |
 | `Config/washr/pages-domain` | the domain of the site | only written by hand, when the site is not served from `[org].github.io` |
 | `Config/washr/version` | the washr version that last ran `update_description()` | written by washr |
 | `Config/washr/brand` | the brand release that `use_brand()` installed | written by washr |
 
 The values are the person's or the organisation's. Do not write a
-funding sentence, an analytics domain or a community the person did not
-give.
+funding sentence, an analytics domain, a publisher, a website, a
+catalogue or a community the person did not give.
+
+## Updating the file after a washr release
+
+`washr::update_website()` adds to an existing `_pkgdown.yml` what the
+template has gained since the file was written (the footer, the navbar
+link, the sidebar blocks, the Open Graph image when the brand is
+installed) and refreshes the washr version in the footer. It keeps the
+reference index, hand edits, comments and the brand wiring, respects a
+footer, navbar or sidebar written by hand, and leaves a current file
+untouched. `update_description()` refreshes the version line on its
+own. The function is the fix the readiness items `pkgdown_publisher`
+and `pkgdown_washr_version` name.
 
 ## Deployment
 

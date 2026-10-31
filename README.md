@@ -82,10 +82,12 @@ Each review addresses 4 key areas:
 ## Requirements
 
 - R and RStudio
-- R packages on the reviewer's machine: `washr` 1.2.0 or newer (keeps
+- R packages on the reviewer's machine: `washr` 1.2.1 or newer (keeps
   DESCRIPTION, CITATION.cff, and inst/CITATION in sync, owns the site
   metadata, and decides the metadata, docs, and tests lines of the check
-  script; packages in the registered orgs are scaffolded with it), plus
+  script; packages in the registered orgs are scaffolded with it; until
+  CRAN serves 1.2.1, install it from GitHub with
+  `pak::pak("openwashdata/washr@v1.2.1")`), plus
   `desc`, `devtools`, `pkgdown`, and `usethis` for checks, site previews,
   and releases
 - GitHub CLI (`gh`)
@@ -99,7 +101,8 @@ and checked weekly by CI):
 |-----------|-------|
 | 1.0.0 to 1.4.0 | 1.0.1, with the caveats the skills carried |
 | 1.5.0 to 1.6.1 | >= 1.1.0 |
-| 1.7.0 and later | >= 1.2.0 (the check script calls `washr::check_publication_readiness()`) |
+| 1.7.0 | >= 1.2.0 (the check script calls `washr::check_publication_readiness()`) |
+| 1.8.0 and later | >= 1.2.1 (the check script prints the footer items of washr 1.2.1) |
 
 ## Repository Structure
 

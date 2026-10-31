@@ -1,0 +1,2 @@
+- [FAIL] (advisory) _pkgdown.yml footer carries the publisher sentence from the org profile: the profile's publisher text was not found verbatim in the footer
+- [FAIL] (advisory) _pkgdown.yml footer names the washr version recorded in DESCRIPTION: the footer has no washr line

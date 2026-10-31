@@ -100,7 +100,7 @@ pval <- function(k) if (!is.null(profile) && !is.null(profile[[k]]) && length(pr
 # four-part version such as 1.1.1.9000) that already exports the function
 # is accepted, so this script can be run against washr's dev branch ahead
 # of the release that carries the floor.
-WASHR_FLOOR_FALLBACK <- "1.2.0"
+WASHR_FLOOR_FALLBACK <- "1.2.1"
 floor_file <- file.path(script_dir, "..", "WASHR_FLOOR")
 washr_floor <- if (file.exists(floor_file)) trimws(readLines(floor_file, warn = FALSE)[1]) else WASHR_FLOOR_FALLBACK
 if (!requireNamespace("washr", quietly = TRUE))
@@ -202,6 +202,11 @@ if (!has("DESCRIPTION") || !has("NAMESPACE"))
 readiness_profile <- list(analytics = analytics)
 for (k in c("site_url_pattern", "funding_text", "keywords_required", "brand"))
   if (!is.null(pval(k))) readiness_profile[[k]] <- pval(k)
+# The publisher sentence of the footer (washr 1.2.1, openwashdata/washr#145).
+# A profile that says none passes nothing, so washr reports the item as not
+# applicable instead of looking for the word none.
+if (!is.null(pval("publisher_text")) && !identical(tolower(pval("publisher_text")), "none"))
+  readiness_profile$publisher_text <- pval("publisher_text")
 readiness <- local({
   old <- options(washr.quiet = TRUE)
   on.exit(options(old))
@@ -271,6 +276,16 @@ WASHR_LINES <- list(
         else "_pkgdown.yml url is the Pages URL, not the repo URL"),
   wline("pkgdown_funding", "docs", "advisory",
         "_pkgdown.yml carries the funding sidebar text from the org profile"),
+  # The footer of washr 1.2.1 (openwashdata/washr#145): NOT RUN for an
+  # organization whose profile names no publisher, and for a package whose
+  # DESCRIPTION records no washr version yet (update_description() writes
+  # it); without _pkgdown.yml the presence line is the finding.
+  wline("pkgdown_publisher", "docs", "advisory",
+        "_pkgdown.yml footer carries the publisher sentence from the org profile",
+        na = if (pkgdown_present) "NOT RUN" else "omit"),
+  wline("pkgdown_washr_version", "docs", "advisory",
+        "_pkgdown.yml footer names the washr version recorded in DESCRIPTION",
+        na = if (pkgdown_present) "NOT RUN" else "omit"),
   wline("pkgdown_brand", "docs", "advisory",
         if (brand_none) "_pkgdown.yml carries no brand (the org profile defines none)"
         else "_pkgdown.yml brand wiring matches the org profile"),
