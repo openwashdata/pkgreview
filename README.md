@@ -85,7 +85,9 @@ Each review addresses 4 key areas:
 - R packages on the reviewer's machine: `washr` 1.2.1 or newer (keeps
   DESCRIPTION, CITATION.cff, and inst/CITATION in sync, owns the site
   metadata, and decides the metadata, docs, and tests lines of the check
-  script; packages in the registered orgs are scaffolded with it), plus
+  script; packages in the registered orgs are scaffolded with it; until
+  CRAN serves 1.2.1, install it from GitHub with
+  `pak::pak("openwashdata/washr@v1.2.1")`), plus
   `desc`, `devtools`, `pkgdown`, and `usethis` for checks, site previews,
   and releases
 - GitHub CLI (`gh`)
