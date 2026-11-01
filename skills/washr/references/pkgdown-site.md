@@ -16,6 +16,7 @@ against is `skills/pkgreview-core/references/templates/_pkgdown.yml`.
 | `template: includes: in_header` | the Plausible analytics header | `Config/washr/analytics-domain`; left out when `none` |
 | `template: bslib: brand` | the brand wiring, added by `washr::use_brand()` | `Config/washr/brand-source` |
 | `template: opengraph: image` | the social preview of the brand, added by `washr::use_brand()` | `Config/washr/brand-source` and `Config/washr/brand` |
+| the package logo (`man/figures/logo.png`, shown beside the title; `pkgdown/assets/logo-dark.png` and the rule in `pkgdown/extra.css` for the dark theme) | the small logo of the brand, added by `washr::use_brand()` since washr 1.2.2 | the brand file |
 | `navbar` | the link to the website of the organisation, before the GitHub icon | `Config/washr/home`; left out when `none` |
 | `home: links` | the link to the GitHub repository | the repository in `URL` |
 | `home: sidebar` | the funding sentence and the community block | `Config/washr/funding` and `Config/washr/community`; each left out when `none` |
@@ -43,7 +44,7 @@ catalogue and community fields as `none`.
 | `Config/washr/zenodo-community` | the community in `.zenodo.json` | a Zenodo community, or `none` |
 | `Config/washr/brand-source` | the repository `use_brand()` copies from | a GitHub repository such as `openwashdata/brand`, or `none` |
 | `Config/washr/publisher` | the publisher sentence in the footer | a sentence, Markdown allowed, or `none` |
-| `Config/washr/home` | the website of the organisation: the navbar link, the line under the README badges, the publisher url in the metadata | a URL, or `none` |
+| `Config/washr/home` | the website of the organisation: the navbar link, the publisher sentence under Citation in the README, the publisher url in the metadata | a URL, or `none` |
 | `Config/washr/catalog` | the data catalogue named in the metadata (`includedInDataCatalog`) | a URL, or `none` |
 | `Config/washr/community` | the text of the community block in the sidebar | a text, Markdown allowed, or `none` |
 | `Config/washr/pages-domain` | the domain of the site | only written by hand, when the site is not served from `[org].github.io` |

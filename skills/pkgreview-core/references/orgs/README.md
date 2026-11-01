@@ -37,7 +37,7 @@ Every profile carries this field table:
 | Package site URL pattern | The pkgdown `url:` value per package |
 | Analytics | Analytics header for `_pkgdown.yml`, or `none` |
 | Funding sidebar text | The `home.sidebar` custom component text |
-| Website | The organization's website: the navbar link, the line under the README badges and the publisher url in the site metadata; or `none` |
+| Website | The organization's website: the navbar link, the publisher sentence under Citation in the README and the publisher url in the site metadata; or `none` |
 | Data catalogue | The catalogue named as `includedInDataCatalog` in the site metadata, or `none` |
 | Community sidebar text | The `home.sidebar` community component text, or `none` |
 | Publisher footer text | The `footer.components.publisher` sentence, matched verbatim, or `none` |

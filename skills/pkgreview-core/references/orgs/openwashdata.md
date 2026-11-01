@@ -11,7 +11,7 @@ for reviews that predate org profiles (before v1.3.0).
 | Package site URL pattern | `https://openwashdata.github.io/<package>/` |
 | Analytics | Plausible: `<script defer data-domain="openwashdata.github.io" src="https://plausible.io/js/script.js"></script>` |
 | Funding sidebar text | This project was funded by the [Open Research Data Program of the ETH Board](https://ethrat.ch/en/eth-domain/open-research-data/). |
-| Website | `https://openwashdata.org`: the navbar link, the line under the README badges and the publisher url in the site metadata |
+| Website | `https://openwashdata.org`: the navbar link, the publisher sentence under Citation in the README and the publisher url in the site metadata |
 | Data catalogue | `https://openwashdata.org/pages/gallery/data/`: `includedInDataCatalog` in the site metadata |
 | Community sidebar text | This package is part of [openwashdata](https://openwashdata.org). Browse the [data catalogue](https://openwashdata.org/pages/gallery/data/) or get the [newsletter](https://openwashdata.org/pages/newsletter/). |
 | Publisher footer text | Published by [openwashdata](https://openwashdata.org), a project of [Global Health Engineering](https://ghe.ethz.ch/) at ETH Zurich. |

@@ -12,7 +12,7 @@ so the two profiles are near equal.
 | Package site URL pattern | `https://global-health-engineering.github.io/<package>/` |
 | Analytics | Plausible: `<script defer data-domain="global-health-engineering.github.io" src="https://plausible.io/js/script.js"></script>` |
 | Funding sidebar text | This project was funded by the [Open Research Data Program of the ETH Board](https://ethrat.ch/en/eth-domain/open-research-data/). Verify during the first GHE review (openwashdata/pkgreview#50). |
-| Website | `https://ghe.ethz.ch/`: the navbar link, the line under the README badges and the publisher url in the site metadata. Verify during the first GHE review (openwashdata/pkgreview#50). |
+| Website | `https://ghe.ethz.ch/`: the navbar link, the publisher sentence under Citation in the README and the publisher url in the site metadata. Verify during the first GHE review (openwashdata/pkgreview#50). |
 | Data catalogue | none: Global Health Engineering has no data catalogue, so the site metadata carries no `includedInDataCatalog` |
 | Community sidebar text | none: no community block in the sidebar |
 | Publisher footer text | Published by [Global Health Engineering](https://ghe.ethz.ch/) at ETH Zurich. Verify during the first GHE review (openwashdata/pkgreview#50). |
