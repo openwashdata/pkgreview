@@ -9,7 +9,7 @@ in the docs checklist
 
 | Order | Section | Who | Content |
 |---|---|---|---|
-| 1 | Title | washr | the package name |
+| 1 | Title | washr | the package name, with the small logo of the brand right-aligned and linked to the website once `use_brand()` has installed it (washr 1.2.2) |
 | 2 | Badges | washr | license, R CMD check, and the DOI once there is one, between the `badges: start` and `badges: end` markers |
 | 3 | Introduction | person | one paragraph in place of "The goal of [package] is to ..." |
 | 4 | Installation | washr | the install line for the repository, and the chunk that loads the packages the README uses |
