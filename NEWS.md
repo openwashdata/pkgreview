@@ -12,6 +12,7 @@ The release that pairs with washr 1.2.1 (openwashdata/washr#145): every package 
 - The floor is 1.2.1 throughout (`WASHR_FLOOR`, both org profiles, the skill preflights, the README table); washr 1.2.1 is a GitHub-only release that the next CRAN submission of washr carries, so the gate and drift workflows install washr from the dev branch on GitHub until CRAN serves the floor, as they did before 1.2.0 (#95).
 - Fixtures: `pkgreviewtest` carries the three new blocks and records the washr version, so the expected report gains two PASS lines and the 19 FAIL + 1 FLAG mapping to D1 to D17 is unchanged; the cases `footer-missing` and `footer-stale` cover the failing lines (#95).
 - `/washr`: the pkgdown site reference describes the new blocks, the four fields and `update_website()` (#95).
+- Check script and data checklist: the dictionary schema item accepts named columns after the five washr columns, as `washr::update_dictionary()` keeps them (openwashdata/washr#151, reconciliation row under v1.8.0); a new case covers an unnamed trailing column.
 
 # pkgreview 1.7.0
 

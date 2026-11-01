@@ -374,9 +374,11 @@ if (!file.exists(dict_path)) {
       "Dictionary descriptions present (no empty or placeholder)",
       if (any(bad)) paste("defective:", paste(dict$variable_name[bad], collapse = ", ")) else "")
 
-  # Dictionary schema (advisory): the five washr columns in order, UTF-8
-  # without a BOM, one class name per variable_type value. These are the
-  # pathologies the org catalog parser found across pre-standard packages.
+  # Dictionary schema (advisory): the five washr columns first, in order,
+  # further named columns allowed (washr::update_dictionary() keeps them,
+  # openwashdata/washr#151), UTF-8 without a BOM, one class name per
+  # variable_type value. These are the pathologies the org catalog parser
+  # found across pre-standard packages.
   DICT_COLS <- c("directory", "file_name", "variable_name", "variable_type", "description")
   head_bytes <- readBin(dict_path, "raw", n = 3L)
   has_bom <- length(head_bytes) == 3L && identical(as.integer(head_bytes), c(0xEFL, 0xBBL, 0xBFL))
@@ -390,8 +392,10 @@ if (!file.exists(dict_path)) {
   schema_problems <- c(
     if (has_bom) "UTF-8 byte order mark at the start of the file",
     if (bad_utf8) "non-UTF-8 bytes in the file",
-    if (!identical(cols, DICT_COLS))
-      sprintf("columns are [%s], expected [%s]", paste(cols, collapse = ", "), paste(DICT_COLS, collapse = ", ")),
+    if (!identical(cols[seq_along(DICT_COLS)], DICT_COLS))
+      sprintf("columns are [%s], expected [%s] first", paste(cols, collapse = ", "), paste(DICT_COLS, collapse = ", ")),
+    if (length(cols) > length(DICT_COLS) && any(!nzchar(trimws(cols[-seq_along(DICT_COLS)]))))
+      "unnamed columns after the five washr columns",
     if (any(type_bad))
       sprintf("variable_type is not a single class name for: %s",
               paste(unique(dict$variable_name[type_bad]), collapse = ", ")))

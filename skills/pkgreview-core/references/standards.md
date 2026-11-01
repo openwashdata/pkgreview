@@ -47,10 +47,11 @@ as optional follow-ups, and never let them block publication.
 - `data-raw/dictionary.csv` covers every variable in every dataset, each
   with a one-sentence plain-language description. The description is the
   most important field; it is written or confirmed by a human, never
-  invented by an agent. The file keeps the five washr columns
+  invented by an agent. The file keeps the five washr columns first
   (`directory`, `file_name`, `variable_name`, `variable_type`,
-  `description`), UTF-8 without a byte order mark, one class name per
-  `variable_type` value; the organization catalog parses it that way.
+  `description`), further named columns such as `unit` after them, UTF-8
+  without a byte order mark, one class name per `variable_type` value;
+  the organization catalog parses it that way.
 - Vignettes live in `vignettes/articles/`, never directly in `vignettes/`.
   This keeps pkgdown rendering correct and avoids CRAN issues.
 - `_pkgdown.yml` follows the standard configuration below, including
