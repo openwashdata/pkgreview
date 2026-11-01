@@ -4,21 +4,40 @@
 # organization (profiles: skills/pkgreview-core/references/orgs/).
 # `url` is the site base URL (canonical links, sitemap.xml, redirects),
 # so it must be the Pages URL, never the GitHub repo URL; the repo link
-# lives in home.links below.
+# lives in home.links below. The navbar link, the sidebar texts and the
+# footer come from the org profile (home_url, funding_text,
+# community_text, publisher_text): washr::setup_website() writes them
+# from the Config/washr fields of DESCRIPTION, and washr::update_website()
+# adds them to a file written by an older washr.
 url: https://ORGDOMAIN/packagename/
 template:
   bootstrap: 5
   # Brand: only when the org profile defines one. washr::use_brand()
-  # installs _brand.yml and writes these two lines itself (through the
-  # yaml package, which drops the comments in this file). Leave them out
-  # for an org whose profile says none.
+  # installs _brand.yml and writes these lines itself, the Open Graph
+  # image included (the social preview of the brand repository at the
+  # installed release). Leave them out for an org whose profile says none.
   # bslib:
   #   brand: _brand.yml
+  # opengraph:
+  #   image:
+  #     src: https://raw.githubusercontent.com/ORGNAME/brand/vX.Y.Z/assets/social-preview.png
+  #     alt: ORGNAME, social preview image
   # The in_header block is the analytics header from the org profile;
   # omit includes: entirely when the profile defines no analytics.
   includes:
     in_header: |
       <script defer data-domain="ORGDOMAIN" src="https://plausible.io/js/script.js"></script>
+
+# The home component links the website of the org (home_url); omit the
+# navbar block entirely when the profile defines none.
+navbar:
+  structure:
+    right: [search, home, github, lightswitch]
+  components:
+    home:
+      text: openwashdata.org
+      href: https://openwashdata.org
+      aria-label: openwashdata website
 
 home:
   links:
@@ -26,13 +45,18 @@ home:
       text: GitHub repository
       href: https://github.com/ORGNAME/packagename
   sidebar:
-    structure: [links, citation, authors, dev, custom]
+    structure: [links, citation, authors, dev, custom, community]
     components:
       custom:
         title: Funding
         # The text value comes from the org profile's funding sidebar
         # field; both currently registered orgs use the line below.
         text: This project was funded by the [Open Research Data Program of the ETH Board](https://ethrat.ch/en/eth-domain/open-research-data/).
+      # The community block comes from the org profile's community_text;
+      # omit it, and its name in structure, when the profile defines none.
+      community:
+        title: openwashdata
+        text: This package is part of [openwashdata](https://openwashdata.org). Browse the [data catalogue](https://openwashdata.org/pages/gallery/data/) or get the [newsletter](https://openwashdata.org/pages/newsletter/).
 
 authors:
   footer:
@@ -42,6 +66,18 @@ authors:
     roles: [cre, aut, ctb]
     before: "So *who* does the work?"
     after: "Thanks all!"
+
+# The footer names the washr version recorded in Config/washr/version of
+# DESCRIPTION (washr::update_description() refreshes both) and the
+# publisher from the org profile's publisher_text; omit publisher, and its
+# name in structure, when the profile defines none.
+footer:
+  structure:
+    left: [developed_by, publisher]
+    right: [washr, built_with]
+  components:
+    publisher: Published by [openwashdata](https://openwashdata.org), a project of [Global Health Engineering](https://ghe.ethz.ch/) at ETH Zurich.
+    washr: Package built with [washr](https://openwashdata.github.io/washr/) 1.2.1.
 
 # Multi-dataset packages: list one entry per data object under contents,
 # each with its unique, descriptive name (see the data checklist); none of

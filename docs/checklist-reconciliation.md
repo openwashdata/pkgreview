@@ -550,3 +550,16 @@ profile, and the deprecated `--analytics` path, so the D1 to D17 mapping
 `fixtures/make_history_fixture.sh` writes an empty `NAMESPACE` next to
 DESCRIPTION, which changes no line. The gate workflow installs washr
 from CRAN before it runs the script.
+
+## Dictionary schema: named columns after the five (openwashdata/washr#151, v1.8.0)
+
+Date: 2026-11-01. washr 1.3.0 brings older dictionary layouts to the five
+washr columns and keeps every further named column a package added, such
+as `unit` or `allowed_values` (#39); its readiness item `dictionary_schema`
+accepts those columns after the five. The check script and the data
+checklist follow, so a package with such columns is not flagged for them.
+The report line keeps its text.
+
+| Item | Decision | Before | After |
+|------|----------|--------|-------|
+| data.md: dictionary schema | reword | exactly the five washr columns in order | the five washr columns first, in order, further named columns allowed after them; unnamed columns still fail |
