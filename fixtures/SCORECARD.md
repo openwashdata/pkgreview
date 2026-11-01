@@ -56,6 +56,8 @@ Note on the v1.6.1 line (issue #86): the check script reports invalid UTF-8 stri
 
 Note on the v1.7.0 swap (issues #66 and #87): the metadata, docs, and tests lines of the check script are no longer computed in the script. They are the rows of `washr::check_publication_readiness()` (washr 1.2.0), printed under the same line texts and tiers through the `WASHR_LINES` table of the script. The defects those lines catch (D1 and D2 in metadata, D6 and D7 in docs, D5 in tests) keep their mapping, and the count is unchanged: both expected reports under `fixtures/expected/` and the nine cases under `fixtures/cases/` are byte identical before and after the swap. The data lines, the PII FLAG, and the history FLAG (D18) are still the script's own. The history fixture gained an empty `NAMESPACE`, because washr reads a package root.
 
+Note on the v1.8.0 footer lines (issue #95, washr 1.2.1): the check script prints two more advisory docs lines from washr, the publisher sentence in the footer and the washr version the footer names against `Config/washr/version` in DESCRIPTION. `pkgreviewtest` carries the navbar, community and footer blocks of the washr 1.2.1 template and records the version, so its expected report gains two PASS lines; the 19 FAIL + 1 FLAG mapping to D1 to D17 is unchanged, and D7 keeps its two planted deviations. The failing lines are covered by the cases `fixtures/cases/footer-missing/` and `fixtures/cases/footer-stale/`.
+
 ## How to use this scorecard
 
 Run the full review workflow against `fixtures/pkgreviewtest` after every significant change to the checklists in `skills/pkgreview-core/references/checklists/` or to the review skills and commands.

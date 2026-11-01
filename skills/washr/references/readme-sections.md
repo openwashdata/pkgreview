@@ -9,7 +9,7 @@ in the docs checklist
 
 | Order | Section | Who | Content |
 |---|---|---|---|
-| 1 | Title | washr | the package name |
+| 1 | Title | washr | the package name, with the small logo of the brand right-aligned and linked to the website once `use_brand()` has installed it (washr 1.2.2) |
 | 2 | Badges | washr | license, R CMD check, and the DOI once there is one, between the `badges: start` and `badges: end` markers |
 | 3 | Introduction | person | one paragraph in place of "The goal of [package] is to ..." |
 | 4 | Installation | washr | the install line for the repository, and the chunk that loads the packages the README uses |
@@ -18,7 +18,7 @@ in the docs checklist
 | 7 | One block per dataset | both | heading with the dataset name, a sentence on what it contains, the dimensions, a preview of three rows, the variable table from the dictionary |
 | 8 | Example | person | only with `has_example = TRUE`: what the plot shows, and one plot of the data |
 | 9 | License | washr | the license of DESCRIPTION with a link to `LICENSE.md` |
-| 10 | Citation | washr | the output of `citation("[package]")` |
+| 10 | Citation | washr | the publisher sentence with the website of the organisation ("Published by openwashdata, <https://openwashdata.org>.", since washr 1.2.2), then the output of `citation("[package]")` |
 
 ## The introduction
 

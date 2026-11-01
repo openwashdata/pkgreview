@@ -24,11 +24,11 @@ the person to confirm.
 first step that is not done. With a step number (`3`) or name
 (`dictionary`), run Step 0 and go to that step.
 
-The skill needs washr 1.2.0 or newer. It relies on what 1.2.0 added:
+The skill needs washr 1.2.1 or newer. It relies on what 1.2.0 added:
 messages in three fixed kinds, a returned path from every function,
 `update_dictionary()`, `update_zenodo_json()`, the `Config/washr/` fields
-in DESCRIPTION, and `check_publication_readiness()`. Do not adapt the
-steps to an older washr.
+in DESCRIPTION, and `check_publication_readiness()`, and on
+`update_website()` from 1.2.1. Do not adapt the steps to an older washr.
 
 ## Rules, non-negotiable
 
@@ -92,7 +92,7 @@ it. Report a step as done only after its "Verify" check passed.
 ## Step 0: Preflight
 
 - washr version:
-  `Rscript -e 'stopifnot(packageVersion("washr") >= "1.2.0")'`.
+  `Rscript -e 'stopifnot(packageVersion("washr") >= "1.2.1")'`.
   If it fails, stop and tell the person to run
   `install.packages("washr")`. `check_publication_readiness()` names the
   installed version in the first line of its report (Step 10).
@@ -358,8 +358,10 @@ Leave `has_example` out when the person wants no example article. The
 call writes `_pkgdown.yml` from DESCRIPTION and builds the site into
 `docs/`, which takes a minute. An existing `_pkgdown.yml` is kept as it
 is, so a data object added later has to be added to its `reference`
-index by hand, or the build stops. The file is explained in
-`${CLAUDE_SKILL_DIR}/references/pkgdown-site.md`.
+index by hand, or the build stops. A file written by an older washr is
+brought up to date with `washr::update_website()`, which adds the
+footer, the navbar link and the sidebar blocks and keeps the rest. The
+file is explained in `${CLAUDE_SKILL_DIR}/references/pkgdown-site.md`.
 
 pkgdown reports "URLs not ok" while the site URL is missing from
 DESCRIPTION. Add it (the `url` line of `_pkgdown.yml`), then refresh the

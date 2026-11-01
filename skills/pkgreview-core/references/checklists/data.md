@@ -25,7 +25,7 @@ block publication.
 
 ### Dictionary
 
-- [ ] `data-raw/dictionary.csv` has exactly the five washr columns in order (`directory`, `file_name`, `variable_name`, `variable_type`, `description`), is UTF-8 without a byte order mark, and `variable_type` holds one class name per row (for example `Date`, not `c("POSIXct", "POSIXt")`); the organization catalog and `washr::update_metadata()` parse it with that schema
+- [ ] `data-raw/dictionary.csv` has the five washr columns first, in order (`directory`, `file_name`, `variable_name`, `variable_type`, `description`), further named columns such as `unit` allowed after them, is UTF-8 without a byte order mark, and `variable_type` holds one class name per row (for example `Date`, not `c("POSIXct", "POSIXt")`); the organization catalog and `washr::update_metadata()` parse it with that schema
 
 ### Data quality
 

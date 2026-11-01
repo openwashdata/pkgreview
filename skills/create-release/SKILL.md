@@ -40,7 +40,7 @@ stop; nothing is written on a partial preflight.
   ```bash
   Rscript -e 'floor <- readLines("${CLAUDE_SKILL_DIR}/../pkgreview-core/WASHR_FLOOR"); stopifnot(packageVersion("washr") >= floor)'
   ```
-  The floor is recorded once in `pkgreview-core/WASHR_FLOOR` (1.2.0 at
+  The floor is recorded once in `pkgreview-core/WASHR_FLOOR` (1.2.1 at
   this writing). Otherwise: `install.packages("washr")`, then rerun the
   skill. Do not adapt the steps below to an older washr.
 - Organization profile. Derive the org from `git remote get-url origin`,

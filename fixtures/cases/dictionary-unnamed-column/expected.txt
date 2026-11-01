@@ -1,0 +1,1 @@
+- [FAIL] (advisory) Dictionary schema: five washr columns, UTF-8 without BOM, single-class variable_type: unnamed columns after the five washr columns
