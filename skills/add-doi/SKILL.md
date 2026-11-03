@@ -1,6 +1,6 @@
 ---
 name: add-doi
-description: Integrate a Zenodo DOI into a reviewed package after release, covering citation files, site metadata, README badge verification, website deployment, the dev sync, and the development version on dev. Standalone resume path when the DOI arrives after /create-release ended.
+description: Integrate a Zenodo DOI into a reviewed package after release, covering citation files, site metadata, README badge verification, website deployment, the Zenodo record and community request, the dev sync, and the development version on dev. Standalone resume path when the DOI arrives after /create-release ended.
 disable-model-invocation: true
 argument-hint: "[doi]"
 ---
@@ -122,13 +122,33 @@ item).
 
 ## Step 7: Review the Zenodo record
 
+washr writes the record metadata into `.zenodo.json` (washr 1.3.0 or
+newer): resource type Dataset, the community from the org profile, the
+package website as a second paragraph of the description and as a
+related identifier (`isDocumentedBy`), and the repository as a related
+identifier (`isSupplementTo`). Nothing has to be added by hand; the
+review only confirms that Zenodo took it over.
+
+The community is the exception. The GitHub integration only submits a
+request to the community, and the record stays outside it until a
+curator of the community accepts the request in the community's request
+inbox: `https://zenodo.org/communities/[Zenodo community from the org
+profile]/requests`.
+
 Prompt the user once to review the Zenodo record in the web UI (record
 edits stay manual; nothing here is scripted):
 
-> "Please check the Zenodo record: is it in the [Zenodo community from
-> the org profile] community, is the resource type Dataset (not
-> Software), and do the related identifiers link the GitHub repository
-> and the pkgdown site?"
+> "Please check the Zenodo record: is the resource type Dataset (not
+> Software), does the description link the package website, and do the
+> related identifiers list the GitHub repository and the website? The
+> record joins the [Zenodo community from the org profile] community
+> only once its request is accepted: a curator of the community accepts
+> it at https://zenodo.org/communities/[Zenodo community from the org
+> profile]/requests. Is the record listed in the community?"
+
+If a link is missing, that is a washr defect to file on
+openwashdata/washr; add it in the Zenodo editor for this record and
+report it.
 
 ## Step 8: Verify
 
