@@ -22,7 +22,7 @@ DOI; without it the reviewer has to work through the steps by hand. It is
 also the repair path for packages released before DOI integration existed.
 
 Prerequisites: the GitHub release exists, you are on `main`, no
-uncommitted changes, R with `washr` 1.2.1 or newer installed.
+uncommitted changes, R with `washr` 1.3.0 or newer installed.
 
 ## Step 1: Validate
 
@@ -32,8 +32,9 @@ uncommitted changes, R with `washr` 1.2.1 or newer installed.
   If it fails, stop and tell the user to run `install.packages("washr")`.
   The steps below rely on behavior older versions lack (badge insertion
   and repair, README rebuild, DOI kept on later runs, `.zenodo.json`
-  written with the citation files) and must not be adapted to an older
-  washr.
+  written with the citation files, the website and repository links in
+  `.zenodo.json`, `data_availability_statement()`) and must not be
+  adapted to an older washr.
 - `$ARGUMENTS` matches `10.XXXX/zenodo.NNNNNNN` (regex
   `^10\.\d{4,9}/zenodo\.\d+$`). If not, stop and ask for the DOI in that
   format.

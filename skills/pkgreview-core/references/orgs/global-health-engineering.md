@@ -16,7 +16,7 @@ so the two profiles are near equal.
 | Data catalogue | none: Global Health Engineering has no data catalogue, so the site metadata carries no `includedInDataCatalog` |
 | Community sidebar text | none: no community block in the sidebar |
 | Publisher footer text | Published by [Global Health Engineering](https://ghe.ethz.ch/) at ETH Zurich. Verify during the first GHE review (openwashdata/pkgreview#50). |
-| Citation tooling | washr >= 1.2.1: `washr::update_citation()`, `washr::update_description()`, `washr::update_metadata()`. Verify the output carries no openwashdata-specific branding (#48 decision 2) |
+| Citation tooling | washr >= 1.3.0: `washr::update_citation()`, `washr::update_description()`, `washr::update_metadata()`. Verify the output carries no openwashdata-specific branding (#48 decision 2) |
 | README template | washr README template |
 | Discovery keywords (minimum) | open data, global health, the topic, the country or region |
 | Brand | none: the openwashdata brand must not appear in a Global-Health-Engineering package, so `washr::use_brand()` is not run and `_pkgdown.yml` carries no `bslib.brand` line |

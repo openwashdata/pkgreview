@@ -24,7 +24,8 @@ the person to confirm.
 first step that is not done. With a step number (`3`) or name
 (`dictionary`), run Step 0 and go to that step.
 
-The skill needs washr 1.2.1 or newer. It relies on what 1.2.0 added:
+The skill needs washr 1.3.0 or newer, the floor of every pkgreview skill
+(`pkgreview-core/WASHR_FLOOR`). It relies on what 1.2.0 added:
 messages in three fixed kinds, a returned path from every function,
 `update_dictionary()`, `update_zenodo_json()`, the `Config/washr/` fields
 in DESCRIPTION, and `check_publication_readiness()`, and on
@@ -92,7 +93,7 @@ it. Report a step as done only after its "Verify" check passed.
 ## Step 0: Preflight
 
 - washr version:
-  `Rscript -e 'stopifnot(packageVersion("washr") >= "1.2.1")'`.
+  `Rscript -e 'stopifnot(packageVersion("washr") >= "1.3.0")'`.
   If it fails, stop and tell the person to run
   `install.packages("washr")`. `check_publication_readiness()` names the
   installed version in the first line of its report (Step 10).
