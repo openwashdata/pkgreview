@@ -145,7 +145,7 @@ already exists:
   `dev` moved ahead, merge instead:
   `git checkout dev && git pull && git merge main && git push origin dev && git checkout main`.
 - Do not set the development version on `dev` here. It is set once the
-  DOI is in, in add-doi Step 9 (reached through Step 5 below, or through
+  DOI is in, in add-doi Step 10 (reached through Step 5 below, or through
   `/add-doi` later). A version bump on `dev` before the DOI commit lands
   on `main` turns that second sync into a merge with a conflict in
   CITATION.cff (openwashdata/pkgreview#55).
@@ -157,11 +157,11 @@ Ask:
 > "GitHub release created. Please check Zenodo for the generated DOI and
 > provide it (format: 10.5281/zenodo.XXXXXXX):"
 
-With the DOI provided, follow steps 2 to 9 of the `add-doi` skill
+With the DOI provided, follow steps 2 to 10 of the `add-doi` skill
 (`${CLAUDE_SKILL_DIR}/../add-doi/SKILL.md`): citation files, site
 metadata, badge verification, commit and push, website deployment,
-Zenodo record review, DOI verification, dev sync, development version
-on `dev`. That skill is the single implementation of DOI integration; do
+Zenodo record review and community request, DOI verification, the
+text for the article authors, dev sync, development version on `dev`. That skill is the single implementation of DOI integration; do
 not duplicate its steps here.
 
 If the session ends before the DOI exists, the user can resume later with

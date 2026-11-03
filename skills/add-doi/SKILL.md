@@ -1,6 +1,6 @@
 ---
 name: add-doi
-description: Integrate a Zenodo DOI into a reviewed package after release, covering citation files, site metadata, README badge verification, website deployment, the Zenodo record and community request, the dev sync, and the development version on dev. Standalone resume path when the DOI arrives after /create-release ended.
+description: Integrate a Zenodo DOI into a reviewed package after release, covering citation files, site metadata, README badge verification, website deployment, the Zenodo record and community request, the reference entry and data availability statement for the article authors, the dev sync, and the development version on dev. Standalone resume path when the DOI arrives after /create-release ended.
 disable-model-invocation: true
 argument-hint: "[doi]"
 ---
@@ -162,7 +162,35 @@ report it.
 
 Report every result faithfully.
 
-## Step 9: Sync dev, set the development version, and stop
+## Step 9: Text for the article authors
+
+The authors of the article that uses the data need a reference list
+entry and a data availability statement. washr drafts both from the
+package metadata, with the in-text citation. Run this on `main`, before
+Step 10: after the development version is set on `dev`, the text would
+name an unreleased version.
+
+Ask the user once:
+
+> "Which data does the article use? The statement opens with these
+> words, for example 'The household survey data'. Press enter to keep
+> the default 'The data'."
+
+Then run, with the answer as `subject` (leave the argument out for the
+default):
+
+```bash
+Rscript -e 'print(washr::data_availability_statement(subject = "[answer]"))'
+```
+
+Show the three parts to the user as washr prints them, for the email to
+the authors; do not reword them. When some data was left out of the
+package (for example coordinates or free text, to protect the
+respondents), the statement ends with the sentence that
+`Config/washr/withheld` in DESCRIPTION holds; without the field it has
+no such sentence.
+
+## Step 10: Sync dev, set the development version, and stop
 
 `dev` is the standing integration branch and, in some packages, still the
 GitHub default branch; both must show the released citation
