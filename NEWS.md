@@ -8,6 +8,7 @@ The release that pairs with washr 1.3.0. No checklist item changed.
 
 - `/add-doi` Step 7: washr 1.3.0 writes the website link into the description of `.zenodo.json` and the repository (`isSupplementTo`) and the website (`isDocumentedBy`) as related identifiers (openwashdata/washr#154), so the Zenodo record review only confirms them. The step also says that the GitHub integration only requests the community and names the request inbox where a curator of the community accepts it; the guluswm 1.0.0 record stayed outside the community until it was added by hand (#99).
 - `/add-doi` Step 9, new: asks for the opening words of the data availability statement ("The data" by default) and runs `washr::data_availability_statement()` on `main`, before the development version is set, so the reference entry, the statement and the in-text citation for the article authors are ready once the DOI is in (openwashdata/washr#155). The dev sync and the development version move to Step 10; `/create-release` follows the numbering (#99).
+- `/create-release` Step 2 sets the DESCRIPTION `Date` to the release day next to the version, because washr keeps an existing Date (openwashdata/washr#150) and the citation files copy it into `date-released`; guluswm 1.0.0 needed a manual fix (#101).
 - The floor is 1.3.0 throughout (`WASHR_FLOOR`, the check script fallback, both org profiles, the skill preflights, the standards file, the README table). The gate and drift workflows install washr from the dev branch on GitHub until CRAN serves 1.3.0 (#99).
 
 # pkgreview 1.8.0

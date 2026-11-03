@@ -85,9 +85,12 @@ main` now.
    If either check fails, stop and report which one.
 2. Set the version directly. `usethis::use_version()` takes a bump type
    (`major`, `minor`, `patch`, `dev`), not a target version, so it cannot
-   set an arbitrary one:
+   set an arbitrary one. Set `Date` to the release day in the same step:
+   washr keeps an existing Date (openwashdata/washr#150), and the citation
+   files copy it into `date-released`:
    ```r
    desc::desc_set_version("$ARGUMENTS")
+   desc::desc_set("Date", as.character(Sys.Date()))
    ```
 3. Regenerate the citation files without rebuilding anything:
    ```r
