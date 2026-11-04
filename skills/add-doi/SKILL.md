@@ -1,6 +1,6 @@
 ---
 name: add-doi
-description: Integrate a Zenodo DOI into a reviewed package after release, covering citation files, site metadata, README badge verification, website deployment, the Zenodo record and community request, the reference entry and data availability statement for the article authors, the dev sync, and the development version on dev. Standalone resume path when the DOI arrives after /create-release ended.
+description: Integrate a Zenodo DOI into a reviewed package after release, covering citation files, site metadata, README badge verification, website deployment, the Zenodo record and community request, the reference entry and data availability statement for the article authors, and the dev sync. Standalone resume path when the DOI arrives after /create-release ended.
 disable-model-invocation: true
 argument-hint: "[doi]"
 ---
@@ -167,9 +167,8 @@ Report every result faithfully.
 
 The authors of the article that uses the data need a reference list
 entry and a data availability statement. washr drafts both from the
-package metadata, with the in-text citation. Run this on `main`, before
-Step 10: after the development version is set on `dev`, the text would
-name an unreleased version.
+package metadata, with the in-text citation. Run this on `main`, where
+the version is the released one.
 
 Ask the user once:
 
@@ -191,7 +190,7 @@ respondents), the statement ends with the sentence that
 `Config/washr/withheld` in DESCRIPTION holds; without the field it has
 no such sentence.
 
-## Step 10: Sync dev, set the development version, and stop
+## Step 10: Sync dev and stop
 
 `dev` is the standing integration branch and, in some packages, still the
 GitHub default branch; both must show the released citation
@@ -205,30 +204,13 @@ Right after a release this is a fast-forward. If it is rejected because
 `dev` moved ahead, merge instead:
 `git checkout dev && git pull && git merge main && git push origin dev && git checkout main`.
 
-Then start the next development cycle on `dev`
-(openwashdata/pkgreview#55). The order matters: sync first, then bump.
-
-```bash
-git checkout dev && git pull
-Rscript -e 'usethis::use_dev_version()'
-Rscript -e 'washr::update_citation(build = FALSE)'
-git add DESCRIPTION CITATION.cff inst/CITATION .zenodo.json
-git add NEWS.md 2>/dev/null
-git commit -m "Increment version number to [x.y.z].9000"
-git push origin dev
-git checkout main
-```
-
-`use_dev_version()` sets `x.y.z.9000` in DESCRIPTION and puts a
-`# [packagename] (development version)` heading at the top of NEWS.md,
-where the next review or maintenance PRs add their bullets. The
-`update_citation()` call makes CITATION.cff, inst/CITATION, and
-`.zenodo.json` follow, so
-the version line of the check script stays green on `dev`; it keeps the
-DOI on file. `main` keeps the released version and the tag, and `dev` is
-one commit ahead, which is its normal state. When the version on `dev`
-already has a fourth component, `use_dev_version()` changes nothing:
-skip the commit and the push.
+Do not set a development version here. A data package's version changes
+only when the data, or the meaning of the data, changes (#103, versioning
+rule in the standards file): the first commit on `dev` that changes data
+or meaning sets `x.y.z.9000` (`usethis::use_dev_version()`, then
+`washr::update_citation(build = FALSE)`). Website, article and wording
+changes stay on the released version, so `main` and `dev` keep citing the
+release until then.
 
 A release post is optional and stays with the maintainer; the outline
 for one is in

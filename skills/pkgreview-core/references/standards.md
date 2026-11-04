@@ -85,6 +85,16 @@ as optional follow-ups, and never let them block publication.
   the badge by hand. washr 1.3.0 or newer is the floor for these calls.
 - Raw data stays in `data-raw/`, processed `.rda` data in `data/`, and
   CSV/XLSX exports in `inst/extdata/`.
+- The version follows the data. It changes only when the data, or the
+  meaning of the data, changes: major when columns are renamed or removed,
+  minor for new data, rows or variables, patch for corrected values or a
+  documentation fix that changes how the data are read (a unit, a variable
+  description, the dictionary). Website, articles, styling, CI, agent
+  notes and wording that does not change the meaning keep the released
+  version and may merge to `main` without a release. No development
+  version is set after a release; the first commit on `dev` that changes
+  data or meaning sets `x.y.z.9000` (`usethis::use_dev_version()`, then
+  `washr::update_citation(build = FALSE)`).
 
 ## Package structure
 

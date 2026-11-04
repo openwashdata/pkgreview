@@ -1,6 +1,6 @@
 ---
 name: create-release
-description: Create a versioned release of a reviewed R data package after the review PR is merged to main. Handles the preflight, the version bump, NEWS.md, the GitHub release, the two-step Zenodo DOI flow with mandatory pauses, the dev sync, and the development version on dev afterwards.
+description: Create a versioned release of a reviewed R data package after the review PR is merged to main. Handles the preflight, the version bump, NEWS.md, the GitHub release, the two-step Zenodo DOI flow with mandatory pauses, and the dev sync.
 disable-model-invocation: true
 argument-hint: "[version]"
 ---
@@ -147,11 +147,10 @@ already exists:
   Right after a release this is a fast-forward. If it is rejected because
   `dev` moved ahead, merge instead:
   `git checkout dev && git pull && git merge main && git push origin dev && git checkout main`.
-- Do not set the development version on `dev` here. It is set once the
-  DOI is in, in add-doi Step 10 (reached through Step 5 below, or through
-  `/add-doi` later). A version bump on `dev` before the DOI commit lands
-  on `main` turns that second sync into a merge with a conflict in
-  CITATION.cff (openwashdata/pkgreview#55).
+- Do not set a development version on `dev`, here or after the DOI.
+  A data package's version changes only when the data, or the meaning of
+  the data, changes (#103, versioning rule in the standards file); the
+  first commit on `dev` that does so sets `x.y.z.9000`.
 
 ## Step 5: Post-release DOI integration (PAUSE)
 
@@ -164,7 +163,7 @@ With the DOI provided, follow steps 2 to 10 of the `add-doi` skill
 (`${CLAUDE_SKILL_DIR}/../add-doi/SKILL.md`): citation files, site
 metadata, badge verification, commit and push, website deployment,
 Zenodo record review and community request, DOI verification, the
-text for the article authors, dev sync, development version on `dev`. That skill is the single implementation of DOI integration; do
+text for the article authors, dev sync. That skill is the single implementation of DOI integration; do
 not duplicate its steps here.
 
 If the session ends before the DOI exists, the user can resume later with
