@@ -2,6 +2,16 @@
 
 One section per release. Skill, script, template, fixture, and process changes are recorded here; checklist wording changes are recorded in `docs/checklist-reconciliation.md` (repo rule 3), one row per item. Releases before 1.5.0 are described by their reconciliation sections and tag messages.
 
+# pkgreview 1.9.0
+
+The release that pairs with washr 1.3.0. No checklist item changed.
+
+- `/add-doi` Step 7: washr 1.3.0 writes the website link into the description of `.zenodo.json` and the repository (`isSupplementTo`) and the website (`isDocumentedBy`) as related identifiers (openwashdata/washr#154), so the Zenodo record review only confirms them. The step also says that the GitHub integration only requests the community and names the request inbox where a curator of the community accepts it; the guluswm 1.0.0 record stayed outside the community until it was added by hand (#99).
+- `/add-doi` Step 9, new: asks for the opening words of the data availability statement ("The data" by default) and runs `washr::data_availability_statement()` on `main`, so the reference entry, the statement and the in-text citation for the article authors are ready once the DOI is in (openwashdata/washr#155). The dev sync moves to Step 10; `/create-release` follows the numbering (#99).
+- `/create-release` Step 2 sets the DESCRIPTION `Date` to the release day next to the version, because washr keeps an existing Date (openwashdata/washr#150) and the citation files copy it into `date-released`; guluswm 1.0.0 needed a manual fix (#101).
+- The version of a data package changes only when the data, or the meaning of the data, changes. `/add-doi` Step 10 now only syncs `dev` with `main` and no longer sets `x.y.z.9000` after a release; `/create-release` drops its note about the development version. The first commit on `dev` that changes data or meaning sets the development version. guluswm 1.0.0 had to revert the automatic bump to merge a CLAUDE.md change into `main` (#103).
+- The floor is 1.3.0 throughout (`WASHR_FLOOR`, the check script fallback, both org profiles, the skill preflights, the standards file, the README table). The gate and drift workflows install washr from the dev branch on GitHub until CRAN serves 1.3.0 (#99).
+
 # pkgreview 1.8.0
 
 The release that pairs with washr 1.2.1 (openwashdata/washr#145): every package site names washr and the organization it belongs to. No checklist item changed.

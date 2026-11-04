@@ -15,7 +15,7 @@ for reviews that predate org profiles (before v1.3.0).
 | Data catalogue | `https://openwashdata.org/pages/gallery/data/`: `includedInDataCatalog` in the site metadata |
 | Community sidebar text | This package is part of [openwashdata](https://openwashdata.org). Browse the [data catalogue](https://openwashdata.org/pages/gallery/data/) or get the [newsletter](https://openwashdata.org/pages/newsletter/). |
 | Publisher footer text | Published by [openwashdata](https://openwashdata.org), a project of [Global Health Engineering](https://ghe.ethz.ch/) at ETH Zurich. |
-| Citation tooling | washr >= 1.2.1: `washr::update_citation()`, `washr::update_description()`, `washr::update_metadata()` |
+| Citation tooling | washr >= 1.3.0: `washr::update_citation()`, `washr::update_description()`, `washr::update_metadata()` |
 | README template | washr README template |
 | Discovery keywords (minimum) | open data, washdata, the topic, the country or region |
 | Brand | `_brand.yml` from [openwashdata/brand](https://github.com/openwashdata/brand), installed and wired into `_pkgdown.yml` with `washr::use_brand()` |

@@ -100,7 +100,7 @@ pval <- function(k) if (!is.null(profile) && !is.null(profile[[k]]) && length(pr
 # four-part version such as 1.1.1.9000) that already exports the function
 # is accepted, so this script can be run against washr's dev branch ahead
 # of the release that carries the floor.
-WASHR_FLOOR_FALLBACK <- "1.2.1"
+WASHR_FLOOR_FALLBACK <- "1.3.0"
 floor_file <- file.path(script_dir, "..", "WASHR_FLOOR")
 washr_floor <- if (file.exists(floor_file)) trimws(readLines(floor_file, warn = FALSE)[1]) else WASHR_FLOOR_FALLBACK
 if (!requireNamespace("washr", quietly = TRUE))

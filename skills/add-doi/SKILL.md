@@ -1,6 +1,6 @@
 ---
 name: add-doi
-description: Integrate a Zenodo DOI into a reviewed package after release, covering citation files, site metadata, README badge verification, website deployment, the dev sync, and the development version on dev. Standalone resume path when the DOI arrives after /create-release ended.
+description: Integrate a Zenodo DOI into a reviewed package after release, covering citation files, site metadata, README badge verification, website deployment, the Zenodo record and community request, the reference entry and data availability statement for the article authors, and the dev sync. Standalone resume path when the DOI arrives after /create-release ended.
 disable-model-invocation: true
 argument-hint: "[doi]"
 ---
@@ -22,7 +22,7 @@ DOI; without it the reviewer has to work through the steps by hand. It is
 also the repair path for packages released before DOI integration existed.
 
 Prerequisites: the GitHub release exists, you are on `main`, no
-uncommitted changes, R with `washr` 1.2.1 or newer installed.
+uncommitted changes, R with `washr` 1.3.0 or newer installed.
 
 ## Step 1: Validate
 
@@ -32,8 +32,9 @@ uncommitted changes, R with `washr` 1.2.1 or newer installed.
   If it fails, stop and tell the user to run `install.packages("washr")`.
   The steps below rely on behavior older versions lack (badge insertion
   and repair, README rebuild, DOI kept on later runs, `.zenodo.json`
-  written with the citation files) and must not be adapted to an older
-  washr.
+  written with the citation files, the website and repository links in
+  `.zenodo.json`, `data_availability_statement()`) and must not be
+  adapted to an older washr.
 - `$ARGUMENTS` matches `10.XXXX/zenodo.NNNNNNN` (regex
   `^10\.\d{4,9}/zenodo\.\d+$`). If not, stop and ask for the DOI in that
   format.
@@ -122,13 +123,33 @@ item).
 
 ## Step 7: Review the Zenodo record
 
+washr writes the record metadata into `.zenodo.json` (washr 1.3.0 or
+newer): resource type Dataset, the community from the org profile, the
+package website as a second paragraph of the description and as a
+related identifier (`isDocumentedBy`), and the repository as a related
+identifier (`isSupplementTo`). Nothing has to be added by hand; the
+review only confirms that Zenodo took it over.
+
+The community is the exception. The GitHub integration only submits a
+request to the community, and the record stays outside it until a
+curator of the community accepts the request in the community's request
+inbox: `https://zenodo.org/communities/[Zenodo community from the org
+profile]/requests`.
+
 Prompt the user once to review the Zenodo record in the web UI (record
 edits stay manual; nothing here is scripted):
 
-> "Please check the Zenodo record: is it in the [Zenodo community from
-> the org profile] community, is the resource type Dataset (not
-> Software), and do the related identifiers link the GitHub repository
-> and the pkgdown site?"
+> "Please check the Zenodo record: is the resource type Dataset (not
+> Software), does the description link the package website, and do the
+> related identifiers list the GitHub repository and the website? The
+> record joins the [Zenodo community from the org profile] community
+> only once its request is accepted: a curator of the community accepts
+> it at https://zenodo.org/communities/[Zenodo community from the org
+> profile]/requests. Is the record listed in the community?"
+
+If a link is missing, that is a washr defect to file on
+openwashdata/washr; add it in the Zenodo editor for this record and
+report it.
 
 ## Step 8: Verify
 
@@ -142,7 +163,34 @@ edits stay manual; nothing here is scripted):
 
 Report every result faithfully.
 
-## Step 9: Sync dev, set the development version, and stop
+## Step 9: Text for the article authors
+
+The authors of the article that uses the data need a reference list
+entry and a data availability statement. washr drafts both from the
+package metadata, with the in-text citation. Run this on `main`, where
+the version is the released one.
+
+Ask the user once:
+
+> "Which data does the article use? The statement opens with these
+> words, for example 'The household survey data'. Press enter to keep
+> the default 'The data'."
+
+Then run, with the answer as `subject` (leave the argument out for the
+default):
+
+```bash
+Rscript -e 'print(washr::data_availability_statement(subject = "[answer]"))'
+```
+
+Show the three parts to the user as washr prints them, for the email to
+the authors; do not reword them. When some data was left out of the
+package (for example coordinates or free text, to protect the
+respondents), the statement ends with the sentence that
+`Config/washr/withheld` in DESCRIPTION holds; without the field it has
+no such sentence.
+
+## Step 10: Sync dev and stop
 
 `dev` is the standing integration branch and, in some packages, still the
 GitHub default branch; both must show the released citation
@@ -156,30 +204,14 @@ Right after a release this is a fast-forward. If it is rejected because
 `dev` moved ahead, merge instead:
 `git checkout dev && git pull && git merge main && git push origin dev && git checkout main`.
 
-Then start the next development cycle on `dev`
-(openwashdata/pkgreview#55). The order matters: sync first, then bump.
-
-```bash
-git checkout dev && git pull
-Rscript -e 'usethis::use_dev_version()'
-Rscript -e 'washr::update_citation(build = FALSE)'
-git add DESCRIPTION CITATION.cff inst/CITATION .zenodo.json
-git add NEWS.md 2>/dev/null
-git commit -m "Increment version number to [x.y.z].9000"
-git push origin dev
-git checkout main
-```
-
-`use_dev_version()` sets `x.y.z.9000` in DESCRIPTION and puts a
-`# [packagename] (development version)` heading at the top of NEWS.md,
-where the next review or maintenance PRs add their bullets. The
-`update_citation()` call makes CITATION.cff, inst/CITATION, and
-`.zenodo.json` follow, so
-the version line of the check script stays green on `dev`; it keeps the
-DOI on file. `main` keeps the released version and the tag, and `dev` is
-one commit ahead, which is its normal state. When the version on `dev`
-already has a fourth component, `use_dev_version()` changes nothing:
-skip the commit and the push.
+Do not set a development version here. A data package's version changes
+only when the data, or the meaning of the data, changes (#103, versioning
+rule in the standards file): the first commit on `dev` that changes data
+or meaning sets `x.y.z.9000` (`usethis::use_dev_version()`, then
+`washr::update_citation(build = FALSE)` and `washr::update_metadata()`,
+because the site metadata carries the version too). Website, article and wording
+changes stay on the released version, so `main` and `dev` keep citing the
+release until then.
 
 A release post is optional and stays with the maintainer; the outline
 for one is in

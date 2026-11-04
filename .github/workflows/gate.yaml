@@ -21,9 +21,8 @@ jobs:
       # The check script takes its metadata, docs, and tests lines from
       # washr::check_publication_readiness() (openwashdata/pkgreview#87),
       # so washr at or above skills/pkgreview-core/WASHR_FLOOR is needed.
-      # CRAN serves a washr below the floor until 1.2.1 is released there
-      # (1.2.1 is a GitHub-only release, carried by the next CRAN
-      # submission), so washr comes from the dev branch on GitHub. Back to
+      # CRAN serves a washr below the floor until 1.3.0 is released there,
+      # so washr comes from the dev branch on GitHub. Back to
       # install.packages("washr") once CRAN serves the floor.
       - name: Install washr from GitHub
         env:
