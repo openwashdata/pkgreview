@@ -94,7 +94,9 @@ as optional follow-ups, and never let them block publication.
   version and may merge to `main` without a release. No development
   version is set after a release; the first commit on `dev` that changes
   data or meaning sets `x.y.z.9000` (`usethis::use_dev_version()`, then
-  `washr::update_citation(build = FALSE)`).
+  `washr::update_citation(build = FALSE)` and `washr::update_metadata()`).
+  From washr 1.3.0, `check_publication_readiness()` reports
+  `version_follows_data` when data change on a release version.
 
 ## Package structure
 

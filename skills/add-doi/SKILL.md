@@ -208,7 +208,8 @@ Do not set a development version here. A data package's version changes
 only when the data, or the meaning of the data, changes (#103, versioning
 rule in the standards file): the first commit on `dev` that changes data
 or meaning sets `x.y.z.9000` (`usethis::use_dev_version()`, then
-`washr::update_citation(build = FALSE)`). Website, article and wording
+`washr::update_citation(build = FALSE)` and `washr::update_metadata()`,
+because the site metadata carries the version too). Website, article and wording
 changes stay on the released version, so `main` and `dev` keep citing the
 release until then.
 
